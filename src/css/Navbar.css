@@ -1,0 +1,38 @@
+/* NavBar styles */
+.nav-bar {
+  background-color: #121212;
+  color: #ffffff;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo styles */
+.logo-link {
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+/* Navigation links styles */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+/* Individual navigation link styles */
+.nav-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  transition: color 0.3s ease-in-out; /* Add a smooth transition for the hover effect */
+}
+
+/* Hover effect on navigation links */
+.nav-link:hover {
+  color: #2196f3; /* Change the color on hover */
+}

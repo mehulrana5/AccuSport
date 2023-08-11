@@ -1,0 +1,48 @@
+/* HomePage.css */
+
+.homepage-container {
+  text-align: center;
+}
+
+.homepage-title {
+  color: #3B5998;
+}
+
+.homepage-subtitle {
+  color: #FFC107;
+}
+
+.feature-title {
+  color: #333333;
+}
+
+.feature-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.get-started-title {
+  color: #4CAF50;
+}
+
+.get-started-description {
+  color: #333333;
+}
+
+.sign-up-button,
+.log-in-button {
+  background-color: #3B5998;
+  color: #FFFFFF;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.footer {
+  margin-top: 50px;
+}
+
+.footer-text {
+  color: #333333;
+}

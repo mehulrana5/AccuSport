@@ -1,0 +1,36 @@
+/* MatchDetails.css */
+
+.match-details {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    /* Set the height to the screen size minus the height of the navigation bar */
+    height: calc(100vh - 150px); /* Adjust '60px' to match the height of your navigation bar */
+    /* overflow-y: auto; Add vertical scroll if content overflows */
+  }
+  
+  .match-details h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .match-details p {
+    margin: 5px 0;
+  }
+  
+  .match-details a {
+    color: #2196F3;
+  }
+  
+  .match-details a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .match-details {
+      padding: 15px;
+    }
+  }
+  

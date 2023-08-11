@@ -1,0 +1,118 @@
+this is the updated documentation help me with the project with refference to this
+"## Project Documentation: Accu sport management system
+
+### Project Overview
+The Accu sport management system is a web application designed to manage Sports teams, tournaments, matches, and player profiles. It provides a user-friendly interface for creating/joining teams, organizing/participating in tournaments, viewing match schedules, and analyzing player statistics,placing bets on teams.
+
+### Project Structure
+src/
+|
+|-- images/
+|-- logo.png
+|-- styles/
+|-- global.css
+|-- components/
+|   |-- NavBar.js
+|   |-- HomePage.js
+|   |-- SignInPage.js
+|   |-- LoginPage.js
+|   |-- UserProfilePage.js
+|   |-- TeamCreationPage.js
+|   |-- TeamList.js
+|   |-- TeamCard.js
+|   |-- TeamListHeader.js
+|   |-- TeamDetails.js
+|   |-- TeamMembers.js
+|   |-- TeamStats.js
+|   |-- TournamentsPage.js
+|   |-- OldTournaments.js
+|   |-- OngoingTournaments.js
+|   |-- UpcomingTournaments.js
+|   |-- TournamentDetails.js
+|   |-- TournamentInfo.js
+|   |-- TournamentBracket.js
+|   |-- MatchesPage.js
+|   |-- MatchesFilter.js
+|   |-- OngoingMatches.js
+|   |-- UpcomingMatches.js
+|   |-- OldMatches.js
+|   |-- MatchList.js
+|   |-- PlayerProfilePage.js
+|   |-- PlayerStats.js
+|   |-- BettingPage.js
+|   |-- BetSlip.js
+|-- css/
+|   |-- HomePage.css
+|   |-- Navbar.css
+|-- img/
+|-- App.js
+|-- index.js
+
+
+### Features
+
+1. **Home Page**: Provides an overview of the eSports Management System with quick links to different sections of the application.
+
+2. **Authentication**:
+   - **Sign In Page**: Allows users to sign in to their accounts.
+   - **Login Page**: Enables users to create an account and log in.
+   - **User Profile Page**: Displays user-specific information and settings.
+
+3. **Teams**:
+   - **Team Creation Page**: Allows users to create their own eSports teams.
+   - **Team List**: Displays a list of teams with basic information.
+   - **Team Details Page**: Provides detailed information about a specific team, including members and statistics.
+
+4. **Tournaments Page component**:
+   - **Tournament Details Page**: Provides detailed information about a specific tournament, including match schedule and bracket.
+
+5. **Matches**:
+   - **Matches Page**: Displays ongoing, upcoming, and old matches with filter options.
+   - **Matches Filters**: Allows users to filter matches based on different criteria.
+   - **Match Lists**: Displays lists of ongoing, upcoming, and old matches based on filters.
+
+6. **Players**:
+   - **Player Profile Page**: Displays player-specific information and statistics.
+   - **Player Stats**: Provides detailed player statistics and performance metrics.
+
+7. **Betting**:
+   - **Betting Page**: Enables users to place bets on upcoming matches.
+   - **Bet Slip**: Displays the user's selected bets and provides options for placing bets.
+
+
+
+
+
+
+
+
+### Color Palette (Dark Theme)
+
+Primary Color:
+- Dark Blue: #121212
+
+Secondary Colors:
+- Light Blue: #2196F3
+- Teal: #009688
+- Orange: #FF9800
+- Deep Orange: #FF5722
+- Green: #4CAF50
+
+Text Colors:
+- Light Text: #FFFFFF
+- Dark Text: #333333
+
+Background Colors:
+- Dark Background: #121212
+- Light Background: #1E1E1E
+
+Button Colors:
+- Primary Button: #2196F3
+- Secondary Button: #FF9800
+
+### Conclusion
+The eSports Management System is a comprehensive application designed to facilitate team management, tournament participation, match scheduling, and player analysis within the eSports ecosystem. With its intuitive user interface, users can easily navigate and interact with various features to enhance their eSports experience.
+
+Please note that this documentation covers the project's current progress. As development continues, additional features, improvements, and enhancements may be added to further enhance the application's functionality and user experience.
+" when i ask for a new documentation use this format
+

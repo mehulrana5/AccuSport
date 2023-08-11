@@ -1,0 +1,136 @@
+/* src/components/tournaments/TournamentsPage.css */
+.tournaments-page {
+    padding: 20px;
+    background-color: #FFFFFF;
+    /* White Background */
+    color: #333333;
+    /* Dark Text Color */
+}
+
+.tournament-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.tournament-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.tournament-button:hover {
+    background-color: #0056b3;
+}
+
+.tournament-card {
+    display: block;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px 0;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.3s;
+    border-radius: 5px;
+    overflow: hidden;
+    display: grid;
+}
+
+.tournament-card:hover {
+    background-color: #b6b6b6;
+}
+
+/* Add this CSS to your existing file */
+.tournament-details-page {
+    /* padding: 20px; */
+    background-color: #FFFFFF;
+    /* White Background */
+    color: #333333;
+    /* Dark Text Color */
+}
+
+.details-tables-container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-top: 20px;
+    overflow: auto; /* Added overflow for scrolling */
+}
+
+.tournament-details-table-container,
+.matches-table-container {
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    overflow: auto; /* Added overflow auto for scrolling */
+}
+
+.tournament-details-table-container h3,
+.matches-table-container h3 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.tournament-details-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tournament-details-table th,
+.tournament-details-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+
+.tournament-details-table th {
+    font-weight: bold;
+}
+
+.matches-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.matches-table th,
+.matches-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+.matches-table th {
+    font-weight: bold;
+    background-color: #f5f5f5;
+}
+
+.matches-table td.view-details {
+    cursor: pointer;
+    color: #007bff;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* Apply responsive styles for smaller screens */
+@media (max-width: 768px) {
+    .details-tables-container {
+        flex-direction: column;
+    }
+
+    .tournament-details-table-container,
+    .matches-table-container {
+        flex: none;
+        width: 100%;
+        margin-top: 10px;
+    }
+}
