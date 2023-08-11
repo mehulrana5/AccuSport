@@ -17,7 +17,7 @@ const App = () => {
       <AppProvider>
         <NavBar />
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/AccuSport/" element={<HomePage />}/>
           <Route path="/tournaments/" element={<TournamentsPage />}>
             <Route path="" element={<OngoingTournaments />} />
             <Route path="upcoming" element={<UpcomingTournaments />} />

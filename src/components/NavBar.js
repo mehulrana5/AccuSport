@@ -6,7 +6,7 @@ const NavBar = () => {
     return (
         <nav className="nav-bar">
             <div className="logo">
-                <Link className="logo-link" to="/">
+                <Link className="logo-link" to="/AccuSport/">
                     <svg width="152" height="38" viewBox="0 0 152 38" fill="none" xmlns="http://www.w3.org/2000/svg">   
                         <rect width="152" height="38" fill="#0000" />
                         <g clipPath="url(#clip0_12_31)">
