@@ -21,7 +21,7 @@ const NavBar = () => {
                             </clipPath>
                         </defs>
                     </svg>
-                </Link>
+                </Link> 
             </div>
             <ul className="nav-links">
                 <li>

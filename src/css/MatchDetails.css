@@ -1,36 +1,74 @@
 /* MatchDetails.css */
-
-.match-details {
-    background-color: white;
+.match-details-container {
+    display: flex;
+    justify-content: space-between;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    /* Set the height to the screen size minus the height of the navigation bar */
-    height: calc(100vh - 150px); /* Adjust '60px' to match the height of your navigation bar */
-    /* overflow-y: auto; Add vertical scroll if content overflows */
+    background-color: #121212;
+    color: #ffffff;
+  }
+  body{
+    background-color: #121212;
+  }
+  .match-details-left {
+    flex: 1;
+    padding-right: 20px;
   }
   
-  .match-details h2 {
+  .match-not-found {
+    text-align: center;
+    font-size: 18px;
+    color: #ff5722;
+  }
+  
+  .match-details-header {
     font-size: 24px;
     margin-bottom: 10px;
   }
   
-  .match-details p {
-    margin: 5px 0;
+  .match-details-item {
+    margin-bottom: 5px;
   }
   
-  .match-details a {
-    color: #2196F3;
+  .match-details-right {
+    flex: 1;
   }
   
-  .match-details a:hover {
-    text-decoration: underline;
+  .players-table {
+    width: 100%;
+    border-collapse: collapse;
   }
   
-  /* Responsive styles */
-  @media (max-width: 768px) {
-    .match-details {
-      padding: 15px;
-    }
+  .team-name {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #333333;
+    background-color: #2196F3;
+    color: #ffffff;
+  }
+  
+  .player-name {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #333333;
+    color: #ffffff;
+  }
+  
+  .match-status {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .upcoming {
+    background-color: #009688;
+  }
+  
+  .ongoing {
+    background-color: #FF9800;
+  }
+  
+  .old {
+    background-color: #4CAF50;
   }
   

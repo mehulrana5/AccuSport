@@ -54,6 +54,10 @@ const TournamentDetails = () => {
                 <th>Contact Phone:</th>
                 <td>{selectedTournament.organizer.contactPhone || 'Not specified'}</td>
               </tr>
+              <tr>
+                <th>Max Prize:</th>
+                <td>{selectedTournament.prizes[0].amount || 'Not specified'}</td>
+              </tr>
             </tbody>
           </table>
         </div>

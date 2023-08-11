@@ -91,7 +91,7 @@ export const AppProvider = ({ children }) => {
         "facebook": "https://www.facebook.com/summerchampionship",
         "twitter": "https://www.twitter.com/summerchamp",
         "instagram": "https://www.instagram.com/summer_championship"
-      }
+      } 
     },
     {
       "id": 2,
@@ -306,7 +306,7 @@ export const AppProvider = ({ children }) => {
           "players": [
             {
               "id": 401,
-              "name": "Player 1",
+              "name": "Jhon",
               "position": "Defenseman"
             },
             // More players...
@@ -318,7 +318,7 @@ export const AppProvider = ({ children }) => {
           "players": [
             {
               "id": 402,
-              "name": "Player 1",
+              "name": "Ayush",
               "position": "Forward"
             },
             // More players...
