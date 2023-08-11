@@ -13,11 +13,11 @@ import MatchDetails from './components/MatchDetails';
 
 const App = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename='/AccuSport'>
       <AppProvider>
         <NavBar />
         <Routes>
-          <Route path="/AccuSport/" element={<HomePage />}/>
+          <Route path="/" element={<HomePage />}/>
           <Route path="/tournaments/" element={<TournamentsPage />}>
             <Route path="" element={<OngoingTournaments />} />
             <Route path="upcoming" element={<UpcomingTournaments />} />
