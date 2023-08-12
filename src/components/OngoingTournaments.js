@@ -1,21 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppContext from '../Context';
+import './OngoingTournaments.css';
 
 const OngoingTournaments = () => {
-  const context = useContext(AppContext); // Get tournaments data from context
+  const { dummyData } = useContext(AppContext);
+  const [isJoinActive, setIsJoinActive] = useState(false);
 
-  const ongoingTournaments = context.dummyTournaments.filter(tournament => tournament.status === 'ongoing');
+  const ongoingTournaments = dummyData.tournamentDetails.filter(tournament => tournament.status === 'ongoing');
 
   return (
     <div className="tournaments">
       <h3>Ongoing Tournaments</h3>
       {ongoingTournaments.map((tournament) => (
-        <Link
-          key={tournament.id}
-          className="tournament-card"
-          to={`/tournaments/${tournament.id}`} // Link to tournament details
-        >
+        <div className="tournament-card" key={tournament.id}>
           <span className="tournament-details">
             <strong>Name:</strong> {tournament.name}
           </span>
@@ -25,7 +23,26 @@ const OngoingTournaments = () => {
           <span className="tournament-details">
             <strong>Date:</strong> {tournament.startDate}
           </span>
-        </Link>
+          <span className="show-details-button">
+            <Link key={tournament.id} to={`/tournaments/${tournament.id}`}>Show Details</Link>
+          </span>
+          {isJoinActive ? ( // Conditionally render the Link
+            <Link
+              className={`join-button active`}
+              to={`/join-tournament/${tournament.id}`}
+              onClick={() => setIsJoinActive(false)}
+            >
+              Join
+            </Link>
+          ) : (
+            <button
+              className={`join-button inactive`}
+              disabled
+            >
+              Join
+            </button>
+          )}
+        </div>
       ))}
     </div>
   );

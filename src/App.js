@@ -10,6 +10,7 @@ import NavBar from './components/NavBar';
 import { AppProvider } from './Context';
 import TournamentDetails from './components/TournamentDetails';
 import MatchDetails from './components/MatchDetails';
+import PlayerDetail from './components/PlayerDetail';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
             <Route path=":tournamentId" element={<TournamentDetails />} />
           </Route>
           <Route path="/matches/:matchId" element={<MatchDetails />} />
+          <Route path="/player/:playerId" element={<PlayerDetail/>} /> 
         </Routes>
       </AppProvider>
     </BrowserRouter>

@@ -1,0 +1,94 @@
+/* OngoingTournaments.css */
+
+.tournaments {
+    margin-top: 20px;
+}
+
+.tournaments h3 {
+    font-size: 1.5rem;
+    color: #2196F3;
+    /* Primary Color */
+    margin-bottom: 10px;
+}
+
+.tournament-card {
+    background-color: #1E1E1E;
+    /* Light Background */
+    border: 1px solid #333333;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tournament-card a {
+    text-decoration: none;
+    color: #ffffff;
+    /* Light Text Color */
+}
+
+.tournament-details {
+    margin-right: 20px;
+}
+
+.join-button {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #2196F3;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.join-button.active {
+    background-color: #4CAF50;
+}
+
+.join-button.inactive {
+    background-color: #777777;
+    cursor: not-allowed;
+    cursor: not-allowed;
+}
+
+.join-button:hover {
+    background-color: #45a049;
+}
+
+.show-details-button {
+    margin-top: 10px;
+}
+
+.show-details-button a {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #2196F3;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.show-details-button a:hover {
+    background-color: #1976D2;
+}
+
+/* Apply responsive styles for smaller screens */
+@media (max-width: 768px) {
+    .tournament-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .tournament-details {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}

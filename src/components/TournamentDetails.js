@@ -5,8 +5,8 @@ import AppContext from '../Context';
 const TournamentDetails = () => {
   const { tournamentId } = useParams();
   const context = useContext(AppContext);
-  const selectedTournament = context.dummyTournaments.find(tournament => tournament.id === parseInt(tournamentId));
-
+  const selectedTournament = context.dummyData.tournamentDetails.find(tournament => tournament.id === parseInt(tournamentId));
+  // const prizeList=context.dummyData.prizeDetails.find()
   if (!selectedTournament) {
     return <div>Tournament not found</div>;
   }
@@ -19,16 +19,16 @@ const TournamentDetails = () => {
           <table className="tournament-details-table">
             <tbody>
               <tr>
+                <th>Id:</th>
+                <td>{selectedTournament.id || 'Not specified'}</td>
+              </tr>
+              <tr>
                 <th>Sport:</th>
                 <td>{selectedTournament.sportsType || 'Not specified'}</td>
               </tr>
               <tr>
                 <th>Date:</th>
-                <td>{selectedTournament.startDate || 'Not specified'}</td>
-              </tr>
-              <tr>
-                <th>Time:</th>
-                <td>{selectedTournament.startTime || 'Not specified'}</td>
+                <td>{selectedTournament.startDateTime || 'Not specified'}</td>
               </tr>
               <tr>
                 <th>Location:</th>
@@ -44,19 +44,15 @@ const TournamentDetails = () => {
               </tr>
               <tr>
                 <th>Organizer:</th>
-                <td>{selectedTournament.organizer.name || 'Not specified'}</td>
+                <td>{context.dummyData.organizerDetails[0].name || 'Not specified'}</td>
               </tr>
               <tr>
                 <th>Contact Email:</th>
-                <td>{selectedTournament.organizer.contactEmail || 'Not specified'}</td>
+                <td>{context.dummyData.organizerDetails[0].contactEmail || 'Not specified'}</td>
               </tr>
               <tr>
                 <th>Contact Phone:</th>
-                <td>{selectedTournament.organizer.contactPhone || 'Not specified'}</td>
-              </tr>
-              <tr>
-                <th>Max Prize:</th>
-                <td>{selectedTournament.prizes[0].amount || 'Not specified'}</td>
+                <td>{context.dummyData.organizerDetails[0].contactPhone || 'Not specified'}</td>
               </tr>
             </tbody>
           </table>
@@ -73,17 +69,25 @@ const TournamentDetails = () => {
               </tr>
             </thead>
             <tbody>
-              {selectedTournament.matches.map((match, index) => (
-               <tr key={index}>
-               <td>{index + 1}</td>
-               <td>{match.teams[0] || 'Not specified'}</td>
-               <td>{match.teams[1] || 'Not specified'}</td>
-               <td>
-                 {/* Use Link to navigate to the match details page */}
-                 <Link to={`/matches/${match.id}`}>Details</Link>
-               </td>
-             </tr>
-              ))}
+              {context.dummyData.matchDetails
+                .filter(match => match.tournament_id === selectedTournament.id) // Filter matches for the selected tournament
+                .map((match, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>
+                      {context.dummyData.teamDetails.find(team => team.id === match.teamId1)?.name ||
+                        'Not specified'}
+                    </td>
+                    <td>
+                      {context.dummyData.teamDetails.find(team => team.id === match.teamId2)?.name ||
+                        'Not specified'}
+                    </td>
+                    <td>
+                      {/* Use Link to navigate to the match details page */}
+                      <Link to={`/matches/${match.id}`}>Details</Link>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -91,7 +95,5 @@ const TournamentDetails = () => {
     </div>
   );
 };
-
-
 
 export default TournamentDetails;
