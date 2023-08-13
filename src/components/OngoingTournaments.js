@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppContext from '../Context';
-import './OngoingTournaments.css';
+import '../css/OngoingTournaments.css';
 
 const OngoingTournaments = () => {
   const { dummyData } = useContext(AppContext);

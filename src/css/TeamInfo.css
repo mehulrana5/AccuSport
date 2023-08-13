@@ -1,0 +1,33 @@
+.team-info {
+    background-color: #121212;
+    color: #FFFFFF;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.page-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.team-table {
+    /* border: red solid; */
+    width: fit-content;
+    border-collapse: collapse;
+}
+
+.table-label,
+.table-value {
+    padding: 10px;
+    border: 1px solid #333333;
+}
+
+.table-label {
+    font-weight: bold;
+    background-color: #2196F3;
+    text-align: left;
+}
+
+.team-not-found {
+    color: #FF5722;
+}

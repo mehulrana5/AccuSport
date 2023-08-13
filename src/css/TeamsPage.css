@@ -1,0 +1,52 @@
+.teams-page {
+    padding: 20px;
+    background-color: #121212;
+    color: #FFFFFF;
+    /* border: blue solid; */
+    height: 80vh;
+    overflow: auto;
+}
+
+.page-title {
+    font-size: 24px;
+    /* margin-bottom: 10px; */
+}
+
+.teams-list {
+    margin-top: 20px;
+    height: 100%;
+    /* overflow: auto; */
+}
+
+/* Style for the filter */
+.team-filter {
+    /* border: red solid; */
+    margin-bottom: 20px;
+}
+
+.team-filter label {
+    color: #FFFFFF;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.team-filter input {
+    width: 20%;
+    padding: 5px;
+    margin-left: 5px;
+    border: 1px solid #2196F3;
+    border-radius: 5px;
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+}
+
+.team-filter button {
+    padding: 8px 15px;
+    background-color: #2196F3;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Additional styles as needed */

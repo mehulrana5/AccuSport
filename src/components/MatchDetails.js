@@ -38,8 +38,8 @@ const MatchDetails = () => {
     const tournamentName=dummyData.tournamentDetails.find(tournament => tournament.id === id).name;
 
 
-    const team1 = dummyData.teamDetails.find(team => team.id === teamId1).name;
-    const team2 = dummyData.teamDetails.find(team => team.id === teamId2).name;
+    const team1 = dummyData.teamDetails.find(team => team.id === teamId1);
+    const team2 = dummyData.teamDetails.find(team => team.id === teamId2);
     
     const team1Players = dummyData.playerDetails.filter(player => player.team_ids.includes(teamId1));
     const team2Players = dummyData.playerDetails.filter(player => player.team_ids.includes(teamId2));
@@ -88,8 +88,8 @@ const MatchDetails = () => {
                 <table className="players-table">
                     <thead>
                         <tr>
-                            <th className="team-name">{team1Players.length > 0 ? team1 : ''}</th>
-                            <th className="team-name">{team2Players.length > 0 ? team2 : ''}</th>
+                            <th className="team-name"><Link to={`/team-info/${team1.id}`}>{team1Players.length > 0 ? team1.name : ''}</Link></th>
+                            <th className="team-name"><Link to={`/team-info/${team2.id}`}>{team2Players.length > 0 ? team2.name : ''}</Link></th>
                         </tr> 
                     </thead>
                     <tbody>
