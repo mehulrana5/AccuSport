@@ -215,7 +215,7 @@ export const AppProvider = ({ children }) => {
   const venueDetails = [
     { id: 1, name: "Stadium A", location: "Noida" },
   ];
-  const playerDetails = [
+    const playerDetails = [
     {
       id: 1,
       team_ids: [1],

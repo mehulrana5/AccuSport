@@ -84,7 +84,7 @@ const TournamentDetails = () => {
                     </td>
                     <td>
                       {/* Use Link to navigate to the match details page */}
-                      <Link to={`/matches/${match.id}`}>Details</Link>
+                      <Link to={`/match-info/${match.id}`}>Details</Link>
                     </td>
                   </tr>
                 ))}

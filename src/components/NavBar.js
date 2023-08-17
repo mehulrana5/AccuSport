@@ -1,13 +1,17 @@
 import React from 'react';
 import '../css/Navbar.css'; // Update the CSS file path
 import { Link } from 'react-router-dom';
+import { useAuth0 } from "@auth0/auth0-react";
+
 
 const NavBar = () => {
+    const { loginWithRedirect, logout, isAuthenticated } = useAuth0();
+
     return (
         <nav className="nav-bar">
             <div className="logo">
                 <Link className="logo-link" to="/">
-                    <svg width="152" height="38" viewBox="0 0 152 38" fill="none" xmlns="http://www.w3.org/2000/svg">   
+                    <svg width="152" height="38" viewBox="0 0 152 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="152" height="38" fill="#0000" />
                         <g clipPath="url(#clip0_12_31)">
                             <rect width="5" height="19" transform="translate(9 15.5)" fill="white" />
@@ -21,7 +25,7 @@ const NavBar = () => {
                             </clipPath>
                         </defs>
                     </svg>
-                </Link> 
+                </Link>
             </div>
             <ul className="nav-links">
                 <li>
@@ -50,10 +54,24 @@ const NavBar = () => {
                     </Link>
                 </li>
                 <li>
-                    <Link className="nav-link" to="/login">
-                        Login
-                    </Link>
+                    {
+                        isAuthenticated && 
+                        <Link className='nav-link' to="/myInfo">
+                            My profile
+                        </Link>
+                    }
                 </li>
+                {
+                    isAuthenticated
+                        ?
+                        <li className="nav-link">
+                            <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>Log Out</button>
+                        </li>
+                        :
+                        <li>
+                            <button onClick={() => loginWithRedirect()}>Log In</button>
+                        </li>
+                }
             </ul>
         </nav>
     );
