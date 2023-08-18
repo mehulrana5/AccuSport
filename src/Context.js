@@ -6,6 +6,7 @@ const AppContext = createContext();
 // Create a provider component to wrap the app with
 export const AppProvider = ({ children }) => {
   const tournamentDetails = [
+    // upcoming
     {
       id: 1,
       name: "Summer Championship",
@@ -18,17 +19,6 @@ export const AppProvider = ({ children }) => {
       rules: "Standard football rules apply.",
     },
     {
-      id: 2,
-      name: "Basketball Slam Jam",
-      status: "ongoing",
-      sportsType: "Basketball",
-      startDateTime: "2023-07-20T14:00:00",
-      location: "Los Angeles",
-      description: "A high-flying basketball tournament showcasing amazing slam dunks.",
-      organizer_id: 2,
-      rules: "Teams of 5, first to 21 points wins.",
-    },
-    {
       id: 3,
       name: "Winter Classic Tennis",
       status: "upcoming",
@@ -38,17 +28,6 @@ export const AppProvider = ({ children }) => {
       description: "A prestigious tennis tournament held in the heart of winter.",
       organizer_id: 3,
       rules: "Best of 3 sets, tie-breaker at 6-6.",
-    },
-    {
-      id: 4,
-      name: "Chess Grandmaster Challenge",
-      status: "old",
-      sportsType: "Chess",
-      startDateTime: "2023-03-15T09:00:00",
-      location: "London",
-      description: "An intense chess tournament for the best minds in the game.",
-      organizer_id: 4,
-      rules: "Standard chess rules apply.",
     },
     {
       id: 5,
@@ -73,17 +52,6 @@ export const AppProvider = ({ children }) => {
       rules: "18 holes, stroke play.",
     },
     {
-      id: 7,
-      name: "Swimming Splash Bash",
-      status: "ongoing",
-      sportsType: "Swimming",
-      startDateTime: "2023-07-10T09:30:00",
-      location: "Miami",
-      description: "A thrilling swimming competition with various distance events.",
-      organizer_id: 7,
-      rules: "Freestyle, backstroke, butterfly, and breaststroke events.",
-    },
-    {
       id: 8,
       name: "Rugby Rumble",
       status: "upcoming",
@@ -105,6 +73,29 @@ export const AppProvider = ({ children }) => {
       organizer_id: 9,
       rules: "Best of three games, rally scoring.",
     },
+    // ongoing
+    {
+      id: 2,
+      name: "Basketball Slam Jam",
+      status: "ongoing",
+      sportsType: "Basketball",
+      startDateTime: "2023-07-20T14:00:00",
+      location: "Los Angeles",
+      description: "A high-flying basketball tournament showcasing amazing slam dunks.",
+      organizer_id: 2,
+      rules: "Teams of 5, first to 21 points wins.",
+    },
+    {
+      id: 7,
+      name: "Swimming Splash Bash",
+      status: "ongoing",
+      sportsType: "Swimming",
+      startDateTime: "2023-07-10T09:30:00",
+      location: "Miami",
+      description: "A thrilling swimming competition with various distance events.",
+      organizer_id: 7,
+      rules: "Freestyle, backstroke, butterfly, and breaststroke events.",
+    },
     {
       id: 10,
       name: "Cycling Challenge",
@@ -115,7 +106,19 @@ export const AppProvider = ({ children }) => {
       description: "A thrilling cycling race through scenic routes in the city.",
       organizer_id: 10,
       rules: "Road race, various distances.",
-    }, 
+    },
+    // old
+    {
+      id: 4,
+      name: "Chess Grandmaster Challenge",
+      status: "old",
+      sportsType: "Chess",
+      startDateTime: "2023-03-15T09:00:00",
+      location: "London",
+      description: "An intense chess tournament for the best minds in the game.",
+      organizer_id: 4,
+      rules: "Standard chess rules apply.",
+    },
     {
       id: 11,
       name: "Grand Slam Tennis",
