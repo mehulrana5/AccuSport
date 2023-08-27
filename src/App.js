@@ -26,6 +26,8 @@ import { Routes, Route,HashRouter ,BrowserRouter} from 'react-router-dom';
 //the main issue was with the use of basename and auth 0 idk exactly but there is a issue with the path so thats y i am using hashrouter 
 
 import { AppProvider } from './Context';
+import CreateTournamentPage from './components/CreateTournamentPage';
+import TeamCreateForm from './components/TeamCreateForm';
 
 const App = () => {
   return (
@@ -49,11 +51,13 @@ const App = () => {
           </Route>
           <Route path="/teams" exact element={<TeamsPage />}>
             <Route path=":teamId" exact element={<TeamInfo />} />
+            <Route path='create' element={<TeamCreateForm/>}/>   
           </Route>
           <Route path="/team-info/:teamId" exact element={<TeamInfo />} />
           <Route path="/match-info/:matchId" element={<MatchDetails />} />
           <Route path="/player/:playerId" element={<PlayerDetail />} />
-          <Route path="/myInfo" element={<MyDetails/>} />          
+          <Route path="/myProfile" element={<MyDetails/>} /> 
+          <Route path="/tournament/create" element={<CreateTournamentPage/>}/>      
         </Routes>
       </HashRouter>
     </AppProvider>

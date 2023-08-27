@@ -8,7 +8,7 @@ TournamentsPage.css
     /* Dark Background */
     color: #ffffff;
     height: 80vh;
-    /* overflow: hidden; */
+    overflow: hidden;
     /* Light Text Color */
 }
 .tournament-buttons {
@@ -29,11 +29,16 @@ TournamentsPage.css
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+.create-btn{
+    background-color: #4CAF50;
+}
 .tournament-button:hover {
     background-color: #1976D2;
     /* Darker shade of Primary Color */
 }
-
+.create-btn:hover{
+    background-color: #2f6f31;
+}
 .tournament-card {
     display: block;
     background-color: #1E1E1E;
@@ -49,7 +54,10 @@ TournamentsPage.css
     /* overflow: hidden; */
     display: grid;
 }
-
+.tournament-container{
+    height: 80%;
+    overflow: auto;
+}
 .tournament-card:hover {
     background-color: #333333;
     /* Dark Background */

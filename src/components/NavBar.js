@@ -1,12 +1,9 @@
 import React from 'react';
 import '../css/Navbar.css'; // Update the CSS file path
 import { Link } from 'react-router-dom';
-import { useAuth0 } from "@auth0/auth0-react";
 
 
 const NavBar = () => {
-    const { loginWithRedirect, logout, isAuthenticated } = useAuth0();
-
     return (
         <nav className="nav-bar">
             <div className="logo">
@@ -29,11 +26,6 @@ const NavBar = () => {
             </div>
             <ul className="nav-links">
                 <li>
-                    <Link className="nav-link" to="/teams">
-                        Teams
-                    </Link>
-                </li>
-                <li>
                     <Link className="nav-link" to="/tournaments">
                         Tournaments
                     </Link>
@@ -41,6 +33,11 @@ const NavBar = () => {
                 <li>
                     <Link className="nav-link" to="/matches">
                         Matches
+                    </Link>
+                </li>
+                <li>
+                    <Link className="nav-link" to="/teams">
+                        Teams
                     </Link>
                 </li>
                 <li>
@@ -54,24 +51,18 @@ const NavBar = () => {
                     </Link>
                 </li>
                 <li>
-                    {
-                        isAuthenticated && 
-                        <Link className='nav-link' to="/myInfo">
-                            My profile
-                        </Link>
-                    }
+                    <Link className="nav-link" to="/login">
+                        Login
+                    </Link>
+                </li><li>
+                    <Link className="nav-link" to="/signup">
+                        Signup
+                    </Link>
+                </li><li>
+                    <Link className="nav-link" to="/myProfile">
+                        My profile
+                    </Link>
                 </li>
-                {
-                    isAuthenticated
-                        ?
-                        <li className="nav-link">
-                            <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>Log Out</button>
-                        </li>
-                        :
-                        <li>
-                            <button onClick={() => loginWithRedirect()}>Log In</button>
-                        </li>
-                }
             </ul>
         </nav>
     );

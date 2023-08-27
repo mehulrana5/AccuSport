@@ -19,9 +19,7 @@ const OldTournaments = () => {
           <span className="tournament-details">
             <strong>Sport:</strong> {tournament.sportsType}
           </span>
-          <span className="tournament-details">
-            <strong>Date:</strong> {tournament.startDate}
-          </span>
+          <strong>Date:</strong> {new Date(tournament.startDateTime).toLocaleDateString()}
           <span className="show-details-button">
             <Link key={tournament.id} to={`/tournaments/${tournament.id}`}>Show Details</Link>
           </span>

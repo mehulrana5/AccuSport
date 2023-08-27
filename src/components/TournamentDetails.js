@@ -28,7 +28,11 @@ const TournamentDetails = () => {
               </tr>
               <tr>
                 <th>Date:</th>
-                <td>{selectedTournament.startDateTime || 'Not specified'}</td>
+                <td>{new Date(selectedTournament.startDateTime).toLocaleDateString() || 'Not specified'}</td>
+              </tr>
+              <tr>
+                <th>Time:</th>
+                <td>{new Date(selectedTournament.startDateTime).toLocaleTimeString() || 'Not specified'}</td>
               </tr>
               <tr>
                 <th>Location:</th>

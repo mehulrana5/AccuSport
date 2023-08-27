@@ -25,8 +25,13 @@ const TournamentsPage = () => {
         >
           Old Tournaments
         </Link>
+        <Link className='create-btn tournament-button' to='/tournament/create'>
+          Create tournament
+        </Link>
       </div>
-      <Outlet />
+      <div className="tournament-container">
+        <Outlet />
+      </div>
     </div>
   );
 };
