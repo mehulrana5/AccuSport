@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import '../css/TeamInfo.css';
 import AppContext from '../Context';
 
 function TeamInfo() {
@@ -15,17 +14,13 @@ function TeamInfo() {
     }
 
     return (
-        <div className="team-info">
-            <h1 className="page-title">Team Info</h1>
-            <table className="team-table">
+        <div className="container-2" style={{width:"20%"}}>
+            <h1 className="page-title">{teamData.name}</h1>
+            <table className="details-table">
                 <tbody>
                     <tr>
-                        <td className="table-label">Team ID:</td>
-                        <td className="table-value">{teamId}</td>
-                    </tr>
-                    <tr>
-                        <td className="table-label">Team Name:</td>
-                        <td className="table-value">{teamData.name}</td>
+                        <td className="details-label">Team ID:</td>
+                        <td className="details-value">{teamId}</td>
                     </tr>
                     {/* Add more rows for other team details */}
                 </tbody>

@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import AppContext from '../Context';
-import '../css/MatchDetails.css';
 
 const MatchDetails = () => {
     const { matchId } = useParams();
@@ -47,29 +46,29 @@ const MatchDetails = () => {
 
     const maxPlayers = Math.max(team1Players.length, team2Players.length);
     return (
-        <div className="match-details-container">
-            <div className="match-details-left">
-                <h2 className="match-details-header">{tournamentName}</h2>
+        <div className="container-3">
+            <div className="container-2">
+                <h2>{tournamentName}</h2>
                 <table className="details-table">
                     <tbody>
                         <tr>
-                            <td className="details-label">Match ID:</td>
+                            <td className="details-label">Match ID</td>
                             <td className="details-value">{id}</td>
                         </tr>
                         <tr>
-                            <td className="details-label">Date:</td>
+                            <td className="details-label">Date</td>
                             <td className="details-value">{date}</td>
                         </tr>
                         <tr>
-                            <td className="details-label">Time:</td>
+                            <td className="details-label">Time</td>
                             <td className="details-value">{time}</td>
                         </tr>
                         <tr>
-                            <td className="details-label">Venue:</td>
+                            <td className="details-label">Venue</td>
                             <td className="details-value">{venue}</td>
                         </tr>
                         <tr>
-                            <td className="details-label">Live Stream:</td>
+                            <td className="details-label">Live Stream</td>
                             <td className="details-value"><a href={liveStream} target="_blank" rel="noopener noreferrer">Watch Here</a></td>
                         </tr>
                         {status === 'upcoming' ? <tr className="match-status upcoming">
@@ -84,25 +83,27 @@ const MatchDetails = () => {
                     </tbody>
                 </table>
             </div>
-            <div className="match-details-right">
-                <table className="players-table">
+            <div style={{marginRight:"10px"}}></div>
+            <div className="container-2">
+                <h2>Teams</h2>
+                <table className="details-table">
                     <thead>
                         <tr>
-                            <th className="team-name"><Link to={`/team-info/${team1.id}`}>{team1Players.length > 0 ? team1.name : ''}</Link></th>
-                            <th className="team-name"><Link to={`/team-info/${team2.id}`}>{team2Players.length > 0 ? team2.name : ''}</Link></th>
+                            <th className="table-head"><Link to={`/team-info/${team1.id}`}>{team1Players.length > 0 ? team1.name : ''}</Link></th>
+                            <th className="table-head"><Link to={`/team-info/${team2.id}`}>{team2Players.length > 0 ? team2.name : ''}</Link></th>
                         </tr> 
                     </thead>
                     <tbody>
                         {[...Array(maxPlayers)].map((_, playerIndex) => (
                             <tr key={playerIndex}>
-                                <td className="player-name">
+                                <td className="details-value">
                                     {playerIndex < team1Players.length ? (
                                         <Link to={`/player/${team1Players[playerIndex].id}`}>
                                             {team1Players[playerIndex].name}
                                         </Link> 
                                     ) : '-'}
                                 </td>
-                                <td className="player-name">
+                                <td className="details-value">
                                     {playerIndex < team2Players.length ? (
                                         <Link to={`/player/${team2Players[playerIndex].id}`}>
                                             {team2Players[playerIndex].name}

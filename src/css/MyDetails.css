@@ -1,9 +1,0 @@
-.details-container{
-    padding: 20px;
-    background-color: #121212; /* Dark Background */
-    color: #ffffff; /* Light Text Color */
-    border-radius: 5px;
-    /* box-shadow: 0px 2px 6px rgba(255, 255, 255, 0.1); */
-    overflow: auto;
-    max-height: 80vh; /* Set maximum height to 80% of the viewport height */
-}

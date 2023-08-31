@@ -13,19 +13,16 @@ const HomePage = () => {
     fontSize: '32px',
     marginBottom: '20px',
   };
-
   const paragraphStyle = {
     fontSize: '18px',
     marginBottom: '30px',
   };
-
   const quickLinksStyle = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     flexWrap: 'wrap',
   };
-
   const linkStyle = {
     backgroundColor: '#2196F3',
     color: '#FFFFFF',

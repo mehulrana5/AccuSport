@@ -14,7 +14,7 @@ router.post('/register', async (req, res) => {
     try {
         const unameExist = await schema.user.findOne({ user_name: req.body.user_name })
         if (unameExist) {
-            return res.status(400).json("user name not unique")
+            return res.status(400).json({ message: "user name not unique" })
         }
         const salt = await bcrypt.genSalt(10);
 
@@ -32,16 +32,15 @@ router.post('/register', async (req, res) => {
         }
         const jwtToken = jwt.sign(data, jwtSecret, { expiresIn: '1h' })
 
-        console.log(jwtToken);
-
-        res.json({ jwtToken });
+        // console.log(jwtToken);
+        res.status(200).json({ authToken: jwtToken });
     } catch (error) {
         console.error('Error adding user:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-//login
+//login 
 router.post('/login', async (req, res) => {
     try {
         const { user_name, user_pwd } = req.body;
@@ -61,6 +60,67 @@ router.post('/login', async (req, res) => {
 
     } catch (error) {
         console.error('Error adding user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Fetch user data
+router.post('/fetchUserData', fetchUser, async (req, res) => {
+    try {
+        const userId = req.user_id;
+        const userData = await schema.user.findById(userId).select('-user_pwd -__v');
+
+        if (!userData) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json({ message: "User found", data: userData });
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+//delete user
+router.delete('/deleteUser', fetchUser, async (req, res) => {
+    try {
+        const userId = req.user_id;
+
+        // Check if the user is a team leader
+        const teamLeader = await schema.team.findOne({ team_leader: userId });
+        if (teamLeader) {
+            return res.status(400).json({ error: "User is a team leader and cannot be deleted" });
+        }
+
+        // Check if the user is associated with any player profile
+        const player = await schema.player.findOne({ user_id: userId });
+        if (player) {
+            return res.status(400).json({ error: "User is associated with a player profile and cannot be deleted" });
+        }
+
+        // Check if the user is a match admin
+        const matchAdmin = await schema.match.findOne({ match_admin: userId });
+        if (matchAdmin) {
+            return res.status(400).json({ error: "User is a match admin and cannot be deleted" });
+        }
+
+        // Check if the user is an organizer or match admin in any tournament
+        const tournamentAdmin = await schema.tournament.findOne({
+            $or: [{ organizer_id: userId }, { match_admins: userId }]
+        });
+        if (tournamentAdmin) {
+            return res.status(400).json({ error: "User is associated with a tournament as an organizer or match admin and cannot be deleted" });
+        }
+
+        // Proceed with user deletion
+        const user = await schema.user.findByIdAndDelete(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json({ message: "User deleted" });
+    } catch (error) {
+        console.error('Error deleting user:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -129,16 +189,18 @@ router.put('/updatePlayer', fetchUser, async (req, res) => {
 
 // Fetch a Player profile by name or user ID
 router.post('/fetchPlayerProfile', async (req, res) => {
-    const { query } = req.body;
     try {
-        // Check if the query is a valid ObjectId (user ID)
+        const { query } = req.body;
+        // Check if the query is a valid  ObjectId (user ID)
         const isObjectId = /^[0-9a-fA-F]{24}$/.test(query);
-
         let player;
 
         if (isObjectId) {
             // Fetch player profile by user ID
             player = await schema.player.findOne({ _id: query });
+            if (!player) {
+                player = await schema.player.findOne({ user_id: query })
+            }
         } else {
             // Fetch player profile by player name
             player = await schema.player.findOne({ player_name: query });
@@ -184,6 +246,9 @@ router.post('/createTeam', fetchUser, async (req, res) => {
         const player = await schema.player.findOne({ user_id: userId });
         if (!player) {
             return res.status(400).json({ error: "Only players can create teams" });
+        }
+        if (team_name.length < 3) {
+            return res.status(400).json({ error: "Team Name should be more than 3 characters" });
         }
 
         // Check if the team name is unique
@@ -306,11 +371,10 @@ router.put('/removePlayerFromTeam', fetchUser, async (req, res) => {
     }
 });
 
-//delete team
+//delete team 
 router.delete('/deleteTeam', fetchUser, async (req, res) => {
     const { team_id } = req.body;
     const userId = req.user_id;
-
     try {
         const teamData = await schema.team.findById(team_id);
 
@@ -324,10 +388,17 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
 
         await schema.team.deleteOne({ _id: team_id });
 
+        // Remove team_id from player's team_ids array
         await schema.player.updateMany(
             { team_ids: { $in: [team_id] } },
-            { $pullAll: { team_ids: [team_id] } }
+            { $pull: { team_ids: team_id } }
         );
+
+        const checkLeader = await schema.player.findOne({ user_id: userId });
+
+        if (checkLeader && checkLeader.team_ids.length <= 0) {
+            await schema.user.findByIdAndUpdate(userId, { $pull: { user_role: 'teamLeader' } }, { new: true });
+        }
 
         res.status(200).json({ message: "Deleted the team" });
     } catch (error) {
@@ -335,7 +406,6 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
 // Fetch team by name or user ID
 router.post("/fetchTeams", async (req, res) => {
     try {
@@ -348,7 +418,7 @@ router.post("/fetchTeams", async (req, res) => {
 
         if (isObjectId) {
             // Fetch teams by team leader's user ID
-            teams = await schema.team.find({ _id: query });
+            teams = await schema.team.findById({ _id: query });
         } else {
             // Fetch team by team name
             const teamData = await schema.team.findOne({ team_name: query });
@@ -361,6 +431,22 @@ router.post("/fetchTeams", async (req, res) => {
         res.json(teams);
     } catch (error) {
         console.error('Error fetching teams:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+router.post("/fetchMyTeams", fetchUser, async (req, res) => {
+    const userId = req.user_id;
+
+    try {
+        const myTeams = await schema.team.find({ team_leader: userId }).select("-team_leader -__v -team_players_ids");
+
+        if (myTeams.length === 0) { // Check if array is empty
+            return res.status(404).json({ error: "No team found" });
+        } else {
+            res.status(200).json(myTeams);
+        }
+    } catch (error) {
+        console.error('Error fetching my teams:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -467,18 +553,18 @@ router.post('/fetchTournament', async (req, res) => {
         // Check if the input is a valid MongoDB ObjectId
         const isObjectId = /^[0-9a-fA-F]{24}$/.test(query);
         // check if the query is a tournament status or not 
-        const isStatus=/^(old|ongoing|upcoming)$/.test(query)
+        const isStatus = /^(old|ongoing|upcoming)$/.test(query)
 
         let tournament;
 
         if (isObjectId) {
             tournament = await schema.tournament.findById(query);
-        } 
-        else if(isStatus){
-            tournament=await schema.tournament.find({tournament_status:query})
+        }
+        else if (isStatus) {
+            tournament = await schema.tournament.find({ tournament_status: query })
         }
         else {
-            tournament = await schema.tournament.findOne({tournament_name: query});
+            tournament = await schema.tournament.findOne({ tournament_name: query });
         }
 
         if (!tournament) {
@@ -609,13 +695,13 @@ router.put('/updateMatch/:match_id', fetchUser, async (req, res) => {
                 return res.status(400).json({ error: "Match start date must be ahead of the tournament start date" });
             }
             // Check if the match end date is valid
-            oldMatch.match_start_date_time=updatedMatchStartDateTime;
+            oldMatch.match_start_date_time = updatedMatchStartDateTime;
             if (match_end_date_time) {
-                const updatedMatchEndDateTime = new Date(match_end_date_time);   
+                const updatedMatchEndDateTime = new Date(match_end_date_time);
                 if (updatedMatchEndDateTime <= updatedMatchStartDateTime) {
                     return res.status(400).json({ error: "Match end date must be after the start date" });
                 }
-                oldMatch.match_end_date_time=updatedMatchEndDateTime;
+                oldMatch.match_end_date_time = updatedMatchEndDateTime;
             }
         }
 

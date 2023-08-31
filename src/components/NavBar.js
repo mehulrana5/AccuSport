@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import '../css/Navbar.css'; // Update the CSS file path
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import AppContext from '../Context';
 
 
 const NavBar = () => {
+    const context = useContext(AppContext)
+    const navigate=useNavigate();
+    const [guest,setGuest] =useState(false);
+    const [player,setPlayer] =useState(false);
+
+    useEffect(()=>{
+        setGuest(context.userInfo.user_role.includes("guest"));
+        setPlayer(context.userInfo.user_role.includes("player"));
+    },[context.userInfo,context.playerInfo])
+
+    const handleLogout = () => {
+        navigate('/')
+        context.logout()
+    }
     return (
         <nav className="nav-bar">
             <div className="logo">
@@ -50,19 +65,47 @@ const NavBar = () => {
                         Betting
                     </Link>
                 </li>
-                <li>
-                    <Link className="nav-link" to="/login">
-                        Login
-                    </Link>
-                </li><li>
-                    <Link className="nav-link" to="/signup">
-                        Signup
-                    </Link>
-                </li><li>
-                    <Link className="nav-link" to="/myProfile">
-                        My profile
-                    </Link>
-                </li>
+                {
+                    guest && !player ?
+                        <li>
+                            <Link className="nav-link" to={`/createPlayer`}>
+                                Create player
+                            </Link>
+                        </li>
+                        : <></>
+                }
+                {
+                    player ?
+                        <li>
+                            <Link className="nav-link" to="/myProfile">
+                                My profile
+                            </Link>
+                        </li>
+                        : <></>
+                }
+                {
+                    !guest ?
+                        <li>
+                            <Link className="nav-link" to="/login">
+                                Login
+                            </Link>
+                        </li>
+                        :
+                        <li>
+                            <Link onClick={handleLogout} className="nav-link" to="/">
+                                Logout
+                            </Link>
+                        </li>
+                }
+                {
+                    !guest ?
+                        <li>
+                            <Link className="nav-link" to="/signup">
+                                Signup
+                            </Link>
+                        </li>
+                        : <></>
+                }
             </ul>
         </nav>
     );

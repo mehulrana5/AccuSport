@@ -1,33 +1,20 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
-import '../css/TournamentsPage.css';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 const TournamentsPage = () => {
 
+  const navigate=useNavigate();
+
+  function handelBtn(path){
+    navigate(`${path}`)
+  }
   return (
     <div className="tournaments-page">
       <div className="tournament-buttons">
-        <Link
-          className="tournament-button"
-          to=""
-        >
-          Ongoing Tournaments
-        </Link>
-        <Link
-          className="tournament-button"
-          to="upcoming"
-        >
-          Upcoming Tournaments
-        </Link>
-        <Link
-          className="tournament-button"
-          to="old"
-        >
-          Old Tournaments
-        </Link>
-        <Link className='create-btn tournament-button' to='/tournament/create'>
-          Create tournament
-        </Link>
+        <button className="blue-btn" onClick={()=>handelBtn('/tournaments/ongoing')}>Ongoing Tournaments</button>
+        <button className="blue-btn" onClick={()=>handelBtn('/tournaments/upcoming')}>Upcoming Tournaments</button>
+        <button className="blue-btn" onClick={()=>handelBtn('/tournaments/old')}>Old Tournaments</button>
+        <button className='green-btn' onClick={()=>handelBtn('/createTournament')}>Create tournament</button>
       </div>
       <div className="tournament-container">
         <Outlet />

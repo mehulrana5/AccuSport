@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import AppContext from '../Context';
-import '../css/PlayerDetail.css';
 
 const PlayerDetail = () => {
+
   const { playerId } = useParams();
+
   const { dummyData } = useContext(AppContext);
 
   const player = dummyData.playerDetails.find(player => player.id === parseInt(playerId));
@@ -26,18 +27,24 @@ const PlayerDetail = () => {
   }
 
   return (
-    <div className="player-detail">
+    <div className="container-2">
       <h2>Player Details - ID: {player.id}</h2>
-      <p>Name: {player.name}</p>
-      <p>Age: {calculateAge(player.DOB)}</p>
-      <p>Email: {player.email}</p>
-      <p>Phone: {player.phoneNumber}</p>
-      <h3>Team(s):</h3>
-      <ul>
-        {player.team_ids.map((teamId) => (
-          <li key={teamId}>Team id:{teamId}</li>
-        ))}
-      </ul>
+      <table className="details-table" style={{width:'30%',minWidth:"200px"}}>
+        <tbody>
+          <tr>
+            <td className="details-label">Name</td>
+            <td className="details-value">{player.name}</td>
+          </tr>
+          <tr>
+            <td className="details-label">Age</td>
+            <td className="details-value">{calculateAge(player.DOB)}</td>
+          </tr>
+          <tr>
+            <td className="details-label">Teams</td>
+            {/* <td className="details-value">{player.join(",")}</td> */}
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 };

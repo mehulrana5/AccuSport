@@ -5,7 +5,6 @@ import './index.css'
 
 const root = createRoot(document.getElementById('root'));
 
-console.log(window.location.origin);
 root.render(
   <App />
 );
