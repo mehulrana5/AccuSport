@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/AccuSport/static/css/main.abe8297e.css",
-    "main.js": "/AccuSport/static/js/main.f400d9ec.js",
+    "main.css": "/AccuSport/static/css/main.a765a262.css",
+    "main.js": "/AccuSport/static/js/main.83a0fd1b.js",
     "index.html": "/AccuSport/index.html",
-    "main.abe8297e.css.map": "/AccuSport/static/css/main.abe8297e.css.map",
-    "main.f400d9ec.js.map": "/AccuSport/static/js/main.f400d9ec.js.map"
+    "main.a765a262.css.map": "/AccuSport/static/css/main.a765a262.css.map",
+    "main.83a0fd1b.js.map": "/AccuSport/static/js/main.83a0fd1b.js.map"
   },
   "entrypoints": [
-    "static/css/main.abe8297e.css",
-    "static/js/main.f400d9ec.js"
+    "static/css/main.a765a262.css",
+    "static/js/main.83a0fd1b.js"
   ]
 }
