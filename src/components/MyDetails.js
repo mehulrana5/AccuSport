@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import '../css/MyDetails.css';
 import AppContext from "../Context";
 
 const calculateAge = (dob) => {
