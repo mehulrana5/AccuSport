@@ -26,7 +26,7 @@ function TeamsPage() {
             <div className="team-filter">
                 <form onSubmit={handleFilterSubmit}>
                     <label>
-                        Team ID:
+                        Team ID/Name:
                         <input
                             type="text"
                             value={teamIdFilter}

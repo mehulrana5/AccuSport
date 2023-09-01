@@ -186,7 +186,23 @@ router.put('/updatePlayer', fetchUser, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+//fetch multiple player data
+router.post('/fetchPlayers', async (req, res) => {
+    try {
+        const { playerIds } = req.body;
+        // Validate that playerIds is an array
+        if (!Array.isArray(playerIds)) {
+            return res.status(400).json({ error: 'playerIds should be an array' });
+        }
+        const players = await schema.player.find({ _id: { $in: playerIds } });
 
+        // Send the players as a response
+        res.status(200).json(players);
+    } catch (error) {
+        console.error('Error fetching team players:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 // Fetch a Player profile by name or user ID
 router.post('/fetchPlayerProfile', async (req, res) => {
     try {
@@ -330,10 +346,10 @@ router.put('/addPlayerToTeam', fetchUser, async (req, res) => {
 //remove player from the team using team id
 router.put('/removePlayerFromTeam', fetchUser, async (req, res) => {
     const { team_id, player_id } = req.body;
-    const user_id = req.user_id;
+    const userId = req.user_id;
 
     try {
-        // Check if player exists
+        // Check if player exists 
         const playerExists = await schema.player.exists({ _id: player_id });
         if (!playerExists) {
             return res.status(400).json({ error: "Player does not exist" });
@@ -344,9 +360,9 @@ router.put('/removePlayerFromTeam', fetchUser, async (req, res) => {
         if (!teamData.team_players_ids.includes(player_id)) {
             return res.status(400).json({ error: "Player not in this team" });
         }
-
+ 
         // Check if user is authorized to remove the player
-        if (teamData.team_leader !== user_id) {
+        if (!teamData.team_leader.equals(userId)) { 
             return res.status(400).json({ error: "Not authorized for this action" });
         }
 

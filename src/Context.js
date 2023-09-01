@@ -10,7 +10,7 @@ export const AppProvider = ({ children }) => {
   const ip = `http://localhost:${port}`;
 
   const [authToken, setAuthToken] = useState("");
-  
+
   const [userInfo, setUserInfo] = useState({
     _id: "",
     user_name: "",
@@ -84,7 +84,7 @@ export const AppProvider = ({ children }) => {
         const errorData = await response.json();
         throw errorData.message
       }
-      
+
       const data = await response.json();
       // console.log(data.authToken);
       if (response.status === 200) {
@@ -112,7 +112,7 @@ export const AppProvider = ({ children }) => {
     setAuthToken("");
     window.location.reload();
   }
-  const fetchPlayerData = async () => {
+  const fetchPlayerData = async (id) => {
     try {
       const response = await fetch(`${ip}/fetchPlayerProfile`, {
         method: "POST",
@@ -120,7 +120,7 @@ export const AppProvider = ({ children }) => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          query: userInfo._id
+          query: id
         })
       });
 
@@ -203,9 +203,9 @@ export const AppProvider = ({ children }) => {
         },
         body: JSON.stringify({
           team_id: tid
-        })  
+        })
       })
-      const data=await response.json();
+      const data = await response.json();
       console.log(data);
       await fetchMyTeams();
     } catch (error) {
@@ -225,11 +225,11 @@ export const AppProvider = ({ children }) => {
           team_id: teamId,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to add player to team");
       }
-  
+
       const data = await response.json();
       console.log(data); // Log the response data
     } catch (error) {
@@ -237,7 +237,68 @@ export const AppProvider = ({ children }) => {
       // Handle the error here, such as showing an error message to the user
     }
   };
-  
+  const removePlayer = async (playerId, teamId) => {
+    try {
+      const response = await fetch(`${ip}/removePlayerFromTeam`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": authToken,
+        },
+        body: JSON.stringify({
+          player_id: playerId,
+          team_id: teamId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to remove player from team");
+      }
+
+      const data = await response.json();
+    } catch (error) {
+      console.error("Error in removing player from team:", error);
+      // Handle the error here, such as showing an error message to the user
+    }
+  };
+  const fetchTeams = async (teamId) => {
+    try {
+      const response = await fetch(`${ip}/fetchTeams`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query: teamId })
+      })
+      const data = await response.json();
+      // console.log(data);
+      return data;
+    } catch (error) {
+
+    }
+  }
+  const fetchTeamPlayers = async (pids) => {
+    try {
+        const response = await fetch(`${ip}/fetchPlayers`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ playerIds: pids })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch player data (${response.status})`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching team players:", error);
+        throw error; // Re-throw the error to be caught by the caller if needed
+    }
+};
+
 
   // ------------------Use Effects--------------------------
   useEffect(() => {
@@ -250,7 +311,7 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (authToken && userInfo.user_role.includes("player")) {
-      fetchPlayerData()
+      fetchPlayerData(userInfo._id)
     }
     if (authToken && userInfo.user_role.includes("teamLeader")) {
       fetchMyTeams()
@@ -398,7 +459,7 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider
-      value={{ active, setActive, dummyData, authToken, setAuthToken, userInfo, setUserInfo, playerInfo, setPlayerInfo, login, logout, register, createPlayer, createTeam, myTeams, setMyTeams, fetchMyTeams, deleteMyTeam ,addPlayer}}
+      value={{ active, setActive, dummyData, authToken, setAuthToken, userInfo, setUserInfo, playerInfo, setPlayerInfo, login, logout, register, createPlayer, createTeam, myTeams, setMyTeams, fetchMyTeams, deleteMyTeam, addPlayer, removePlayer, fetchTeams, fetchPlayerData, fetchTeamPlayers }}
     >
       {children}
     </AppContext.Provider>

@@ -41,12 +41,17 @@ function CreateTeam() {
         }
     }
 
-    function handelAddPlayer(tid){
-        const pid=prompt("enter player id")
-        if(pid){
-            context.addPlayer(pid,tid)
-        }
+
+    
+
+    function handelUpdateTeam(tid){
+
     }
+
+    function handelShowTeam(tid){
+
+    }
+    
 
     return (
         <div className='container-1'>
@@ -73,17 +78,18 @@ function CreateTeam() {
                             {myTeams && myTeams.map((myTeam, idx) => (
                                 <div key={idx} className='card'>
                                     <div><h3>{myTeam.team_name}</h3></div>
-                                    <div className="">
-                                        <button className='blue-btn'>Team Details</button>
-                                        <button className='green-btn' onClick={() => handelAddPlayer(myTeam._id)}>Add Player</button>
-                                        <button className='red-btn'>Remove Player</button>
+                                    <div>
+                                        <button className='blue-btn' onClick={() => handelUpdateTeam(myTeam._id)}>Update Team</button>
+                                        <button className='blue-btn' onClick={() => handelShowTeam(myTeam._id)}>Show Team</button>
+                                        {/* <button className='green-btn' onClick={() => handelAddPlayer(myTeam._id)}>Add Player</button> */}
+                                        {/* <button className='red-btn' onClick={() => handelRemovePlayer(myTeam._id)}>Remove Player</button> */}
                                         <button className='red-btn' onClick={() => handelDeleteTeam(myTeam._id, myTeam.team_name)}>Delete Team</button>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    : <></>
+                    : <>no teams made</>
             }
         </div>
     );
