@@ -1,15 +1,23 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import AppContext from '../Context';
 
 const PlayerDetail = () => {
-
   const { playerId } = useParams();
+  const context = useContext(AppContext);
+  const [player, setPlayer] = useState(null);
 
-  const { dummyData } = useContext(AppContext);
-
-  const player = dummyData.playerDetails.find(player => player.id === parseInt(playerId));
-  
+  useEffect(() => {
+    async function loadDetails(pid) {
+      try {
+        const data = await context.fetchPlayerData(pid);
+        setPlayer(data);
+      } catch (error) {
+        console.error('Error loading player details:', error);
+      }
+    }
+    loadDetails(playerId);
+  }, [playerId]);
   function calculateAge(dateOfBirth) {
     const dob = new Date(dateOfBirth);
     const today = new Date();
@@ -18,30 +26,32 @@ const PlayerDetail = () => {
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
       age--;
     }
-    
     return age;
   }
-  
+
   if (!player) {
     return <p>Player not found.</p>;
   }
 
   return (
     <div className="container-2">
-      <h2>Player Details - ID: {player.id}</h2>
-      <table className="details-table" style={{width:'30%',minWidth:"200px"}}>
+      <table className="details-table" style={{ width: '30%', minWidth: '200px' }}>
         <tbody>
           <tr>
+            <td className="details-label">ID</td>
+            <td className="details-value">{player._id}</td>
+          </tr>
+          <tr>
             <td className="details-label">Name</td>
-            <td className="details-value">{player.name}</td>
+            <td className="details-value">{player.player_name}</td>
           </tr>
           <tr>
             <td className="details-label">Age</td>
-            <td className="details-value">{calculateAge(player.DOB)}</td>
+            <td className="details-value">{calculateAge(player.player_dob)}</td>
           </tr>
           <tr>
             <td className="details-label">Teams</td>
-            {/* <td className="details-value">{player.join(",")}</td> */}
+            <td className="details-value">{player.team_ids.join(" ")}</td>
           </tr>
         </tbody>
       </table>

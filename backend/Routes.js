@@ -360,9 +360,9 @@ router.put('/removePlayerFromTeam', fetchUser, async (req, res) => {
         if (!teamData.team_players_ids.includes(player_id)) {
             return res.status(400).json({ error: "Player not in this team" });
         }
- 
+
         // Check if user is authorized to remove the player
-        if (!teamData.team_leader.equals(userId)) { 
+        if (!teamData.team_leader.equals(userId)) {
             return res.status(400).json({ error: "Not authorized for this action" });
         }
 
@@ -423,25 +423,24 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
     }
 });
 // Fetch team by name or user ID
-router.post("/fetchTeams", async (req, res) => {
+router.post('/fetchTeams', async (req, res) => {
     try {
         const { query } = req.body;
 
         // Check if the query is a valid ObjectId (user ID)
         const isObjectId = /^[0-9a-fA-F]{24}$/.test(query);
-
         let teams;
 
         if (isObjectId) {
             // Fetch teams by team leader's user ID
-            teams = await schema.team.findById({ _id: query });
+            teams = await schema.team.find({ _id: query });
         } else {
-            // Fetch team by team name
-            const teamData = await schema.team.findOne({ team_name: query });
-            if (!teamData) {
-                return res.status(400).json({ error: "Team not found" });
-            }
-            teams = [teamData];
+            // Fetch team(s) by team name
+            teams = await schema.team.find({ team_name: query });
+        }
+
+        if (!teams || teams.length === 0) {
+            return res.status(404).json({ error: 'No teams found' });
         }
 
         res.json(teams);

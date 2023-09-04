@@ -129,12 +129,21 @@ export const AppProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      setPlayerInfo(data);
+      // console.log(data);
+      return data
     } catch (error) {
       console.error("Error fetching player data:", error);
       // You might want to set an error state or handle the error in some way
     }
   };
+  const fetchMyPlayerData=async(pid)=>{
+    try {
+      const data=await fetchPlayerData(pid)
+      setPlayerInfo(data);
+    } catch (error) {
+      
+    }
+  }
   const createPlayer = async (cred) => {
     try {
       const response = await fetch(`${ip}/registerPlayer`, {
@@ -311,7 +320,7 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (authToken && userInfo.user_role.includes("player")) {
-      fetchPlayerData(userInfo._id)
+      fetchMyPlayerData(userInfo._id)
     }
     if (authToken && userInfo.user_role.includes("teamLeader")) {
       fetchMyTeams()

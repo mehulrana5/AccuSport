@@ -29,7 +29,7 @@ function PlayersPage() {
                     <h2>Player filter</h2>
                     <form onSubmit={handleFilterSubmit}>
                         <label>
-                            Player ID:
+                            Player ID/Name:
                             <input type="text" value={playerIdFilter} onChange={(e) => setPlayerIdFilter(e.target.value)}/>
                         </label>
                         <div className="container-2">

@@ -12,7 +12,6 @@ import TeamsPage from './components/TeamsPage';
 import TeamInfo from './components/TeamDetails';
 import MatchesPage from './components/MatchesPage';
 import PlayersPage from './components/PlayersPage';
-import MyDetails from './components/MyDetails';
 
 // eslint-disable-next-line
 import { Routes, Route,HashRouter ,BrowserRouter, Outlet} from 'react-router-dom';
@@ -47,7 +46,6 @@ const App = () => {
           <Route path="/player/:playerId" element={<PlayerDetail />} />
           <Route path="/createPlayer" element={<CreatePlayer/>}/>
 
-          <Route path="/myProfile" element={<MyDetails/>}/>
 
           <Route path="createTeam" exact element={<CreateTeam/>} />
           

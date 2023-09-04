@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AppContext from '../Context';
 
 function TeamInfo() {
     const { teamId } = useParams();
     const context = useContext(AppContext);
+    const navigate=useNavigate();
 
     const [teamData, setTeamData] = useState(null);
     const [playerData, setPlayerData] = useState([]);
@@ -14,6 +15,7 @@ function TeamInfo() {
     useEffect(() => {
         async function fetchTeam() {
             try {
+                // console.log(teamId);
                 const data = await context.fetchTeams(teamId);
                 setTeamData(data[0]);
 
@@ -29,10 +31,10 @@ function TeamInfo() {
             }
         }
         fetchTeam();
+    // eslint-disable-next-line
     }, [context, teamId]);
 
     useEffect(() => {
-        console.log(refresh);
         if (teamData) {
             if (teamData) {
                 const playerIds = teamData.team_players_ids;
@@ -49,6 +51,7 @@ function TeamInfo() {
                 fetchData();
             }
         }
+        // eslint-disable-next-line
     }, [teamData, refresh]);
 
     function handelAddPlayer() {
@@ -69,6 +72,9 @@ function TeamInfo() {
             alert(`player ${pid} is removed from team ${tid}`)
             setRefresh(refresh === 1 ? 0 : 1);
         }
+    }
+    function handelPlayerDetails(pid){
+        navigate(`../../player/${pid}`)
     }
     // console.log(teamData);  
     if (!teamData) {
@@ -125,7 +131,7 @@ function TeamInfo() {
                                 {data.player_name}
                             </td>
                             <td className=''>
-                                <button className='blue-btn'>
+                                <button onClick={() => handelPlayerDetails(data._id)} className='blue-btn'>
                                     Player Details
                                 </button>
                             </td>
