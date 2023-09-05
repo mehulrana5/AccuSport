@@ -136,12 +136,12 @@ export const AppProvider = ({ children }) => {
       // You might want to set an error state or handle the error in some way
     }
   };
-  const fetchMyPlayerData=async(pid)=>{
+  const fetchMyPlayerData = async (pid) => {
     try {
-      const data=await fetchPlayerData(pid)
+      const data = await fetchPlayerData(pid)
       setPlayerInfo(data);
     } catch (error) {
-      
+
     }
   }
   const createPlayer = async (cred) => {
@@ -264,7 +264,7 @@ export const AppProvider = ({ children }) => {
         throw new Error("Failed to remove player from team");
       }
 
-      const data = await response.json();
+      // const data = await response.json();
     } catch (error) {
       console.error("Error in removing player from team:", error);
       // Handle the error here, such as showing an error message to the user
@@ -288,26 +288,41 @@ export const AppProvider = ({ children }) => {
   }
   const fetchTeamPlayers = async (pids) => {
     try {
-        const response = await fetch(`${ip}/fetchPlayers`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ playerIds: pids })
-        });
+      const response = await fetch(`${ip}/fetchPlayers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ playerIds: pids })
+      });
 
-        if (!response.ok) {
-            throw new Error(`Failed to fetch player data (${response.status})`);
-        }
+      if (!response.ok) {
+        throw new Error(`Failed to fetch player data (${response.status})`);
+      }
 
-        const data = await response.json();
-        return data;
+      const data = await response.json();
+      return data;
     } catch (error) {
-        console.error("Error fetching team players:", error);
-        throw error; // Re-throw the error to be caught by the caller if needed
+      console.error("Error fetching team players:", error);
+      throw error; // Re-throw the error to be caught by the caller if needed
     }
-};
-
+  };
+  const createTournament=async(data)=>{
+    try {
+      const response=await fetch(`${ip}/createTournament`,{
+        method:"POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token":authToken
+        },
+        body:JSON.stringify(data)
+      })
+      const json=await response.json();
+      console.log(json);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // ------------------Use Effects--------------------------
   useEffect(() => {
@@ -329,26 +344,10 @@ export const AppProvider = ({ children }) => {
   }, [userInfo])
 
   useEffect(() => {
-    // console.log(playerInfo);
-    // if (authToken){
-    //   console.log(authToken);
-    //   fetchUserData().then(data => {
-    //     setUserInfo({
-    //       user_id: data._id,
-    //       user_name: data.user_name,
-    //       user_role: data.user_role
-    //     });
-    //   }).catch(error => {
-    //     console.error('Error:', error);
-    //   });
-    // }
-    // eslint-disable-next-line
-  }, [playerInfo])
-
-  useEffect(() => {
     // console.log(myTeams);
     // eslint-disable-next-line
   }, [myTeams])
+  // ----------------------------------------------------------
 
   const myDetails = [
     {
@@ -468,7 +467,7 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider
-      value={{ active, setActive, dummyData, authToken, setAuthToken, userInfo, setUserInfo, playerInfo, setPlayerInfo, login, logout, register, createPlayer, createTeam, myTeams, setMyTeams, fetchMyTeams, deleteMyTeam, addPlayer, removePlayer, fetchTeams, fetchPlayerData, fetchTeamPlayers }}
+      value={{ active, setActive, dummyData, authToken, setAuthToken, userInfo, setUserInfo, playerInfo, setPlayerInfo, login, logout, register, createPlayer, createTeam, myTeams, setMyTeams, fetchMyTeams, deleteMyTeam, addPlayer, removePlayer, fetchTeams, fetchPlayerData, fetchTeamPlayers ,createTournament}}
     >
       {children}
     </AppContext.Provider>

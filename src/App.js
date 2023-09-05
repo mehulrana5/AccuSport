@@ -27,6 +27,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import CreatePlayer from './components/CreatePlayer';
 import CreateTeam from './components/CreateTeam';
+import CreateTournamentPage from './components/CreateTournamentPage';
 
 const App = () => {
 
@@ -63,6 +64,7 @@ const App = () => {
           <Route path="/tournaments/" element={<TournamentsPage />}>
             <Route path=":status" element={<TournamentCards />}/>
             <Route path=":status/:tournamentId" element={<TournamentDetails/>} />
+            <Route path="createTournament" element={<CreateTournamentPage/>}/>
           </Route>
 
 
