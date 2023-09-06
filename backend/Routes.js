@@ -469,7 +469,7 @@ router.post("/fetchMyTeams", fetchUser, async (req, res) => {
 // Create tournament
 router.post('/createTournament', fetchUser, async (req, res) => {
     try {
-        const { tournament_name, sport_type, start_date_time, description } = req.body;
+        const { tournament_name, sport_type, start_date_time, description ,match_admins} = req.body;
         const userId = req.user_id;
 
         const CheckTorName = await schema.tournament.exists({ tournament_name: tournament_name })
@@ -478,15 +478,21 @@ router.post('/createTournament', fetchUser, async (req, res) => {
             return res.status(400).json({ error: "Not a unique tournament name" })
         }
 
+        const validAdmins=await schema.user.find({_id:{$in:match_admins}})
+
+        if (validAdmins.length !== match_admins.length) {
+            return res.status(400).json({ error: "Not all match admin IDs are valid" });  
+        }
+
         // Add the organizer's ID as the default match admin
-        const document = new schema.tournament({
+        const document = new schema.tournament({  
             tournament_name: tournament_name,
             tournament_status: "upcoming",
             sport_type: sport_type,
             start_date_time: start_date_time,
             description: description,
             organizer_id: userId,
-            match_admins: [userId] // Add the organizer as a match admin
+            match_admins: match_admins // Add the organizer as a match admin
         });
 
         await document.save();
@@ -515,9 +521,21 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
             return res.status(401).json({ error: "Not authorized for this action" });
         }
 
-        if (!MatchAdmins.includes(tournament.organizer_id)) {
+        const checkAdmins=await schema.user.find({_id:{$in:MatchAdmins}})
+
+        if(checkAdmins.length!==MatchAdmins.length){
+            return res.status(400).json({ error: "Enter correct Match Admin ids"});
+        }
+
+        //Check if the organizer is included in the match admins or not if not then add him
+        // console.log(MatchAdmins.includes(tournament.organizer_id.toString()));
+        if (!MatchAdmins.includes(tournament.organizer_id.toString())) {
             updatedMatchAdmins = [...MatchAdmins, tournament.organizer_id];
         }
+        else{
+            updatedMatchAdmins=MatchAdmins
+        }
+
         if (tournament_status !== "old" && tournament_status !== "ongoing" && tournament_status !== "upcoming") {
             return res.status(400).json({ error: "Invalid tournament status" });
         }
@@ -531,31 +549,10 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
             },
             { new: true }
         );
-
+        
         res.status(200).json(updatedTournament);
     } catch (error) {
         console.error('Error updating tournament:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-// Fetch all tournaments by status
-router.get('/fetchTournamentsByStatus/:status', async (req, res) => {
-    try {
-        const status = req.params.status;
-
-        // Validate the status value
-        const validStatuses = ["old", "ongoing", "upcoming"];
-        if (!validStatuses.includes(status)) {
-            return res.status(400).json({ error: "Invalid status value" });
-        }
-
-        // Find tournaments with the specified status
-        const tournaments = await schema.tournament.find({ tournament_status: status });
-
-        res.json(tournaments);
-    } catch (error) {
-        console.error('Error fetching tournaments by status:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -574,6 +571,9 @@ router.post('/fetchTournament', async (req, res) => {
 
         if (isObjectId) {
             tournament = await schema.tournament.findById(query);
+            if(!tournament){
+                tournament = await schema.tournament.find({organizer_id:query});
+            }
         }
         else if (isStatus) {
             tournament = await schema.tournament.find({ tournament_status: query })

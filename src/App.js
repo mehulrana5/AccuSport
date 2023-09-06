@@ -28,6 +28,7 @@ import Signup from './components/Signup';
 import CreatePlayer from './components/CreatePlayer';
 import CreateTeam from './components/CreateTeam';
 import CreateTournamentPage from './components/CreateTournamentPage';
+import MyTournamentsPage from './components/MyTournamentsPage';
 
 const App = () => {
 
@@ -35,7 +36,6 @@ const App = () => {
     <AppProvider>
       <HashRouter>
         <NavBar />
-        <Outlet/>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path='/login' element={<Login/>}/>
@@ -65,6 +65,8 @@ const App = () => {
             <Route path=":status" element={<TournamentCards />}/>
             <Route path=":status/:tournamentId" element={<TournamentDetails/>} />
             <Route path="createTournament" element={<CreateTournamentPage/>}/>
+            <Route path="myTournaments" element={<MyTournamentsPage/>}/>
+            <Route path="myTournaments/:operation/:tournamentId" element={<CreateTournamentPage/>}/>            
           </Route>
 
 

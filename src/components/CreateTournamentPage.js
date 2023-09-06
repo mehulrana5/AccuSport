@@ -1,22 +1,61 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import AppContext from '../Context';
+import { useNavigate, useParams } from 'react-router-dom';
 
 function CreateTournamentPage() {
-    
-    const context=useContext(AppContext)
 
-    const { register, handleSubmit, control, formState: { errors } } = useForm();
+    const context = useContext(AppContext)
 
-    const onSubmit = (data) => {
-        // console.log(data);
-        context.createTournament(data);
-    }
+    const { operation, tournamentId } = useParams();
 
+    const [data, setData] = useState();
+
+    const navigate=useNavigate();
+
+    const startDate = data ? new Date(data.start_date_time) : null;
+    const formattedStartDate = startDate ? startDate.toISOString().slice(0, 16) : undefined;
+    const readOnly = (operation === "view" || operation === "update");
+    const viewOnly = operation === "view"
+    const { register, handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
+    let matchAdmins = data ? data.match_admins : null;
     const { fields, append, remove } = useFieldArray({
         name: "match_admins",
         control
     });
+
+
+
+    useEffect(() => {
+        setData()
+    }, [operation])
+
+    useEffect(() => {
+        if (tournamentId) {
+            async function getData() {
+                const res = await context.fetchTournament(tournamentId);
+                setData(res);
+            }
+            getData();
+        }
+        // eslint-disable-next-line
+    }, [])
+
+    useEffect(() => {
+        setValue("tournament_name", data ? data.tournament_name : undefined)
+        setValue("sport_type", data ? data.sport_type : undefined)
+        setValue("start_date_time", data ? formattedStartDate : undefined)
+        setValue("description", data ? data.description : undefined)
+        setValue("match_admins", data ? matchAdmins : [])
+        // eslint-disable-next-line
+    }, [data])
+
+    const onSubmit = (data) => {
+        // console.log(data);
+        context.createTournament(data);
+        navigate("../myTournaments")
+        
+    }
 
     // Custom validation function for MongoDB-like ObjectID
     const validateObjectId = (value) => {
@@ -24,12 +63,50 @@ function CreateTournamentPage() {
         return objectIdPattern.test(value);
     };
 
+    async function handelUpdateTournament() {
+        try {
+            const flag = window.confirm("Do you want to update these changes")
+            if (flag) {
+                const updatedData = {
+                    ...data,
+                    start_date_time: getValues("start_date_time"),
+                    description: getValues("description"),
+                    match_admins: getValues("match_admins"),
+                };
+    
+                setData(updatedData);
+                await context.updateTournament(updatedData);
+                alert("updated")
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    async function handelEndTournament() {
+        try {
+            const flag = window.confirm("Do you want to end this tournament?")
+            if (flag) {
+                const curDateTime = new Date();
+                const start = new Date(data.start_date_time)
+                if (start > curDateTime) {
+                    return alert(`Cannot End tournament before start date time\nToday:\t${curDateTime}\nStart:\t${start}`)
+                }
+                console.log("running end");
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
-        <div>
+        <div className='container-6' style={{ marginLeft: "20px" }}>
             <form className='form-group' onSubmit={handleSubmit(onSubmit)}>
-                <h3>Tournament Name</h3>
+                <h3>Name</h3>
                 <input
                     className='form-input'
+                    readOnly={readOnly}
+                    defaultValue={data ? data.tournament_name : undefined}
                     {...register('tournament_name', {
                         required: true,
                         minLength: 4, // Minimum length of 4 characters
@@ -42,16 +119,18 @@ function CreateTournamentPage() {
                     <p style={{ color: "red" }}>Tournament name should be at least 4 characters.</p>
                 )}
                 <h3>Sport Type</h3>
-                <select className='form-input' {...register('sport_type', { required: true })}>
-                    <option value="badminton">Badminton</option>
-                    <option value="cricket">Cricket</option>
-                    <option value="football">Football</option>
-                    <option value="hokey">Hokey</option>
+                <select disabled={readOnly} className='form-input' {...register('sport_type', { required: true })}>
+                    <option value="Badminton">Badminton</option>
+                    <option value="Cricket">Cricket</option>
+                    <option value="Football">Football</option>
+                    <option value="Hokey">Hokey</option>
                 </select>
-                <h3>Tournament Start Date and Time</h3>
+                <h3>Start Date and Time</h3>
                 <input
                     className='form-input'
                     type="datetime-local"
+                    defaultValue={formattedStartDate}
+                    readOnly={viewOnly}
                     {...register('start_date_time', {
                         required: true,
                         min: new Date().toISOString().slice(0, 16), // Minimum value is the current date-time
@@ -63,18 +142,21 @@ function CreateTournamentPage() {
                 {errors.start_date_time && errors.start_date_time.type === "min" && (
                     <p style={{ color: "red" }}>Start Date-Time should not be before the current date.</p>
                 )}
-
-                <h3>Tournament Description</h3>
+                <h3>Description</h3>
                 <textarea
-                    cols="30"
-                    rows="10"
+                    cols="10"
+                    rows="4"
                     className='form-input'
+                    defaultValue={data ? data.description : ""}
+                    disabled={viewOnly}
                     {...register('description', { required: true })}
                 />
                 {errors.description && <p style={{ color: "red" }}>Please enter description.</p>}
-
                 <h3>Match Admins</h3>
-                <h5 style={{ color: "#2196f3" }}>In this tournament, you will be the match admin by default</h5>
+                {
+                    viewOnly ? <></>
+                        : <h5 style={{ color: "#2196f3" }}>In this tournament, you will be one of the match admin by default</h5>
+                }
                 <div>
                     {fields.map((field, idx) => {
                         return (
@@ -82,25 +164,35 @@ function CreateTournamentPage() {
                                 <input
                                     type="text"
                                     className='form-input'
-                                    style={{ marginRight: "5px" }}
+                                    style={{ margin: "5px 5px 0 0", width: "40%" }}
+                                    readOnly={viewOnly}
                                     {...register(`match_admins[${idx}]`, {
                                         required: true,
                                         validate: validateObjectId, // Custom validation for MongoDB-like ObjectID
                                     })}
+
                                 />
-                                {idx >= 0 && (
-                                    <button className='red-btn' onClick={() => remove(idx)}>Remove</button>
-                                )}
+                                {
+                                    viewOnly ? <></>
+                                        : (idx >= 0 && (
+                                            <button className='red-btn' onClick={() => remove(idx)}>Remove</button>
+                                        ))
+                                }
                                 {errors.match_admins && errors.match_admins[idx] && (
                                     <p style={{ color: "red" }}>Invalid Object ID format.</p>
                                 )}
                             </div>
                         )
                     })}
-                    <button className='green-btn' type="button" onClick={() => append("")}>Add</button>
+                    {
+                        viewOnly ? <></>
+                            : <button className='green-btn' type="button" onClick={() => append("")}>Add</button>
+                    }
                 </div>
-
-                <input className='blue-btn' type="submit" />
+                {
+                    operation === "update" ? (<div><button type='button' onClick={handelUpdateTournament} className='blue-btn'>Update</button><button onClick={handelEndTournament} className='red-btn'>End Tournament</button></div>)
+                        : operation === "view" ? (<></>) : (<input className='blue-btn' type="submit" value={"Create"} />)
+                }
             </form>
         </div>
     )

@@ -17,6 +17,7 @@ const PlayerDetail = () => {
       }
     }
     loadDetails(playerId);
+    // eslint-disable-next-line
   }, [playerId]);
   function calculateAge(dateOfBirth) {
     const dob = new Date(dateOfBirth);

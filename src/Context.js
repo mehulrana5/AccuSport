@@ -307,18 +307,89 @@ export const AppProvider = ({ children }) => {
       throw error; // Re-throw the error to be caught by the caller if needed
     }
   };
-  const createTournament=async(data)=>{
+  const createTournament = async (data) => {
     try {
-      const response=await fetch(`${ip}/createTournament`,{
-        method:"POST",
+      if (!data.match_admins.includes(userInfo._id)) {
+        data.match_admins.push(userInfo._id);
+      }
+      const response = await fetch(`${ip}/createTournament`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": authToken
+        },
+        body: JSON.stringify(data)
+      })
+      const json = await response.json();
+      // console.log(json);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const fetchMyTournaments = async () => {
+    try {
+      const response = await fetch(`${ip}/fetchTournament`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query: userInfo._id })
+      })
+      const data = await response.json();
+      return data
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const fetchTournament = async (tid) => {
+    try {
+      const response = await fetch(`${ip}/fetchTournament`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query: tid })
+      })
+      const json = await response.json();
+      return json
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const updateTournament = async (data) => {
+    try {
+      const response = await fetch(`${ip}/updateTournament/${data._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": authToken
+        },
+        body: JSON.stringify({
+          tournament_status: data.tournament_status,
+          start_date_time: data.start_date_time,
+          description: data.description,
+          match_admins: data.match_admins
+        })
+      })
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const deleteTournament=async(pid)=>{
+    try {
+      const response = await fetch(`${ip}/deleteTournament`, {
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           "auth-token":authToken
         },
-        body:JSON.stringify(data)
+        body: JSON.stringify({ tournamentId: pid })
       })
-      const json=await response.json();
-      console.log(json);
+      const data = await response.json();
+      return data
+
     } catch (error) {
       console.log(error);
     }
@@ -467,7 +538,10 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider
-      value={{ active, setActive, dummyData, authToken, setAuthToken, userInfo, setUserInfo, playerInfo, setPlayerInfo, login, logout, register, createPlayer, createTeam, myTeams, setMyTeams, fetchMyTeams, deleteMyTeam, addPlayer, removePlayer, fetchTeams, fetchPlayerData, fetchTeamPlayers ,createTournament}}
+      value={{
+        active, setActive, dummyData, authToken, setAuthToken, userInfo, setUserInfo, playerInfo, setPlayerInfo, login, logout, register, createPlayer, createTeam, myTeams, setMyTeams, fetchMyTeams, deleteMyTeam, addPlayer, removePlayer, fetchTeams, fetchPlayerData, fetchTeamPlayers, createTournament,
+        fetchMyTournaments, fetchTournament, updateTournament,deleteTournament
+      }}
     >
       {children}
     </AppContext.Provider>

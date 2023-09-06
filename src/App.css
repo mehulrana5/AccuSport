@@ -112,6 +112,9 @@ body {
 input[type="date"]{
   width:fit-content
 }
+input[readonly]{
+  cursor:not-allowed;
+}
 ::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
