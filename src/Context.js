@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useId, useState } from 'react';
 // Create a new context
 const AppContext = createContext();
 
@@ -13,7 +13,7 @@ export const AppProvider = ({ children }) => {
 
   const [userInfo, setUserInfo] = useState({
     _id: "",
-    user_name: "",
+    user_email: "",
     user_role: []
   });
 
@@ -24,11 +24,9 @@ export const AppProvider = ({ children }) => {
     team_ids: [],
     _id: ""
   });
-  const [myTeams, setMyTeams] = useState([])
-
 
   // ------------------functions--------------------------
-  const login = async (user_name, user_pwd) => {
+  const login = async (user_email, user_pwd) => {
     try {
       const response = await fetch(`${ip}/login`, {
         method: "POST",
@@ -36,7 +34,7 @@ export const AppProvider = ({ children }) => {
           'Content-Type': 'application/json', // Specify JSON content type
         },
         body: JSON.stringify({
-          user_name: user_name,
+          user_email: user_email,
           user_pwd: user_pwd,
         }), // Convert data to JSON string
       });
@@ -50,6 +48,7 @@ export const AppProvider = ({ children }) => {
       console.error('Error during login:', error);
     }
   }
+
   const fetchUserData = async () => {
     try {
       const response = await fetch(`${ip}/fetchUserData`, {
@@ -66,6 +65,7 @@ export const AppProvider = ({ children }) => {
       throw error;
     }
   }
+
   const register = async (cred) => {
     try {
       const response = await fetch(`${ip}/register`, {
@@ -74,32 +74,29 @@ export const AppProvider = ({ children }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_name: cred.username,
+          user_email: cred.email,
           user_pwd: cred.password,
         }),
       });
 
-      if (!response.ok) {
-        // Handle non-successful responses, e.g., server error or bad request
-        const errorData = await response.json();
-        throw errorData.message
-      }
-
       const data = await response.json();
-      // console.log(data.authToken);
+      // console.log(data);
       if (response.status === 200) {
-        console.log(data.authToken);
         setAuthToken(data.authToken);
+      }
+      else {
+        alert(data.error)
       }
     } catch (error) {
       console.error('Error during registration:', error);
     }
   };
+
   function logout() {
     setAuthToken("")
     setUserInfo({
       user_id: "",
-      user_name: "",
+      user_email: "",
       user_role: []
     })
     setPlayerInfo({
@@ -112,38 +109,29 @@ export const AppProvider = ({ children }) => {
     setAuthToken("");
     window.location.reload();
   }
-  const fetchPlayerData = async (id) => {
+
+  const fetchPlayers = async (query, fetchBy) => { //fetchBy=user,name,id,team
     try {
-      const response = await fetch(`${ip}/fetchPlayerProfile`, {
+      const response = await fetch(`${ip}/fetchPlayers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          query: id
+          query: query,
+          fetchBy: fetchBy
         })
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch player data");
-      }
-
       const data = await response.json();
-      // console.log(data);
-      return data
+
+      return data;
+
     } catch (error) {
-      console.error("Error fetching player data:", error);
-      // You might want to set an error state or handle the error in some way
+      console.error(error);
     }
   };
-  const fetchMyPlayerData = async (pid) => {
-    try {
-      const data = await fetchPlayerData(pid)
-      setPlayerInfo(data);
-    } catch (error) {
 
-    }
-  }
   const createPlayer = async (cred) => {
     try {
       const response = await fetch(`${ip}/registerPlayer`, {
@@ -168,6 +156,7 @@ export const AppProvider = ({ children }) => {
       // Handle error here
     }
   };
+  
   const createTeam = async (team) => {
     try {
       const response = await fetch(`${ip}/createTeam`, {
@@ -178,30 +167,18 @@ export const AppProvider = ({ children }) => {
         },
         body: JSON.stringify(team)
       });
-
+      const data = await response.json();
       if (response.ok) {
-        // const data = await response.json();
-        await fetchMyTeams();
-      } else {
-        // Handle error response here
-        console.error('Error:', response.statusText);
+        await fetchTeam(userInfo._id, "user");
+      }
+      else {
+        alert(data.error)
       }
     } catch (error) {
       console.error('Error:', error);
-      // Handle error here
     }
   };
-  const fetchMyTeams = async () => {
-    const response = await fetch(`${ip}/fetchMyTeams`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "auth-token": authToken
-      },
-    })
-    const data = await response.json();
-    setMyTeams(data);
-  };
+
   const deleteMyTeam = async (tid) => {
     try {
       const response = await fetch(`${ip}/deleteTeam`, {
@@ -216,11 +193,12 @@ export const AppProvider = ({ children }) => {
       })
       const data = await response.json();
       console.log(data);
-      await fetchMyTeams();
+      // await fetchTeam(userInfo._id, "user");
     } catch (error) {
       console.log(error);
     }
   };
+
   const addPlayer = async (playerId, teamId) => {
     try {
       const response = await fetch(`${ip}/addPlayerToTeam`, {
@@ -246,6 +224,7 @@ export const AppProvider = ({ children }) => {
       // Handle the error here, such as showing an error message to the user
     }
   };
+
   const removePlayer = async (playerId, teamId) => {
     try {
       const response = await fetch(`${ip}/removePlayerFromTeam`, {
@@ -270,43 +249,26 @@ export const AppProvider = ({ children }) => {
       // Handle the error here, such as showing an error message to the user
     }
   };
-  const fetchTeams = async (teamId) => {
+
+  const fetchTeam = async (query, fetchBy) => {
     try {
-      const response = await fetch(`${ip}/fetchTeams`, {
+      const response = await fetch(`${ip}/fetchTeam`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ query: teamId })
+        body: JSON.stringify({
+          query: query,
+          fetchBy: fetchBy
+        })
       })
       const data = await response.json();
-      // console.log(data);
       return data;
     } catch (error) {
-
+      console.log(error);
     }
   }
-  const fetchTeamPlayers = async (pids) => {
-    try {
-      const response = await fetch(`${ip}/fetchPlayers`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ playerIds: pids })
-      });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch player data (${response.status})`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching team players:", error);
-      throw error; // Re-throw the error to be caught by the caller if needed
-    }
-  };
   const createTournament = async (data) => {
     try {
       if (!data.match_admins.includes(userInfo._id)) {
@@ -321,41 +283,32 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(data)
       })
       const json = await response.json();
-      // console.log(json);
+      console.log(json);
     } catch (error) {
       console.log(error);
     }
   }
-  const fetchMyTournaments = async () => {
+
+  const fetchTournament = async (query,fetchBy) => {
     try {
       const response = await fetch(`${ip}/fetchTournament`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query: userInfo._id })
-      })
-      const data = await response.json();
-      return data
+        body: JSON.stringify({ query ,fetchBy}),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Fetch request failed with status ${response.status}`);
+      }
+
+      return await response.json();
     } catch (error) {
       console.log(error);
     }
-  }
-  const fetchTournament = async (tid) => {
-    try {
-      const response = await fetch(`${ip}/fetchTournament`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ query: tid })
-      })
-      const json = await response.json();
-      return json
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  };
+
   const updateTournament = async (data) => {
     try {
       const response = await fetch(`${ip}/updateTournament/${data._id}`, {
@@ -377,13 +330,13 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-  const deleteTournament=async(pid)=>{
+  const deleteTournament = async (pid) => {
     try {
       const response = await fetch(`${ip}/deleteTournament`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "auth-token":authToken
+          "auth-token": authToken
         },
         body: JSON.stringify({ tournamentId: pid })
       })
@@ -394,7 +347,30 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
+  const createMatch = async (data) => {
+    try {
+      const response = await fetch(`${ip}/createMatch`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": authToken
+        },
+        body: JSON.stringify({
+          tournament_id: data.tournamentId, // Fixed typo here
+          match_start_date_time: data.matchStartDateTime,
+          match_end_date_time: data.matchEndDateTime,
+          description: data.matchDescription,
+          teams: [data.team1, data.team2],
+          OLC: data.locationId,
+        })
+      });
 
+      const json = await response.json();
+      return { data: json, status: response.status };
+    } catch (error) {
+      console.log(error);
+    }
+  };
   // ------------------Use Effects--------------------------
   useEffect(() => {
     if (authToken) {
@@ -406,18 +382,14 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (authToken && userInfo.user_role.includes("player")) {
-      fetchMyPlayerData(userInfo._id)
-    }
-    if (authToken && userInfo.user_role.includes("teamLeader")) {
-      fetchMyTeams()
+      fetchPlayers(userInfo._id, "user").then((data) => { setPlayerInfo(data[0]) })
     }
     // eslint-disable-next-line
   }, [userInfo])
 
   useEffect(() => {
-    // console.log(myTeams);
-    // eslint-disable-next-line
-  }, [myTeams])
+    // console.log(playerInfo);
+  }, [playerInfo])
   // ----------------------------------------------------------
 
   const myDetails = [
@@ -534,13 +506,35 @@ export const AppProvider = ({ children }) => {
   // Define the state and functions you want to provide
   const [active, setActive] = useState(0);
   // You can add more state and functions here 
-  // api.js
+  // api.js 
 
   return (
     <AppContext.Provider
       value={{
-        active, setActive, dummyData, authToken, setAuthToken, userInfo, setUserInfo, playerInfo, setPlayerInfo, login, logout, register, createPlayer, createTeam, myTeams, setMyTeams, fetchMyTeams, deleteMyTeam, addPlayer, removePlayer, fetchTeams, fetchPlayerData, fetchTeamPlayers, createTournament,
-        fetchMyTournaments, fetchTournament, updateTournament,deleteTournament
+        active,
+        setActive,
+        dummyData,
+        authToken,
+        setAuthToken,
+        userInfo,
+        setUserInfo,
+        playerInfo,
+        setPlayerInfo,
+        login,
+        logout,
+        register,
+        createPlayer,
+        createTeam,
+        deleteMyTeam,
+        addPlayer,
+        removePlayer,
+        fetchTeam,
+        fetchPlayers,
+        createTournament,
+        fetchTournament,
+        updateTournament,
+        deleteTournament,
+        createMatch,
       }}
     >
       {children}

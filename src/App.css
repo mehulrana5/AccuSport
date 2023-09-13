@@ -106,6 +106,7 @@ body {
   color: #FFFFFF;
   background-color: black;
   max-width: 500px;
+  width: 50%;
   /* width: fit-content; */
 }
 
@@ -224,6 +225,16 @@ input[readonly]{
   background-color: #333333;
 }
 
+.drop-down-row{
+  border-bottom:1px rgb(54, 53, 53) solid;
+  width: fit-content;
+  cursor: pointer;
+  padding: 2px;
+}
+.drop-down-row:hover{
+  background-color: #4a4949;
+}
+
 .container-1 {
   /* border: red solid; */
   height: 80vh;
@@ -245,6 +256,7 @@ input[readonly]{
   width: 100%;
   overflow: auto;
   display: flex;
+  padding: 1em;
 }
 
 .container-4 {
@@ -263,6 +275,7 @@ input[readonly]{
   overflow: auto;
 }
 .container-6{
+  /* border: #2196F3 solid; */
   max-width: 500px;
   min-width: 300px;
   padding: 5px;

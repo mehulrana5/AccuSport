@@ -1,21 +1,38 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AppContext from '../Context';
 
 const TournamentCards = () => {
-  const { dummyData } = useContext(AppContext);
+  const context = useContext(AppContext);
 
   const { status } = useParams();
 
   const navigate = useNavigate();
 
+  const [data, setData] = useState([])
+
   const handelBtn = (path) => {
     navigate(path);
   };
 
-  const ongoingTournaments = dummyData.tournamentDetails.filter(
-    (tournament) => tournament.status === status
-  );
+  async function fetchTournament(status) {
+    const res = await context.fetchTournament(status,"status");
+    setData(res);
+  }
+
+  useEffect(() => {
+    if (status) {
+      fetchTournament(status)
+    }
+  }, [status])
+
+  useEffect(() => {
+    // console.log(data);
+  }, [data])
+
+  // const ongoingTournaments = dummyData.tournamentDetails.filter(
+  //   (tournament) => tournament.status === status
+  // );
 
   return (
     <div className="container-4">
@@ -30,22 +47,20 @@ const TournamentCards = () => {
         Tournaments
       </h1>
       <div className="container-2">
-        {ongoingTournaments.map((tournament) => (
-          <div className="card" key={tournament.id}>
-            <h3>{tournament.name}</h3>
+        {data && data.map((e, idx) => (
+          <div className="card" key={idx}>
             <div>
-              Sport:{tournament.sportsType}
+              {e.tournament_name}
             </div>
             <div>
-              Date:{new Date(tournament.startDateTime).toLocaleDateString()}
+              {e.sport_type}
             </div>
             <div>
-              <button className="blue-btn" onClick={() => handelBtn(`./${tournament.id}`)}>
-                Show Details
-              </button>
-              <button className='green-btn'
-                onClick={() => handelBtn(`/join-tournament/${tournament.id}`)}>
-                Join
+              {new Date(e.start_date_time).toLocaleString()}
+            </div>
+            <div>
+              <button className='green-btn' onClick={() => handelBtn(`../view/${e._id}`)}>
+                View
               </button>
             </div>
           </div>

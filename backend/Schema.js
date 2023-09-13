@@ -1,34 +1,37 @@
 const mongoose = require('mongoose');
 
-const userSchema={
-    user_name:String,
-    user_pwd:String,
-    user_role:[String]
+const userSchema = {
+    user_email: String,
+    user_pwd: String,
+    user_role: [String]
 }
 const user = mongoose.model('user', userSchema);
 
-const playerSchema={
-    user_id:{
+const playerSchema = {
+    user_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     },
-    player_name:String,
-    player_dob:Date,
-    team_ids:[{ type: mongoose.Schema.Types.ObjectId, ref: 'team' }]
+    player_name: String,
+    player_dob: Date,
+    team_ids: [{
+        type: mongoose.Schema.Types.ObjectId
+        , ref: 'team'
+    }]
 }
 
-const player=mongoose.model('player',playerSchema)
+const player = mongoose.model('player', playerSchema)
 
-const teamSchema={
-    team_leader:{
+const teamSchema = {
+    team_leader: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     },
-    team_name:String,
-    team_players_ids:[{ type: mongoose.Schema.Types.ObjectId, ref: 'player' }]
+    team_name: String,
+    team_players_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'player' }]
 }
 
-const team=mongoose.model('team',teamSchema)
+const team = mongoose.model('team', teamSchema)
 
 const matchSchema = new mongoose.Schema({
     tournament_id: {
@@ -45,68 +48,50 @@ const matchSchema = new mongoose.Schema({
         required: true
     },
     description: {
-        type:String,
+        type: String,
         required: true
     },
     teams: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'team',
         required: true
-    }, 
+    },
     {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'team',
         required: true
     }],
-    match_admin:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'user',
-        require:true
+    OLC: {
+        type: String,
+        required: true
     }
 });
 
-const match=mongoose.model('match',matchSchema)
+const match = mongoose.model('match', matchSchema)
 
-const tournamentSchema={
-    tournament_name:String,
-    tournament_status:String,
-    sport_type:String,
-    start_date_time:Date,
-    description:String,
-    organizer_id:{
+const tournamentSchema = new mongoose.Schema({
+    tournament_name: String,
+    tournament_status: String,
+    sport_type: String,
+    start_date_time: Date,
+    description: String,
+    organizer_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     },
-    match_admins:[{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }]
-}
+    match_admins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }]
+})
+// Middleware to run before a find operation
+// tournamentSchema.pre('find', function () {
+//     // You can add your logic here before the find operation
+//     console.log('Middleware before find operation');
+// });
+const tournament = mongoose.model('tournament', tournamentSchema)
 
-const tournament=mongoose.model('tournament',tournamentSchema)
-
-const organizerSchema={
-    organizer_name:String
-}
-
-const organizer=mongoose.model('organizer',organizerSchema)
-
-const venueSchema = new mongoose.Schema({
-    venue_name: {
-        type: String,
-        required: true
-    },
-    location: {
-        type: String,
-        required: true
-    }
-});
-
-const venue = mongoose.model('venue', venueSchema);
-
-module.exports ={
+module.exports = {
     user,
     player,
     team,
     match,
     tournament,
-    organizer,
-    venue,
 } 

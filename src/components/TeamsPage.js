@@ -4,42 +4,36 @@ import AppContext from '../Context';
 
 function TeamsPage() {
     const [teamIdFilter, setTeamIdFilter] = useState('');
-    
-    const context = useContext(AppContext)
-    const navigate=useNavigate();
-    
-    const [player,setPlayer] =useState(false);
 
-    useEffect(()=>{
+    const context = useContext(AppContext)
+    const navigate = useNavigate();
+
+    const [player, setPlayer] = useState(false);
+
+    useEffect(() => {
         setPlayer(context.userInfo.user_role.includes("player"));
-    },[context.userInfo,context.playerInfo])
+    }, [context.userInfo, context.playerInfo])
 
     const handleFilterSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault()
         if (teamIdFilter) {
             navigate(`/teams/${teamIdFilter}`);
         }
     };
     return (
-        <div className="container-1">
-            <h2>Team filter</h2>
-            <div className="team-filter">
+        <div className='container-1'>
+            <div>
                 <form onSubmit={handleFilterSubmit}>
-                    <label>
-                        Team ID/Name:
-                        <input
-                            type="text"
-                            value={teamIdFilter}
-                            onChange={(e) => setTeamIdFilter(e.target.value)}
-                        />
-                    </label>
-                    <div className="container-2">
-                        <button className='blue-btn' type="submit">Apply Filter</button>
-                        <Link to={player?'../createTeam':'../login'}>
-                            <button className='green-btn'>
-                                Create team
-                            </button>
-                        </Link>
+                    <input
+                        type="text"
+                        className='form-input'
+                        value={teamIdFilter}
+                        onChange={(e) => setTeamIdFilter(e.target.value)}
+                    />
+                    <button className='blue-btn' type="submit">Search</button>
+                    <div>
+                        <button className='green-btn' onClick={()=>navigate(player?'./createTeam':'../login')}>Create team</button>
+                        <button className='blue-btn' onClick={()=>navigate(player?'./myTeams':'../login')}>My team</button>
                     </div>
                 </form>
             </div>

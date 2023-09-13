@@ -11,20 +11,18 @@ function CreateTournamentPage() {
 
     const [data, setData] = useState();
 
-    const navigate=useNavigate();
+    const navigate = useNavigate();
 
     const startDate = data ? new Date(data.start_date_time) : null;
     const formattedStartDate = startDate ? startDate.toISOString().slice(0, 16) : undefined;
     const readOnly = (operation === "view" || operation === "update");
     const viewOnly = operation === "view"
     const { register, handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
-    let matchAdmins = data ? data.match_admins : null;
+    let matchAdmins = data ? data.match_admins : null; 
     const { fields, append, remove } = useFieldArray({
         name: "match_admins",
         control
     });
-
-
 
     useEffect(() => {
         setData()
@@ -33,7 +31,7 @@ function CreateTournamentPage() {
     useEffect(() => {
         if (tournamentId) {
             async function getData() {
-                const res = await context.fetchTournament(tournamentId);
+                const res = await context.fetchTournament(tournamentId,"id");
                 setData(res);
             }
             getData();
@@ -51,10 +49,7 @@ function CreateTournamentPage() {
     }, [data])
 
     const onSubmit = (data) => {
-        // console.log(data);
-        context.createTournament(data);
-        navigate("../myTournaments")
-        
+        context.createTournament(data).then(()=>{navigate("../myTournaments")});
     }
 
     // Custom validation function for MongoDB-like ObjectID
@@ -73,7 +68,7 @@ function CreateTournamentPage() {
                     description: getValues("description"),
                     match_admins: getValues("match_admins"),
                 };
-    
+
                 setData(updatedData);
                 await context.updateTournament(updatedData);
                 alert("updated")
@@ -89,7 +84,7 @@ function CreateTournamentPage() {
                 const curDateTime = new Date();
                 const start = new Date(data.start_date_time)
                 if (start > curDateTime) {
-                    return alert(`Cannot End tournament before start date time\nToday:\t${curDateTime}\nStart:\t${start}`)
+                    return alert(`Cannot End tournament before start date time\nToday:\t${curDateTime.toLocaleString()}\nStart:\t${start.toLocaleString()}`)
                 }
                 console.log("running end");
             }
@@ -100,8 +95,20 @@ function CreateTournamentPage() {
     }
 
     return (
-        <div className='container-6' style={{ marginLeft: "20px" }}>
-            <form className='form-group' onSubmit={handleSubmit(onSubmit)}>
+        <div className='container-2' style={{height:"70vh"}}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                {
+                    data?
+                    <>
+                        <h3>ID</h3>
+                        <input
+                            className='form-input'
+                            readOnly={readOnly}
+                            defaultValue={data ? data._id : undefined}
+                        />
+                    </>
+                    :<></>
+                }
                 <h3>Name</h3>
                 <input
                     className='form-input'
@@ -144,7 +151,7 @@ function CreateTournamentPage() {
                 )}
                 <h3>Description</h3>
                 <textarea
-                    cols="10"
+                    cols="40"
                     rows="4"
                     className='form-input'
                     defaultValue={data ? data.description : ""}
@@ -190,7 +197,12 @@ function CreateTournamentPage() {
                     }
                 </div>
                 {
-                    operation === "update" ? (<div><button type='button' onClick={handelUpdateTournament} className='blue-btn'>Update</button><button onClick={handelEndTournament} className='red-btn'>End Tournament</button></div>)
+                    operation === "update" ? (
+                        <div>
+                            <button type='button' onClick={handelUpdateTournament} className='blue-btn'>Update</button>
+                            <button type='button' onClick={handelEndTournament} className='red-btn'>End Tournament</button>
+                        </div>
+                    )
                         : operation === "view" ? (<></>) : (<input className='blue-btn' type="submit" value={"Create"} />)
                 }
             </form>

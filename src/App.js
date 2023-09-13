@@ -5,7 +5,6 @@ import HomePage from './components/HomePage';
 import TournamentsPage from './components/TournamentsPage';
 import TournamentCards from './components/TournamentCards';
 import NavBar from './components/NavBar';
-import TournamentDetails from './components/TournamentDetails';
 import MatchDetails from './components/MatchDetails';
 import PlayerDetail from './components/PlayerDetail';
 import TeamsPage from './components/TeamsPage';
@@ -29,6 +28,8 @@ import CreatePlayer from './components/CreatePlayer';
 import CreateTeam from './components/CreateTeam';
 import CreateTournamentPage from './components/CreateTournamentPage';
 import MyTournamentsPage from './components/MyTournamentsPage';
+import CreateMatchPage from './components/CreateMatchPage';
+import MyTeams from './components/MyTeams';
 
 const App = () => {
 
@@ -44,14 +45,17 @@ const App = () => {
           <Route path="/players" element={<PlayersPage />}>
             <Route path=':playerId' element={<PlayerDetail />} />
           </Route>
-          <Route path="/player/:playerId" element={<PlayerDetail />} />
+          
+          <Route path="/player/:playerId" element={<CreatePlayer/>}/>
+
           <Route path="/createPlayer" element={<CreatePlayer/>}/>
 
 
-          <Route path="createTeam" exact element={<CreateTeam/>} />
           
           <Route path="/teams" exact element={<TeamsPage />}>
-            <Route path=":teamId" exact element={<TeamInfo />} />
+            <Route path=":operation/:teamId" exact element={<TeamInfo />} />            
+            <Route path="createTeam" exact element={<CreateTeam/>} />
+            <Route path="myTeams" exact element={<MyTeams/>} />
           </Route>
           <Route path="/team-info/:teamId" exact element={<TeamInfo />} />
           
@@ -59,14 +63,14 @@ const App = () => {
 
           <Route path="/matches" element={<MatchesPage />}>
             <Route path=':matchId' element={<MatchDetails />} />
+            <Route path="createMatch" element={<CreateMatchPage/>} />
           </Route>
 
           <Route path="/tournaments/" element={<TournamentsPage />}>
             <Route path=":status" element={<TournamentCards />}/>
-            <Route path=":status/:tournamentId" element={<TournamentDetails/>} />
             <Route path="createTournament" element={<CreateTournamentPage/>}/>
             <Route path="myTournaments" element={<MyTournamentsPage/>}/>
-            <Route path="myTournaments/:operation/:tournamentId" element={<CreateTournamentPage/>}/>            
+            <Route path=":operation/:tournamentId" element={<CreateTournamentPage/>}/>            
           </Route>
 
 

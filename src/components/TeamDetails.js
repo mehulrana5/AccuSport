@@ -1,158 +1,139 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AppContext from '../Context';
+import { useFieldArray, useForm } from 'react-hook-form';
 
 function TeamInfo() {
-    const { teamId } = useParams();
+    const { operation, teamId } = useParams();
+
     const context = useContext(AppContext);
-    const navigate=useNavigate();
 
-    const [teamData, setTeamData] = useState(null);
-    const [playerData, setPlayerData] = useState([]);
-    const [canUpdate, setCanUpdate] = useState(false);
-    const [refresh, setRefresh] = useState(1);
+    const [data, setData] = useState()
+    const [players, setPlayers] = useState();
+
+    const navigate = useNavigate();
+
+    const isView = operation === 'view'
+    const isUpdate = operation === 'update'
+    const isDelete = operation === 'delete'
+
+    const { register, handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
+
+    const { fields, append, remove } = useFieldArray({
+        name: "team_players",
+        control
+    });
+
+    async function fetchTeam() {
+        try {
+            const res = await context.fetchTeam(teamId,"id")
+            setData(res);
+            const data=await context.fetchPlayers(teamId,"team");
+            setPlayers(data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    
+    function refinePlayerNames(data){
+        let arr=[];
+        data.forEach(e => {
+            arr=[...arr,e.player_name]
+        });
+        return arr; 
+    }
 
     useEffect(() => {
-        async function fetchTeam() {
-            try {
-                // console.log(teamId);
-                const data = await context.fetchTeams(teamId);
-                setTeamData(data[0]);
-
-                if (data[0].team_leader === context.userInfo._id) {
-                    setCanUpdate(true);
-                }
-                else {
-                    setCanUpdate(false)
-                }
-            } catch (error) {
-                console.error(error);
-                // Handle error here
-            }
-        }
         fetchTeam();
-    // eslint-disable-next-line
-    }, [context, teamId]);
+    }, [])
 
     useEffect(() => {
-        if (teamData) {
-            if (teamData) {
-                const playerIds = teamData.team_players_ids;
-                async function fetchData() {
-                    try {
-                        const data = await context.fetchTeamPlayers(playerIds);
-                        setPlayerData(data)
-                        // Now you can set the player data in the state if needed
-                    } catch (error) {
-                        console.error(error);
-                        // Handle any errors here
-                    }
-                }
-                fetchData();
-            }
+        if (data) {
+            setValue("team_id", data._id)
+            setValue("team_name", data.team_name)
         }
-        // eslint-disable-next-line
-    }, [teamData, refresh]);
+    }, [data])
+    
+    useEffect(()=>{
+        if(players){
+            const names=refinePlayerNames(players)
+            setValue("team_players", data.team_players_ids)
+        }
+    },[players])
 
-    function handelAddPlayer() {
-        const pid = prompt("enter player id")
-        if (pid) {
-            context.addPlayer(pid, teamData._id).then(() => {
-                alert(`player ${pid} is added to team ${teamData._id}`)
-                setRefresh(refresh === 1 ? 0 : 1);
-            }
-            )
-        }
+    const onSubmit = (data) => {
+        console.log(data);
     }
 
-    function handelRemovePlayer(pid, tid) {
-        const flag = window.confirm(`Are you sure to remove ${pid} from ${tid}`)
-        if (flag) {
-            context.removePlayer(pid, tid);
-            alert(`player ${pid} is removed from team ${tid}`)
-            setRefresh(refresh === 1 ? 0 : 1);
-        }
-    }
-    function handelPlayerDetails(pid){
-        navigate(`../../player/${pid}`)
-    }
-    // console.log(teamData);  
-    if (!teamData) {
-        return <p className="team-not-found">Team not found.</p>;
-    }
+    const validateObjectId = (value) => {
+        return /^[0-9a-fA-F]{24}$/.test(value);
+    };
+
     return (
-        <div className="container-2">
-            <div className="container-2">
-                <table className="details-table">
-                    <tbody>
-                        <tr>
-                            <td className="details-label">Team ID</td>
-                            <td className="details-value">
+        <div className="container-2" style={{ padding: "5px" }}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+
+                <h3>ID</h3>
+                <input
+                    type="text"
+                    className='form-input'
+                    readOnly={1}
+                    {
+                    ...register("team_id")
+                    }
+                />
+                <h3>Name</h3>
+                <input
+                    type="text"
+                    className='form-input'
+                    readOnly={1}
+                    {
+                    ...register("team_name")
+                    }
+                />
+                <h2>Team Players</h2>
+                <div>
+                    {fields.map((field, idx) => {
+                        return (
+                            <div key={field.id}>
+                                {
+                                    isView?
+                                    <h3>{players[idx].player_name}</h3>
+                                    :<></>
+                                }
                                 <input
                                     type="text"
                                     className='form-input'
-                                    readOnly={true}
-                                    value={teamData._id}
-                                    style={{ width: "50%" }}
+                                    style={{ margin: "5px 5px 0 0", width: "40%" }}
+                                    readOnly={isView}
+                                    {...register(`team_players[${idx}]`, {
+                                        required: true,
+                                        validate: validateObjectId, // Custom validation for MongoDB-like ObjectID
+                                    })}
+
                                 />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="details-label">Team name</td>
-                            <td className="details-value">
-                                <input
-                                    type="text"
-                                    className='form-input'
-                                    readOnly={true}
-                                    value={teamData.team_name}
-                                    style={{ width: "50%" }}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-
-                        </tr>
-                        {/* Add more rows for other team details */}
-                    </tbody>
-
-                </table>
-
-            </div>
-            <table className="">
-                <thead>
-                    <tr>
-                        <th colSpan={canUpdate ? 4 : 2} className='table-head'>Players</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {playerData.map((data, idx) => (
-                        <tr key={idx}>
-                            <td className='details-value'>
-                                {data.player_name}
-                            </td>
-                            <td className=''>
-                                <button onClick={() => handelPlayerDetails(data._id)} className='blue-btn'>
-                                    Player Details
-                                </button>
-                            </td>
-                            {
-                                canUpdate ?
-                                    <td className=''>
-                                        <button onClick={() => handelRemovePlayer(data._id, teamData._id)} className="red-btn">
-                                            Remove Player
-                                        </button>
-                                    </td> : <></>
-                            }
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            {
-                canUpdate ?
-                    <button onClick={handelAddPlayer} className="green-btn">
-                        Add Player
-                    </button> : <></>
-            }
+                                {
+                                    isView ? <></>
+                                        : (idx >= 0 && (
+                                            <button className='red-btn' onClick={() => remove(idx)}>Remove</button>
+                                        ))
+                                }
+                                {errors.team_players && errors.team_players[idx] && (
+                                    <p style={{ color: "red" }}>Invalid Object ID format.</p>
+                                )}
+                            </div>
+                        )
+                    })}
+                    {
+                        isView ? <></>
+                            : <button className='green-btn' type="button" onClick={() => append("")}>Add</button>
+                    }
+                </div>
+                {
+                    isView ? <></>
+                        : <button className='blue-btn' type="submit">Update</button>
+                }
+            </form>
         </div>
     );
 }

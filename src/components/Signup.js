@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const Signup = () => {
 
   const [cred, setCred] = useState({
-    username:"",
+    email:"",
     password:""
   });
 
@@ -28,13 +28,13 @@ const Signup = () => {
       <h2 className="form-heading">Signup</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="username" className="form-label">
-            Username
+          <label htmlFor="email" className="form-label">
+            email
           </label>
           <input
-            type="text"
-            id="username"
-            value={cred.username}
+            type='email'
+            id="email"
+            // value={cred.email}
             onChange={handleCredChange}
             className="form-input"
             required

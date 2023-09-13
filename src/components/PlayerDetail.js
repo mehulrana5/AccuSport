@@ -10,10 +10,10 @@ const PlayerDetail = () => {
   useEffect(() => {
     async function loadDetails(pid) {
       try {
-        const data = await context.fetchPlayerData(pid);
+        const data = await context.fetchPlayers(pid,'id'); 
         setPlayer(data);
       } catch (error) {
-        console.error('Error loading player details:', error);
+        console.error(error);
       }
     }
     loadDetails(playerId);
@@ -29,10 +29,7 @@ const PlayerDetail = () => {
     }
     return age;
   }
-
-  if (!player) {
-    return <p>Player not found.</p>;
-  }
+  if(!player)return(<></>)
 
   return (
     <div className="container-2">

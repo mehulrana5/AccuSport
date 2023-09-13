@@ -13,7 +13,7 @@ function MyTournamentsPage() {
     }, [tournaments]);
 
     function handelBtn(operation,tid){
-        navigate(`./${operation}/${tid}`)    
+        navigate(`../${operation}/${tid}`)    
     }
     async function handelDelete(tn,tid){
         try {
@@ -29,7 +29,7 @@ function MyTournamentsPage() {
     }
     async function getTournaments() {
         try {
-            const data = await context.fetchMyTournaments();
+            const data = await context.fetchTournament(context.userInfo._id,"org");
             setTournaments(data);
             setLoading(false);
         } catch (error) {
@@ -49,7 +49,7 @@ function MyTournamentsPage() {
                 <p>Loading...</p> // You can replace this with a spinner or loading animation.
             ) : (
                 <div className="container-2">
-                    {tournaments.map((t, idx) => (
+                    {tournaments && tournaments.map((t, idx) => (
                         <div className="card" key={idx}>
                             <h3>{t.tournament_name}</h3>
                             <div>

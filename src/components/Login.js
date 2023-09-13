@@ -1,54 +1,64 @@
 import React, { useContext, useState } from 'react';
 import AppContext from '../Context';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+
 
 const Login = () => {
   const context = useContext(AppContext);
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     await context.login(username, password);
+  //     navigate('/');
+  //   } catch (error) {
+  //     console.error('Error during login:', error);
+  //   }
+  // };
 
+  async function handelLogin(email,password){
     try {
-      await context.login(username, password);
-      // Handle successful login
-      navigate('/');
+      await context.login(email,password)
+      navigate("/")
     } catch (error) {
-      // Handle login failure
-      console.error('Error during login:', error);
+      console.log(error);   
     }
-  };
+  }
+
+  const { register, handleSubmit, formState: { errors } } = useForm();
+
+  const onSubmit = (data) => {
+    handelLogin(data.email,data.password);
+}
 
   return (
     <div className="container-1">
-      <h2 className="form-heading">Login</h2>
-      <form onSubmit={handleLogin}>
-        <div className="form-group">
-          <label htmlFor="username" className="form-label">Username</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            className="form-input"
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password" className="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="form-input"
-          />
-        </div>
-        <button type="submit" className="submit-button">Login</button>
-        <button className="submit-button" onClick={()=>navigate("../signup")}>Sign Up</button>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <h3>Email</h3>
+        <input
+          className='form-input'
+          type='email'
+          {...register('email', {
+            required: true,
+          })}
+        />
+        {errors.email && errors.email.type === "required" && (
+          <p style={{ color: "red" }}>Please enter email.</p>
+        )}
+        <h3>Password</h3> 
+        <input
+          className='form-input'
+          type='password'
+          {...register('password', {
+            required: true,
+          })}
+        />
+        {errors.password && errors.password.type === "required" && (
+          <p style={{ color: "red" }}>Please enter password.</p>
+        )}
+        <button type="submit" className='blue-btn'>Login</button>
       </form>
     </div>
   );
