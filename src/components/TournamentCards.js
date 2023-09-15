@@ -15,27 +15,15 @@ const TournamentCards = () => {
     navigate(path);
   };
 
-  async function fetchTournament(status) {
-    const res = await context.fetchTournament(status,"status");
-    setData(res);
-  }
-
   useEffect(() => {
     if (status) {
-      fetchTournament(status)
+      context.fetchTournament(status,"status").then((res)=>{setData(res)})
     }
+    // eslint-disable-next-line
   }, [status])
 
-  useEffect(() => {
-    // console.log(data);
-  }, [data])
-
-  // const ongoingTournaments = dummyData.tournamentDetails.filter(
-  //   (tournament) => tournament.status === status
-  // );
-
   return (
-    <div className="container-4">
+    <div className="">
       <h1>
         {status === 'ongoing'
           ? 'On Going'
@@ -49,9 +37,9 @@ const TournamentCards = () => {
       <div className="container-2">
         {data && data.map((e, idx) => (
           <div className="card" key={idx}>
-            <div>
+            <h3>
               {e.tournament_name}
-            </div>
+            </h3>
             <div>
               {e.sport_type}
             </div>

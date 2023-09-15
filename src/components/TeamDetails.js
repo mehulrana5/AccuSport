@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import AppContext from '../Context';
 import { useFieldArray, useForm } from 'react-hook-form';
 
@@ -11,13 +11,9 @@ function TeamInfo() {
     const [data, setData] = useState()
     const [players, setPlayers] = useState();
 
-    const navigate = useNavigate();
-
     const isView = operation === 'view'
-    const isUpdate = operation === 'update'
-    const isDelete = operation === 'delete'
 
-    const { register, handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
+    const { register, handleSubmit, control, formState: { errors }, setValue} = useForm();
 
     const { fields, append, remove } = useFieldArray({
         name: "team_players",
@@ -34,17 +30,10 @@ function TeamInfo() {
             console.log(error);
         }
     }
-    
-    function refinePlayerNames(data){
-        let arr=[];
-        data.forEach(e => {
-            arr=[...arr,e.player_name]
-        });
-        return arr; 
-    }
 
     useEffect(() => {
         fetchTeam();
+        // eslint-disable-next-line
     }, [])
 
     useEffect(() => {
@@ -52,13 +41,14 @@ function TeamInfo() {
             setValue("team_id", data._id)
             setValue("team_name", data.team_name)
         }
+        // eslint-disable-next-line
     }, [data])
     
     useEffect(()=>{
         if(players){
-            const names=refinePlayerNames(players)
             setValue("team_players", data.team_players_ids)
         }
+        // eslint-disable-next-line
     },[players])
 
     const onSubmit = (data) => {

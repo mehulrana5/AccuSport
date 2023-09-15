@@ -10,16 +10,19 @@ function MyTeams() {
     const [teams,setTeams]=useState(false)
 
     useEffect(()=>{
-      context.fetchTeam(context.userInfo._id,"user").then((data)=>{setTeams(data)})
+      if(context.userInfo._id){
+        context.fetchTeam(context.userInfo._id,"user").then((data)=>{setTeams(data)})
+      }
     },[])
 
     async function handelDelete(e){
       try {
         const flag=window.confirm(`Do you want to delete ${e.team_name}`)
         if(flag){
-          // console.log("running delete");
-          // context.
-          navigate('../createTeam')
+          context.deleteTeam(e._id).then((data)=>{
+            alert(data.error)
+            navigate('../createTeam')
+          })
         } 
       } catch (error) {
         console.log(error);
@@ -28,6 +31,7 @@ function MyTeams() {
 
     return (
     <div>
+      <h1>My Teams</h1>
       {
         teams && teams.map((e,idx)=>(
             <div className="card" key={idx}>

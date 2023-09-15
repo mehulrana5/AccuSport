@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useId, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 // Create a new context
 const AppContext = createContext();
 
@@ -156,7 +156,7 @@ export const AppProvider = ({ children }) => {
       // Handle error here
     }
   };
-  
+
   const createTeam = async (team) => {
     try {
       const response = await fetch(`${ip}/createTeam`, {
@@ -179,7 +179,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const deleteMyTeam = async (tid) => {
+  const deleteTeam = async (tid) => {
     try {
       const response = await fetch(`${ip}/deleteTeam`, {
         method: "DELETE",
@@ -192,7 +192,7 @@ export const AppProvider = ({ children }) => {
         })
       })
       const data = await response.json();
-      console.log(data);
+      return data;
       // await fetchTeam(userInfo._id, "user");
     } catch (error) {
       console.log(error);
@@ -283,20 +283,19 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(data)
       })
       const json = await response.json();
-      console.log(json);
     } catch (error) {
       console.log(error);
     }
   }
 
-  const fetchTournament = async (query,fetchBy) => {
+  const fetchTournament = async (query, fetchBy) => {
     try {
       const response = await fetch(`${ip}/fetchTournament`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query ,fetchBy}),
+        body: JSON.stringify({ query, fetchBy }),
       });
 
       if (!response.ok) {
@@ -371,6 +370,24 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   };
+  const fetchMatches = async (query, fetchBy) => {
+    try {
+      const response = await fetch(`${ip}/fetchMatches`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          query:query,
+          fetchBy:fetchBy
+        })
+      });
+      const data=await response.json();
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
   // ------------------Use Effects--------------------------
   useEffect(() => {
     if (authToken) {
@@ -525,7 +542,7 @@ export const AppProvider = ({ children }) => {
         register,
         createPlayer,
         createTeam,
-        deleteMyTeam,
+        deleteTeam,
         addPlayer,
         removePlayer,
         fetchTeam,
@@ -535,6 +552,7 @@ export const AppProvider = ({ children }) => {
         updateTournament,
         deleteTournament,
         createMatch,
+        fetchMatches, 
       }}
     >
       {children}

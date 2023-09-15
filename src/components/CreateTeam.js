@@ -26,7 +26,7 @@ function CreateTeam() {
         if (value.length < 4) return "Length of team name should be atleast 4 characters"
     }
 
-    return (
+    return ( 
         <div className='container-2'>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <h3>Team Name</h3>

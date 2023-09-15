@@ -2,14 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppContext from '../Context';
 
-
 function CreateMatchPage() {
-  const { handleSubmit, register, watch,getValues, setValue, formState: { errors } } = useForm();
+  const { handleSubmit, register, watch, getValues, setValue, formState: { errors } } = useForm();
 
   const [showMapModal, setShowMapModal] = useState(false);
   const [geoData, setGeoData] = useState([])
 
-  const context=useContext(AppContext)
+  const context = useContext(AppContext)
 
   const onSubmit = (data) => {
     // console.log(data);
@@ -40,8 +39,8 @@ function CreateMatchPage() {
     }
   }
 
-  async function createMatch(data){
-    const response=await context.createMatch(data);
+  async function createMatch(data) {
+    const response = await context.createMatch(data);
     alert(response.data.error)
   }
 
@@ -72,7 +71,7 @@ function CreateMatchPage() {
   }
   function isValidEndDateTime(value) {
     const startDate = new Date(getValues("matchStartDateTime"));
-    const endDate = new Date(value); 
+    const endDate = new Date(value);
 
     if (startDate >= endDate) {
       return "Match end date-time must be set in the after start date-time.";
@@ -84,14 +83,14 @@ function CreateMatchPage() {
   }
 
   return (
-    <div className='container-3' style={{ height: "90%", padding: "5px" }}>
-      <div>
+    <div className='container-3' style={{height:"60vh",width:""}}>
+      <div className=''>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-group' >
-            <label className='form-label' htmlFor="tournamentId">Tournament Id</label>
+            <h3>Tournament Id</h3>
             <input
               type="text"
-              id="tournamentId"
+              id="tournamentId" 
               className='form-input'
               {...register('tournamentId', {
                 required: true,
@@ -101,7 +100,7 @@ function CreateMatchPage() {
             {errors.tournamentId && <p style={{ color: "red" }}>Invalid MongoDB ObjectId format.</p>}
           </div>
           <div className='form-group' >
-            <label className='form-label' htmlFor="team1">Team 1 Id</label>
+            <h3>Team 1 Id</h3>
             <input
               type="text"
               id="team1"
@@ -114,7 +113,7 @@ function CreateMatchPage() {
             {errors.team1 && <p style={{ color: "red" }}>Invalid MongoDB ObjectId format.</p>}
           </div>
           <div className='form-group' >
-            <label className='form-label' htmlFor="team2">Team 2 Id</label>
+            <h3>Team 2 Id</h3>
             <input
               type="text"
               id="team2"
@@ -127,7 +126,7 @@ function CreateMatchPage() {
             {errors.team2 && <p style={{ color: "red" }}>Invalid MongoDB ObjectId format.</p>}
           </div>
           <div className='form-group'>
-            <label className='form-label' htmlFor="team2">Enter venue location code</label>
+            <h3>Enter venue location code</h3>
             <button type="button" className='blue-btn' onClick={showMapModal ? closeMapModal : openMapModal}>
               {toggleMapButton}
             </button>
@@ -155,7 +154,7 @@ function CreateMatchPage() {
                 ))}
           </div>
           <div className="form-group">
-            <label htmlFor="matchStartDateTime" className="form-label">Start Date and Time</label>
+            <h3>Start Date and Time</h3>
             <input
               type="datetime-local"
               id="matchStartDateTime"
@@ -168,7 +167,7 @@ function CreateMatchPage() {
             {errors.matchStartDateTime && <p style={{ color: "red" }}>{errors.matchStartDateTime.message}</p>}
           </div>
           <div className="form-group">
-            <label htmlFor="matchEndDateTime" className="form-label">End Date and Time</label>
+            <h3>End Date and Time</h3>
             <input
               type="datetime-local"
               id="matchEndDateTime"
@@ -181,7 +180,7 @@ function CreateMatchPage() {
             {errors.matchEndDateTime && <p style={{ color: "red" }}>{errors.matchEndDateTime.message}</p>}
           </div>
           <div className='form-group' >
-            <label className='form-label' htmlFor="matchDescription">Match Description</label>
+            <h3>Match Description</h3>
             <textarea
               id="matchDescription"
               cols="70"

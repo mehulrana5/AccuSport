@@ -30,6 +30,7 @@ import CreateTournamentPage from './components/CreateTournamentPage';
 import MyTournamentsPage from './components/MyTournamentsPage';
 import CreateMatchPage from './components/CreateMatchPage';
 import MyTeams from './components/MyTeams';
+import MyMatches from './components/MyMatches';
 
 const App = () => {
 
@@ -64,6 +65,7 @@ const App = () => {
           <Route path="/matches" element={<MatchesPage />}>
             <Route path=':matchId' element={<MatchDetails />} />
             <Route path="createMatch" element={<CreateMatchPage/>} />
+            <Route path="myMatches" element={<MyMatches/>} />
           </Route>
 
           <Route path="/tournaments/" element={<TournamentsPage />}>

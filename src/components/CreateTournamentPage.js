@@ -21,7 +21,7 @@ function CreateTournamentPage() {
     let matchAdmins = data ? data.match_admins : null; 
     const { fields, append, remove } = useFieldArray({
         name: "match_admins",
-        control
+        control 
     });
 
     useEffect(() => {

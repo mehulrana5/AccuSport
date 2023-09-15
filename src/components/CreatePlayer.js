@@ -18,11 +18,9 @@ function CreatePlayer() {
     });
 
     const [data, setData] = useState();
-    const [isMyId, setIsMyId] = useState(false);
 
     const onSubmit = (data) => {
-        console.log(data);
-        // context.createPlayer(data).then(() => {navigate('/')})
+        context.createPlayer(data).then(() => { navigate('/') })
     }
 
     function isValidName(value) {
@@ -41,14 +39,11 @@ function CreatePlayer() {
                 setData(res);
             })
         }
+        // eslint-disable-next-line
     }, [playerId])
 
     useEffect(() => {
         if (data) {
-            console.log(data);
-            if (context.userInfo._id === data.user_id) setIsMyId(true)
-            else setIsMyId(false)
-
             setValue("player_name", data.player_name)
             setValue("player_id", data._id)
             const date = new Date(data.player_dob);
@@ -56,6 +51,7 @@ function CreatePlayer() {
             setValue("player_dob", formattedDate);
             setValue("team_ids", data.team_ids)
         }
+        // eslint-disable-next-line
     }, [data])
 
     return (
@@ -125,7 +121,7 @@ function CreatePlayer() {
                                         !data ? <></>
                                             : (idx >= 0 && (
                                                 <>
-                                                    <button type="button" className='green-btn' onClick={()=>navigate(`../teams/view/${data.team_ids[idx]}`)}>View</button>
+                                                    <button type="button" className='green-btn' onClick={() => navigate(`../teams/view/${data.team_ids[idx]}`)}>View</button>
                                                     <button type='button' className='red-btn' onClick={() => remove(idx)}>Leave</button>
                                                 </>
                                             ))
@@ -140,10 +136,10 @@ function CreatePlayer() {
                 </div>
                 {
                     data ? <>
-                     {/* <button className='blue-btn' type="button">Update Team</button> */}
-                     <button className='blue-btn' type="button" onClick={()=>navigate("../teams/myTeams")}>My Teams</button>
-                     <button className='green-btn' type="button" onClick={()=>navigate("../teams/myTeams")}>Join team</button>
-                     <button className='green-btn' type="button" onClick={()=>navigate("../teams/createTeam")}>Create team</button>
+                        {/* <button className='blue-btn' type="button">Update Team</button> */}
+                        <button className='blue-btn' type="button" onClick={() => navigate("../teams/myTeams")}>My Teams</button>
+                        <button className='green-btn' type="button" onClick={() => navigate("../teams/myTeams")}>Join team</button>
+                        <button className='green-btn' type="button" onClick={() => navigate("../teams/createTeam")}>Create team</button>
                     </>
                         : <button type="submit" className='blue-btn'>Submit</button>
                 }

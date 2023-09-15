@@ -20,7 +20,7 @@ function MyTournamentsPage() {
             const flag=window.confirm(`Do you want to permanantly delete ${tn} tournament`);
             if(flag){
                 const res=await context.deleteTournament(tid);
-                alert(res.message);
+                alert(res.error);
                 getTournaments();
             }
         } catch (error) {
@@ -43,7 +43,7 @@ function MyTournamentsPage() {
         // eslint-disable-next-line
     }, []);
     return (
-        <div className='container-4'>
+        <div className=''>
             <h1>My Tournaments</h1>
             {loading ? (
                 <p>Loading...</p> // You can replace this with a spinner or loading animation.

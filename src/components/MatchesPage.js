@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import AppContext from '../Context';
 
 function MatchesPage() {
@@ -19,31 +19,28 @@ function MatchesPage() {
     useEffect(() => {
         if (context.userInfo.user_role.includes("player")) setIsPlayer(true);
         else setIsPlayer(false);
+        // eslint-disable-next-line
     }, [])
     return (
         <div className="container-1">
-            <div className="team-filter">
-                <form style={{ display: "flex", flexDirection: "row", width: "90vw", alignItems: "center", }} onSubmit={handleFilterSubmit}>
-                    <label>
-                        <h3>ID:</h3>
-                    </label>
-                    <input
-                        type="text"
-                        value={matchIdFilter}
-                        onChange={(e) => setmatchIdFilter(e.target.value)}
-                    />
-                    <div style={{ marginLeft: "5px" }} className="container-2">
+            <div className="container-2">
+                <form onSubmit={handleFilterSubmit}>
+                    <div>
+                        <input
+                            type="text"
+                            className='form-input'
+                            value={matchIdFilter}
+                            onChange={(e) => setmatchIdFilter(e.target.value)}
+                        />
                         <button className='blue-btn' type="submit">Apply Filter</button>
-                        <Link to={isPlayer ? './myMatches' : '../login'}>
-                            <button className='blue-btn'>
-                                My matches
-                            </button>
-                        </Link>
-                        <Link to={isPlayer ? './createMatch' : '../login'}>
-                            <button className='green-btn'>
-                                Create match
-                            </button>
-                        </Link>
+                    </div>
+                    <div>
+                        <button className='blue-btn' onClick={() => navigate(isPlayer ? './myMatches' : '../login')}>
+                            My matches
+                        </button>
+                        <button className='green-btn' onClick={() => navigate(isPlayer ? './createMatch' : '../login')} >
+                            Create match
+                        </button>
                     </div>
                 </form>
             </div>

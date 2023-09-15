@@ -394,7 +394,7 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
 
         if (matches) {
             return res.status(401).json(
-                { error: "Can not delete this team as it is a part of a match that is not over yet.To remove it first ask the match admin to remove this team from the upcoming/ongoing  tournament" })
+                { error: "Can not delete this team as it is a part of a match that is not over yet.To remove it first ask the match admin to remove this team from the upcoming/ongoing tournament"})
         }
 
         if (!teamData) {
@@ -430,7 +430,7 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
 router.post('/fetchTeam', async (req, res) => {
     try {
         const { query, fetchBy } = req.body;
-
+                
         let data;
 
         switch (fetchBy) {
@@ -658,14 +658,14 @@ router.delete('/deleteTournament', fetchUser, async (req, res) => {
         }
 
         // Check if there are any matches associated with this tournament
-        const matchesWithTournament = await schema.match.exists({ tournament: tournamentId });
+        const matchesWithTournament = await schema.match.exists({ tournament_id: tournamentId });
         if (matchesWithTournament) {
             return res.status(400).json({ error: "Cannot delete tournament with associated matches" });
         }
 
         await schema.tournament.findByIdAndDelete(tournamentId);
 
-        res.json({ message: "Tournament deleted successfully" });
+        res.json({ error: "Tournament deleted successfully" });
     } catch (error) {
         console.error('Error deleting tournament:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -676,7 +676,6 @@ router.delete('/deleteTournament', fetchUser, async (req, res) => {
 router.post('/createMatch', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
-        console.log(req.body);
         const { tournament_id, match_start_date_time, match_end_date_time, description, teams, OLC } = req.body;
 
         // Use findById to find the tournament by its _id
@@ -782,35 +781,49 @@ router.put('/updateMatch/:match_id', fetchUser, async (req, res) => {
     }
 });
 
-//fetch matches of a tournament
-router.post('/fetchTournamentMatches', async (req, res) => {
+//fetch matches of a tournament //by tour,id,team id,player
+router.post('/fetchMatches', async (req, res) => {
     try {
-        const { tournament_id } = req.body
-        const matches = await schema.match.find({ tournament_id: tournament_id })
-        if (!matches || matches.length === 0) {
-            res.status(404).json({ error: "tournament matches not found" })
-        }
-        res.status(200).json(matches)
-    } catch (error) {
+        const { query, fetchBy } = req.body;
+        
+        let data;
 
+        switch (fetchBy) {
+            case "tour":
+                data = await schema.match.find({ tournament_id: query });
+                break;
+
+            case "team":
+                data = await schema.match.find({ teams: { $in: [query] } });
+                break;
+
+            case "player":
+                const data1 = await schema.player.findById(query);
+                if (data1) {
+                    data = await schema.match.find({ teams: { $in: data1.team_ids } });
+                } else {
+                    return res.status(404).json({ error: 'Player not found' });
+                }
+                break;
+
+            case "id":
+                data = await schema.match.findById(query);
+                break;
+
+            default:
+                break;
+        }
+        if (!data) {
+            return res.status(404).json({ error: "Could not fetch the matches" });
+        }
+
+        res.status(200).json(data);
+
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
-//fetch match by id
-router.get('/fetchMatchById/:matchId', async (req, res) => {
-    try {
-        const matchId = req.params.matchId;
-        const matchData = await schema.match.findById(matchId);
-
-        if (!matchData) {
-            return res.status(404).json({ error: "Match not found" });
-        }
-
-        res.status(200).json(matchData);
-    } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
 
 //delete match
 router.delete("/deleteMatch/:matchId", fetchUser, async (req, res) => {
