@@ -40,7 +40,7 @@ function TeamInfo() {
         if (data) {
             setValue("team_id", data._id)
             setValue("team_name", data.team_name)
-        }
+        } 
         // eslint-disable-next-line
     }, [data])
     
@@ -50,9 +50,12 @@ function TeamInfo() {
         }
         // eslint-disable-next-line
     },[players])
-
+ 
     const onSubmit = (data) => {
-        console.log(data);
+        // console.log(data.team_players,teamId);
+        context.addPlayer(data.team_players,teamId).then((res)=>{
+            alert(res.error); 
+        });
     }
 
     const validateObjectId = (value) => {
@@ -61,7 +64,7 @@ function TeamInfo() {
 
     return (
         <div className="container-2" style={{ padding: "5px" }}>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)}> 
 
                 <h3>ID</h3>
                 <input
@@ -86,11 +89,11 @@ function TeamInfo() {
                     {fields.map((field, idx) => {
                         return (
                             <div key={field.id}>
-                                {
+                                {/* {
                                     isView?
                                     <h3>{players[idx].player_name}</h3>
                                     :<></>
-                                }
+                                } */}
                                 <input
                                     type="text"
                                     className='form-input'

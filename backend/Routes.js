@@ -8,6 +8,8 @@ const fetchUser = require('./middleware/fetchUser')
 // const jwtSecret = process.env.JWT_SECRET;
 const jwtSecret = "mehul123";
 
+
+
 //register
 router.post('/register', async (req, res) => {
     // console.log('Request Body:', req.body);
@@ -40,7 +42,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-//login 
+//login  
 router.post('/login', async (req, res) => {
     try {
         const { user_email, user_pwd } = req.body;
@@ -299,89 +301,79 @@ router.post('/createTeam', fetchUser, async (req, res) => {
     }
 });
 
-//add player to a team with teamId
-router.put('/addPlayerToTeam', fetchUser, async (req, res) => {
-    const { player_id, team_id } = req.body;
-    const userId = req.user_id;
+//update Team Players of a team with teamId
+router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
     try {
-        // Check if the player with player_id exists
-        const playerExists = await schema.player.exists({ _id: player_id });
-        if (!playerExists) {
-            return res.status(400).json({ error: "Player does not exist" });
+        const { players, teamId } = req.body;
+        const userId = req.user_id;
+
+        // Check if the user is the team leader
+        const team = await schema.team.findById(teamId);
+
+        if (!team || !team.team_leader.equals(userId)) {
+            return res.status(401).json({ error: "Unauthorized action" });
         }
 
-        // Find the team
-        const teamData = await schema.team.findById(team_id);
+        // Check if all player IDs are valid
+        const playerIds = await schema.player.find({ _id: { $in: players } });
 
-        // Check if team exists
-        if (!teamData) {
-            return res.status(404).json({ error: "Team not found" });
+        if (playerIds.length !== players.length) {
+            return res.status(400).json({ error: "Some player IDs are not valid" });
+        }
+        //Check if the team leader is in the team if not then add him
+        let flag=false;
+        playerIds.forEach(e => {
+            if(e.user_id.equals(team.team_leader)){
+                flag=true;
+            }
+        });
+        if(!flag){
+            const leader=await schema.player.findOne({user_id:team.team_leader}).select("_id")
+            players.push(leader._id.toString());
+        }
+        // Check if the team is in an ongoing/upcoming match
+        const curDate = new Date();
+        const matches = await schema.match.find({
+            teams: { $in: [teamId] },
+            match_end_date_time: { $gte: curDate }
+        });
+
+        if (matches.length > 0) {
+            return res.status(400).json({ error: "Cannot update the team as it is in an ongoing/upcoming match. The match admin needs to update the match." });
         }
 
-        // Check if the player is already in the team
-        if (teamData.team_players_ids.includes(player_id)) {
-            return res.status(400).json({ error: "Player is already in the team" });
-        }
+        // Removing the team id from the removed players
+        team.team_players_ids.forEach(async (id) => {
+            if (!players.includes(id.toString())) {
+                
+                const check=await schema.player.findByIdAndUpdate(id, { $pull: { team_ids: team._id } }, { new: true });
+                
+                // console.log(check);
+            }
+        });
 
-        // Check if the authenticated user is the team leader
-        if (!teamData.team_leader.equals(userId)) {
-            return res.status(401).json({ error: "Not authorized for this action" });
-        }
+        // Adding the team id to the newly added players
+        players.forEach(async (player) => {
 
-        // Update the team's player list and the player's team_ids
-        await schema.team.findByIdAndUpdate(team_id, { $push: { team_players_ids: player_id } });
-        await schema.player.findByIdAndUpdate(player_id, { $push: { team_ids: team_id } });
+            if (!team.team_players_ids.includes(player)) {
 
-        res.json({ message: "Player added to the team successfully" });
-    } catch (error) {
-        console.error('Error adding player to team:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+                const check=await schema.player.findByIdAndUpdate(player, { $push: { team_ids: [team._id] } }, { new: true });
 
-//remove player from the team using team id
-router.put('/removePlayerFromTeam', fetchUser, async (req, res) => {
-    const { team_id, player_id } = req.body;
-    const userId = req.user_id;
+                // console.log(check); 
+            }
+        });
 
-    try {
-        // Check if player exists 
-        const playerExists = await schema.player.exists({ _id: player_id });
-        if (!playerExists) {
-            return res.status(400).json({ error: "Player does not exist" });
-        }
-
-        // Check if player exists in the team    
-        const teamData = await schema.team.findById(team_id);
-        if (!teamData.team_players_ids.includes(player_id)) {
-            return res.status(400).json({ error: "Player not in this team" });
-        }
-
-        // Check if user is authorized to remove the player
-        if (!teamData.team_leader.equals(userId)) {
-            return res.status(400).json({ error: "Not authorized for this action" });
-        }
-
-        // Remove player id from team_player_ids
-        const updatedTeam = await schema.team.findByIdAndUpdate(
-            team_id,
-            { $pull: { team_players_ids: player_id } },
-            { new: true }
-        );
-
-        // Remove team id from team_ids of player
-        await schema.player.findByIdAndUpdate(
-            player_id,
-            { $pull: { team_ids: team_id } },
-            { new: true }
-        );
+        // Update the team player IDs in the team
+        const updatedTeam = await schema.team.findByIdAndUpdate(team._id, { team_players_ids: players }, { new: true });
 
         res.json(updatedTeam);
     } catch (error) {
-        console.error('Error removing player from team:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+
 
 //delete team 
 router.delete('/deleteTeam', fetchUser, async (req, res) => {
@@ -394,7 +386,7 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
 
         if (matches) {
             return res.status(401).json(
-                { error: "Can not delete this team as it is a part of a match that is not over yet.To remove it first ask the match admin to remove this team from the upcoming/ongoing tournament"})
+                { error: "Can not delete this team as it is a part of a match that is not over yet.To remove it first ask the match admin to remove this team from the upcoming/ongoing tournament" })
         }
 
         if (!teamData) {
@@ -430,7 +422,7 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
 router.post('/fetchTeam', async (req, res) => {
     try {
         const { query, fetchBy } = req.body;
-                
+
         let data;
 
         switch (fetchBy) {
@@ -785,7 +777,7 @@ router.put('/updateMatch/:match_id', fetchUser, async (req, res) => {
 router.post('/fetchMatches', async (req, res) => {
     try {
         const { query, fetchBy } = req.body;
-        
+
         let data;
 
         switch (fetchBy) {

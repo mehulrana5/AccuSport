@@ -199,7 +199,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const addPlayer = async (playerId, teamId) => {
+  const addPlayer = async (query, teamId) => {
     try {
       const response = await fetch(`${ip}/addPlayerToTeam`, {
         method: "PUT",
@@ -208,20 +208,15 @@ export const AppProvider = ({ children }) => {
           "auth-token": authToken,
         },
         body: JSON.stringify({
-          player_id: playerId,
+          query: query,
           team_id: teamId,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to add player to team");
-      }
-
       const data = await response.json();
-      console.log(data); // Log the response data
+      return data; // Log the response data
     } catch (error) {
-      console.error("Error adding player to team:", error);
-      // Handle the error here, such as showing an error message to the user
+      console.error(error);
     }
   };
 
