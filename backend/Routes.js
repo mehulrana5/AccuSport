@@ -366,7 +366,8 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
         // Update the team player IDs in the team
         const updatedTeam = await schema.team.findByIdAndUpdate(team._id, { team_players_ids: players }, { new: true });
 
-        res.json(updatedTeam);
+        res.status(200).json({updatedTeam,error:"Team updated"}); 
+        
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal Server Error" });

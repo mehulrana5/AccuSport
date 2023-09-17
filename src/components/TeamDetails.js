@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AppContext from '../Context';
 import { useFieldArray, useForm } from 'react-hook-form';
 
@@ -10,6 +10,8 @@ function TeamInfo() {
 
     const [data, setData] = useState()
     const [players, setPlayers] = useState();
+
+    const naigate=useNavigate();
 
     const isView = operation === 'view'
 
@@ -52,9 +54,9 @@ function TeamInfo() {
     },[players])
  
     const onSubmit = (data) => {
-        // console.log(data.team_players,teamId);
-        context.addPlayer(data.team_players,teamId).then((res)=>{
-            alert(res.error); 
+        context.updateTeamPlayers(data.team_players,teamId).then((res)=>{
+            alert(res.error);
+            naigate("../myTeams");
         });
     }
 
@@ -89,11 +91,11 @@ function TeamInfo() {
                     {fields.map((field, idx) => {
                         return (
                             <div key={field.id}>
-                                {/* {
+                                {
                                     isView?
                                     <h3>{players[idx].player_name}</h3>
                                     :<></>
-                                } */}
+                                }
                                 <input
                                     type="text"
                                     className='form-input'
