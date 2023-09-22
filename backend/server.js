@@ -1,10 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors=require('cors')
+const cors=require('cors');
 
 const app = express();
 const port = 3002; 
-
 // Connect to MongoDB
 async function connectToDatabase() {
   try {

@@ -189,7 +189,7 @@ router.put('/updatePlayer', fetchUser, async (req, res) => {
     }
 });
 
-//fetch multiple player data
+//fetch multiple player data by userId,name,id,team
 router.post('/fetchPlayers', async (req, res) => {
     try {
         const { query, fetchBy } = req.body;
@@ -205,7 +205,7 @@ router.post('/fetchPlayers', async (req, res) => {
                 break;
 
             case "name":
-                data = await schema.player.find({ player_name: query });
+                data = await schema.player.findOne({ player_name: query });
                 break;
 
             case "id":
@@ -374,8 +374,6 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
     }
 });
 
-
-
 //delete team 
 router.delete('/deleteTeam', fetchUser, async (req, res) => {
     const { team_id } = req.body;
@@ -488,7 +486,7 @@ router.post('/createTournament', fetchUser, async (req, res) => {
     }
 });
 
-// Update tournament
+// Update tournament (status,start date-time, description, match admins)
 router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
     try {
         const tournamentId = req.params.tournamentId;
@@ -501,14 +499,20 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
         } = req.body;
 
         const tournament = await schema.tournament.findById(tournamentId);
-
+        
+        //Check if tournament exist or not
+        
         if (!tournament) {
             return res.status(404).json({ error: "Tournament not found" });
         }
 
+        //Check if user if authorized or not
+
         if (!tournament.organizer_id.equals(userId)) {
             return res.status(401).json({ error: "Not authorized for this action" });
         }
+
+        //Check if match admin ids exist or not
 
         const checkAdmins = await schema.user.find({ _id: { $in: match_admins } });
 
@@ -540,6 +544,8 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
             });
         }
 
+        //Check status from upcoming to ongoing
+
         if (tournament_status === "ongoing" && tournament.tournament_status === "upcoming") {
             const startDate = new Date(tournament.start_date_time);
             const curDate = new Date();
@@ -549,6 +555,8 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
                 });
             }
         }
+
+        //Check status from ondoing to old
 
         if (tournament_status === "old" && tournament.tournament_status === "ongoing") {
             const matches = await schema.match.find({ tournament_id: tournament._id });
@@ -564,6 +572,8 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
                 });
             }
         }
+
+        //Check the range for setting a new start date of the tournament
 
         if (start_date_time !== tournament.start_date_time) {
             const matches = await schema.match.find({ tournament_id: tournament._id });
@@ -590,7 +600,7 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
             { new: true }
         );
 
-        res.status(200).json(updatedTournament);
+        res.status(200).json({updatedTournament,error:"tournament updated"});
     } catch (error) {
         console.error('Error updating tournament:', error);
         res.status(500).json({ error: 'Internal Server Error' });
