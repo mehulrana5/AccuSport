@@ -1,14 +1,25 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppContext from '../Context';
+import { useLocation, useParams } from 'react-router-dom';
 
 function CreateMatchPage() {
+
   const { handleSubmit, register, watch, getValues, setValue, formState: { errors } } = useForm();
+
+  const { operation, matchId } = useParams();
+
+  const { state } = useLocation();
+
+  // console.log(state);
 
   const [showMapModal, setShowMapModal] = useState(false);
   const [geoData, setGeoData] = useState([])
 
-  const context = useContext(AppContext)
+  const [team1PlayerNames, setTeam1PlayerNames] = useState();
+  const [team2PlayerNames, setTeam2PlayerNames] = useState();
+
+  const context = useContext(AppContext);
 
   const onSubmit = (data) => {
     // console.log(data);
@@ -51,6 +62,36 @@ function CreateMatchPage() {
     // eslint-disable-next-line
   }, [])
 
+  useEffect(() => {
+    if (state) {
+      const {
+        match,
+        teams: { team1, team2 },
+      } = state;
+
+      const matchStart = match ? new Date(match.match_start_date_time).toISOString().slice(0, 16) : undefined;
+      const matchEnd = match ? new Date(match.match_end_date_time).toISOString().slice(0, 16) : undefined;
+
+      setValue("tournamentId", match?.tournament_id);
+      setValue("team1", team1?._id);
+      setValue("team2", team2?._id);
+      setValue("locationId", match?.OLC || "");
+      setValue("matchStartDateTime", matchStart);
+      setValue("matchEndDateTime", matchEnd);
+      setValue("matchDescription", match?.description);
+
+      context.fetchPlayers(team1?._id, "teamPlayersNameOnly").then((res) => {
+        const team1PlayerNames = res.map((player) => player.player_name);
+        setTeam1PlayerNames(team1PlayerNames);
+      });
+
+      context.fetchPlayers(team2?._id, "teamPlayersNameOnly").then((res) => {
+        const team2PlayerNames = res.map((player) => player.player_name);
+        setTeam2PlayerNames(team2PlayerNames);
+      });
+    }
+  }, [state]);
+
   const toggleMapButton = showMapModal ? "Close map" : "Show venues on map";
 
   // Custom validation function
@@ -83,14 +124,21 @@ function CreateMatchPage() {
   }
 
   return (
-    <div className='container-3' style={{height:"60vh",width:""}}>
+    <div className='container-2'
+      style={{
+        height: "70vh",
+        width: "",
+        display: "flex"
+      }}
+    >
       <div className=''>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-group' >
             <h3>Tournament Id</h3>
             <input
+              readOnly={operation}
               type="text"
-              id="tournamentId" 
+              id="tournamentId"
               className='form-input'
               {...register('tournamentId', {
                 required: true,
@@ -102,6 +150,7 @@ function CreateMatchPage() {
           <div className='form-group' >
             <h3>Team 1 Id</h3>
             <input
+              readOnly={operation === 'view'}
               type="text"
               id="team1"
               className='form-input'
@@ -115,6 +164,7 @@ function CreateMatchPage() {
           <div className='form-group' >
             <h3>Team 2 Id</h3>
             <input
+              readOnly={operation === 'view'}
               type="text"
               id="team2"
               className='form-input'
@@ -125,13 +175,19 @@ function CreateMatchPage() {
             />
             {errors.team2 && <p style={{ color: "red" }}>Invalid MongoDB ObjectId format.</p>}
           </div>
+
           <div className='form-group'>
-            <h3>Enter venue location code</h3>
-            <button type="button" className='blue-btn' onClick={showMapModal ? closeMapModal : openMapModal}>
-              {toggleMapButton}
-            </button>
+            <h3>Venue Location Code</h3>
+            {
+              operation === 'view' ? <></>
+                :
+                <button type="button" className='blue-btn' onClick={showMapModal ? closeMapModal : openMapModal}>
+                  {toggleMapButton}
+                </button>
+            }
             <input
               type="text"
+              readOnly={operation === 'view'}
               id="locationId"
               className='form-input'
               {...register('locationId', {
@@ -148,7 +204,10 @@ function CreateMatchPage() {
               })
                 .slice(0, 3)
                 .map((data, idx) => (
-                  <div onClick={() => setValue("locationId", data)} className="drop-down-row" key={idx}>
+                  <div
+                    onClick={() => setValue("locationId", data)}
+                    className="drop-down-row"
+                    key={idx}>
                     {data}
                   </div>
                 ))}
@@ -157,6 +216,7 @@ function CreateMatchPage() {
             <h3>Start Date and Time</h3>
             <input
               type="datetime-local"
+              readOnly={operation === 'view'}
               id="matchStartDateTime"
               className='form-input'
               {...register('matchStartDateTime', {
@@ -170,6 +230,7 @@ function CreateMatchPage() {
             <h3>End Date and Time</h3>
             <input
               type="datetime-local"
+              readOnly={operation === 'view'}
               id="matchEndDateTime"
               className='form-input'
               {...register('matchEndDateTime', {
@@ -180,9 +241,10 @@ function CreateMatchPage() {
             {errors.matchEndDateTime && <p style={{ color: "red" }}>{errors.matchEndDateTime.message}</p>}
           </div>
           <div className='form-group' >
-            <h3>Match Description</h3>
+            <h3>Description</h3>
             <textarea
               id="matchDescription"
+              readOnly={operation === 'view'}
               cols="70"
               rows="3"
               className='form-input'
@@ -193,11 +255,15 @@ function CreateMatchPage() {
             />
             {errors.matchDescription && <p style={{ color: "red" }}>Match Description is required.</p>}
           </div>
-          <div>
-            <button type="submit" className='blue-btn'>
-              Submit
-            </button>
-          </div>
+          {
+            operation === 'view' ? <></>
+              :
+              <div>
+                <button type="submit" className='blue-btn'>
+                  Submit
+                </button>
+              </div>
+          }
         </form>
       </div>
       {showMapModal && (
@@ -216,7 +282,48 @@ function CreateMatchPage() {
           ></iframe>
         </div>
       )}
-    </div>
+      {
+        state ?
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              width: "40%",
+              maxWidth:"400px",
+              justifyContent: "space-between"
+            }}>
+            <table className='details-table'>
+              <th className='table-head'>
+                {state.teams.team1.team_name}
+              </th>
+              <tbody>
+                {team1PlayerNames && team1PlayerNames.map((e, idx) => (
+                  <tr key={idx}>
+                    <td className='details-value'>
+                      {e}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <table className='details-table'>
+              <th className='table-head'>
+                {state.teams.team2.team_name}
+              </th>
+              <tbody>
+                {team2PlayerNames && team2PlayerNames.map((e, idx) => (
+                  <tr key={idx}>
+                    <td className='details-value'>
+                      {e}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          : <></>
+      }
+    </div >
   );
 }
 

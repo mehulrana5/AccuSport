@@ -8,8 +8,6 @@ const fetchUser = require('./middleware/fetchUser')
 // const jwtSecret = process.env.JWT_SECRET;
 const jwtSecret = "mehul123";
 
-
-
 //register
 router.post('/register', async (req, res) => {
     // console.log('Request Body:', req.body);
@@ -192,6 +190,7 @@ router.put('/updatePlayer', fetchUser, async (req, res) => {
 //fetch multiple player data by userId,name,id,team
 router.post('/fetchPlayers', async (req, res) => {
     try {
+        console.log("running fetch player");
         const { query, fetchBy } = req.body;
         if (!query || !fetchBy) {
             return res.status(400).json({ error: "Invalid request" });
@@ -214,6 +213,10 @@ router.post('/fetchPlayers', async (req, res) => {
 
             case "team":
                 data = await schema.player.find({ team_ids: { $in: query } });
+                break;
+
+            case "teamPlayersNameOnly":
+                data=await schema.player.find({team_ids:{$in:query}}).select("player_name -_id")
                 break;
 
             default:
@@ -249,7 +252,7 @@ router.delete('/deletePlayer', fetchUser, async (req, res) => {
         console.error('Error deleting player:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
-});
+}); 
 
 //create team
 router.post('/createTeam', fetchUser, async (req, res) => {
@@ -643,7 +646,6 @@ router.post('/fetchTournament', async (req, res) => {
     }
 });
 
-
 // Delete a tournament
 router.delete('/deleteTournament', fetchUser, async (req, res) => {
     try {
@@ -826,7 +828,6 @@ router.post('/fetchMatches', async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
-
 
 //delete match
 router.delete("/deleteMatch/:matchId", fetchUser, async (req, res) => {

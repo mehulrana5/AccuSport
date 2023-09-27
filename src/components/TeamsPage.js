@@ -17,7 +17,7 @@ function TeamsPage() {
     const handleFilterSubmit = (e) => {
         e.preventDefault()
         if (teamIdFilter) {
-            navigate(`/teams/${teamIdFilter}`);
+            navigate(`/teams/view/${teamIdFilter}`);
         }
     };
     return (

@@ -5,8 +5,6 @@ import HomePage from './components/HomePage';
 import TournamentsPage from './components/TournamentsPage';
 import TournamentCards from './components/TournamentCards';
 import NavBar from './components/NavBar';
-import MatchDetails from './components/MatchDetails';
-import PlayerDetail from './components/PlayerDetail';
 import TeamsPage from './components/TeamsPage';
 import TeamInfo from './components/TeamDetails';
 import MatchesPage from './components/MatchesPage';
@@ -44,10 +42,10 @@ const App = () => {
           <Route path='/signup' element={<Signup/>}/>
 
           <Route path="/players" element={<PlayersPage />}>
-            <Route path=':playerId' element={<PlayerDetail />} />
+          <Route path=':operation/:playerId' element={<CreatePlayer />} />
           </Route>
           
-          <Route path="/player/:playerId" element={<CreatePlayer/>}/>
+          <Route path="/player/:playerId/:operation" element={<CreatePlayer/>}/>
 
           <Route path="/createPlayer" element={<CreatePlayer/>}/>
 
@@ -60,10 +58,10 @@ const App = () => {
           </Route>
           <Route path="/team-info/:teamId" exact element={<TeamInfo />} />
           
-          <Route path="/match-info/:matchId" element={<MatchDetails />} />
+          {/* <Route path="/match-info/:matchId" element={<MatchDetails />} /> */}
 
           <Route path="/matches" element={<MatchesPage />}>
-            <Route path=':matchId' element={<MatchDetails />} />
+            <Route path=':operation/:matchId' element={<CreateMatchPage />} />
             <Route path="createMatch" element={<CreateMatchPage/>} />
             <Route path="myMatches" element={<MyMatches/>} />
           </Route>

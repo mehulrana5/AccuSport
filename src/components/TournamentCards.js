@@ -37,9 +37,11 @@ const TournamentCards = () => {
       <div className="container-2">
         {data && data.map((e, idx) => (
           <div className="card" key={idx}>
-            <h3>
-              {e.tournament_name}
-            </h3>
+            <div>
+              <h3>
+                {e.tournament_name}
+              </h3>
+            </div>
             <div>
               {e.sport_type}
             </div>

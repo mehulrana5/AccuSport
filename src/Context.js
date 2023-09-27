@@ -109,7 +109,8 @@ export const AppProvider = ({ children }) => {
     setAuthToken("");
     window.location.reload();
   }
-
+  
+  //Player
   const fetchPlayers = async (query, fetchBy) => { //fetchBy=user,name,id,team
     try {
       const response = await fetch(`${ip}/fetchPlayers`, {
@@ -157,6 +158,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  //Team
   const createTeam = async (team) => {
     try {
       const response = await fetch(`${ip}/createTeam`, {
@@ -178,7 +180,6 @@ export const AppProvider = ({ children }) => {
       console.error('Error:', error);
     }
   };
-
   const deleteTeam = async (tid) => {
     try {
       const response = await fetch(`${ip}/deleteTeam`, {
@@ -198,7 +199,6 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   };
-
   const updateTeamPlayers=async(players,teamId)=>{
     try {
       const response=await fetch(`${ip}/updateTeamPlayers`,{
@@ -218,7 +218,6 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-
   const fetchTeam = async (query, fetchBy) => {
     try {
       const response = await fetch(`${ip}/fetchTeam`, {
@@ -237,7 +236,8 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-
+  
+  //Torunament
   const createTournament = async (data) => {
     try {
       if (!data.match_admins.includes(userInfo._id)) {
@@ -256,7 +256,6 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-
   const fetchTournament = async (query, fetchBy) => {
     try {
       const response = await fetch(`${ip}/fetchTournament`, {
@@ -276,7 +275,6 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   };
-
   const updateTournament = async (data) => {
     try {
       const response = await fetch(`${ip}/updateTournament/${data._id}`, {
@@ -315,6 +313,8 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
+  
+  //Match
   const createMatch = async (data) => {
     try {
       const response = await fetch(`${ip}/createMatch`, {

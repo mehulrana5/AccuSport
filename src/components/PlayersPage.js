@@ -1,50 +1,57 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import AppContext from '../Context';
 
 function PlayersPage() {
     const context=useContext(AppContext)
 
-    const [guest,setGuest] =useState(false);
+    const [guest,setGuest]=useState(false);
     const [player,setPlayer] =useState(false);
 
     useEffect(()=>{
         setGuest(context.userInfo.user_role.includes("guest"));
         setPlayer(context.userInfo.user_role.includes("player"));
     },[context.userInfo,context.playerInfo])
-
-    const [playerIdFilter, setPlayerIdFilter] = useState('');
+    
     const navigate = useNavigate();
     
-    const handleFilterSubmit = (e) => {
+    const handelSearch = (e) => {
         e.preventDefault();
-        if (playerIdFilter) {
-            navigate(`/players/${playerIdFilter}`);
+        const val=document.querySelector("#playerInput").value;
+        document.querySelector("#playerInput").value="";
+        if(val.length>3){
+            const isObjId=/^[0-9a-fA-F]{24}$/.test(val)
+            if(isObjId){
+                navigate(`./view/${val}`)
+            }
+            else{
+                context.fetchPlayer(val,"name").then((data)=>{
+                    console.log(data._id);
+                })
+            }
+        }
+        else{
+            alert("Input size should be more than 3 characters")
         }
     };
     return (
         <div className="container-1">
-            <div>
-                <div className="team-filter">
-                    <h2>Player filter</h2>
-                    <form onSubmit={handleFilterSubmit}>
-                        <label>
-                            Player ID/Name:
-                            <input type="text" value={playerIdFilter} onChange={(e) => setPlayerIdFilter(e.target.value)}/>
-                        </label>
-                        <div className="container-2">
-                            <button className='blue-btn' type="submit">Apply Filter</button>
-                            {
-                                !player?
-                                <Link to={guest?"../createPlayer":"../login"}>
-                                    <button className='green-btn'>
-                                        Create player
-                                    </button>
-                                </Link>
-                                :<></>
-                            }
+            <div className="container-2">
+                <div>
+                    <input type="text" className='form-input' id='playerInput'/>
+                    <button type="button" className='blue-btn' onClick={handelSearch}>Search</button>
+                </div>
+                <div>
+                    {
+                        player?<div>
+                            <button type="button" className='green-btn' onClick={()=>navigate(`../player/${context.playerInfo._id}/view`)}>My Profile</button>
                         </div>
-                    </form>
+                        :
+                        <div>
+                            <button type="button" className='green-btn' onClick={()=>navigate(guest?"../createPlayer":"../login")}>Create Player</button>
+                        </div>
+                        
+                    }
                 </div>
             </div>
             <Outlet />

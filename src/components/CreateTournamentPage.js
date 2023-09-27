@@ -18,10 +18,10 @@ function CreateTournamentPage() {
     const readOnly = (operation === "view" || operation === "update");
     const viewOnly = operation === "view"
     const { register, handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
-    let matchAdmins = data ? data.match_admins : null; 
+    let matchAdmins = data ? data.match_admins : null;
     const { fields, append, remove } = useFieldArray({
         name: "match_admins",
-        control 
+        control
     });
 
     useEffect(() => {
@@ -31,7 +31,7 @@ function CreateTournamentPage() {
     useEffect(() => {
         if (tournamentId) {
             async function getData() {
-                const res = await context.fetchTournament(tournamentId,"id");
+                const res = await context.fetchTournament(tournamentId, "id");
                 setData(res);
             }
             getData();
@@ -49,7 +49,7 @@ function CreateTournamentPage() {
     }, [data])
 
     const onSubmit = (data) => {
-        context.createTournament(data).then(()=>{navigate("../myTournaments")});
+        context.createTournament(data).then(() => { navigate("../myTournaments") });
     }
 
     // Custom validation function for MongoDB-like ObjectID
@@ -86,7 +86,32 @@ function CreateTournamentPage() {
                 if (start > curDateTime) {
                     return alert(`Cannot End tournament before start date time\nToday:\t${curDateTime.toLocaleString()}\nStart:\t${start.toLocaleString()}`)
                 }
-                console.log("running end");
+                data.tournament_status="old"
+                // console.log(data);
+                context.updateTournament(data).then((res)=>{
+                    alert(res.error);
+                    navigate("../myTournaments")
+                })
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    async function handelStartTournament() {
+        try {
+            const flag = window.confirm("Do you want to start this tournament?")
+            if (flag) {
+                const curDateTime = new Date();
+                const start = new Date(data.start_date_time)
+                if (start > curDateTime) {
+                    return alert(`Cannot Start the tournament before start date time\nToday:\t${curDateTime.toLocaleString()}\nStart:\t${start.toLocaleString()}`)
+                }
+                data.tournament_status="ongoing"
+                context.updateTournament(data).then((res)=>{
+                    alert(res.error)
+                    navigate('../myTournaments')
+                })
             }
 
         } catch (error) {
@@ -95,19 +120,19 @@ function CreateTournamentPage() {
     }
 
     return (
-        <div className='container-2' style={{height:"70vh"}}>
+        <div className='container-2' style={{ height: "70vh" }}>
             <form onSubmit={handleSubmit(onSubmit)}>
                 {
-                    data?
-                    <>
-                        <h3>ID</h3>
-                        <input
-                            className='form-input'
-                            readOnly={readOnly}
-                            defaultValue={data ? data._id : undefined}
-                        />
-                    </>
-                    :<></>
+                    data ?
+                        <>
+                            <h3>ID</h3>
+                            <input
+                                className='form-input'
+                                readOnly={readOnly}
+                                defaultValue={data ? data._id : undefined}
+                            />
+                        </>
+                        : <></>
                 }
                 <h3>Name</h3>
                 <input
@@ -197,10 +222,17 @@ function CreateTournamentPage() {
                     }
                 </div>
                 {
+                    viewOnly ? <></>
+                        :
+                        <div>
+                            <button type='button' onClick={handelStartTournament} className='green-btn'>Start Tournament</button>
+                            <button type='button' onClick={handelEndTournament} className='red-btn'>End Tournament</button>
+                        </div>
+                }
+                {
                     operation === "update" ? (
                         <div>
                             <button type='button' onClick={handelUpdateTournament} className='blue-btn'>Update</button>
-                            <button type='button' onClick={handelEndTournament} className='red-btn'>End Tournament</button>
                         </div>
                     )
                         : operation === "view" ? (<></>) : (<input className='blue-btn' type="submit" value={"Create"} />)

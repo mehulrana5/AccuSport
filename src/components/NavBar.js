@@ -77,7 +77,7 @@ const NavBar = () => {
                 {
                     player ?
                         <li>
-                            <Link className="nav-link" to={`/player/${context.playerInfo._id}`}>
+                            <Link className="nav-link" to={`/player/${context.playerInfo._id}/view`}>
                                 My profile
                             </Link>
                         </li>

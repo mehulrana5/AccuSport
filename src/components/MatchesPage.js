@@ -36,7 +36,10 @@ function MatchesPage() {
                     </div>
                     <div>
                         <button className='blue-btn' onClick={() => navigate(isPlayer ? './myMatches' : '../login')}>
-                            My matches
+                            My Matches
+                        </button>
+                        <button className='blue-btn' onClick={() => navigate(isPlayer ? './createMatch' : '../login')} >
+                            My Organized Matches
                         </button>
                         <button className='green-btn' onClick={() => navigate(isPlayer ? './createMatch' : '../login')} >
                             Create match

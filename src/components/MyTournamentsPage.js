@@ -51,7 +51,9 @@ function MyTournamentsPage() {
                 <div className="container-2">
                     {tournaments && tournaments.map((t, idx) => (
                         <div className="card" key={idx}>
-                            <h3>{t.tournament_name}</h3>
+                            <div>
+                                <h3>{t.tournament_name}</h3>
+                            </div>
                             <div>
                                 <button className='green-btn' onClick={()=>handelBtn("view",t._id)}>View</button>
                                 <button className='blue-btn' onClick={()=>handelBtn("update",t._id)}>Update</button>

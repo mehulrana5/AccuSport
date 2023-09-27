@@ -8,7 +8,7 @@ function CreatePlayer() {
 
     const navigate = useNavigate();
 
-    const { playerId } = useParams();
+    const { playerId , operation} = useParams();
 
     const { register, handleSubmit, formState: { errors }, setValue, control } = useForm();
 
@@ -55,7 +55,7 @@ function CreatePlayer() {
     }, [data])
 
     return (
-        <div className='container-1'>
+        <div className='container-2'>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     {

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import AppContext from '../Context'
+import { useNavigate } from 'react-router-dom';
 
 function MyMatches() {
 
@@ -7,6 +8,8 @@ function MyMatches() {
 
     const [matches, setMatches] = useState();
     const [teams, setTeams] = useState();
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (context.playerInfo._id) {
@@ -40,6 +43,10 @@ function MyMatches() {
         // console.log(teams);
     }, [teams])
 
+    function handelMatch(match,teams){
+        navigate(`../view/${match._id}`,{state:{match,teams}})
+    }
+
     return (
         <div className="container-2">
             <h1>My Matches</h1>
@@ -56,14 +63,13 @@ function MyMatches() {
                             </div>
                         </div>
                         <div>
-                            <button type="button" className='green-btn'>View</button>
-                            {
-                                
-                            }
-                            <>
-                                <button type="button" className='blue-btn'>Update</button>
-                                <button type="button" className='red-btn'>Delete</button>
-                            </>
+                            <button
+                                type="button"
+                                className="green-btn"
+                                onClick={() => handelMatch(match,teams[idx],teams[idx+1])}
+                            >
+                                View
+                            </button>
                         </div>
                     </div>
                 ))
