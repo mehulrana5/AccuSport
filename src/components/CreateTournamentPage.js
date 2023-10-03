@@ -17,7 +17,7 @@ function CreateTournamentPage() {
     
     const formattedStartDate = startDate ? startDate.toISOString().slice(0, 16) : undefined;
     
-    const readOnly = (operation === "view" || operation === "update" || data?.data.tournament_status==='old');
+    const readOnly = (operation === "view" || operation === "update" || data?.data?.tournament_status==='old');
     
     const viewOnly = operation === "view"
     
@@ -52,9 +52,6 @@ function CreateTournamentPage() {
         setValue("description", data ? data.description : undefined)
         setValue("match_admins", data ? matchAdmins : [])
         // eslint-disable-next-line
-        if(data){
-            console.log(data.tournament_status);
-        }
     }, [data])
 
     const onSubmit = (data) => {

@@ -21,8 +21,8 @@ function PlayersPage() {
         document.querySelector("#playerInput").value="";
         if(val.length>3){
             const isObjId=/^[0-9a-fA-F]{24}$/.test(val)
+            navigate(`.`)
             if(isObjId){
-                console.log(val);
                 navigate(`./view/${val}`)
             }
             else{
@@ -30,6 +30,7 @@ function PlayersPage() {
                     navigate(`./view/${data._id}`)
                 })
             }
+            console.log("running search");
         }
         else{
             alert("Input size should be more than 3 characters")

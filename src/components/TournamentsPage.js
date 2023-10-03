@@ -20,6 +20,7 @@ const TournamentsPage = () => {
     const query = document.querySelector("#search_1").value;
     document.querySelector("#search_1").value = ''
     try {
+      navigate('.')
       const res = await context.fetchTournament(query, "name");
       const data = res[0]
       navigate(`./view/${data._id}`)
@@ -30,10 +31,10 @@ const TournamentsPage = () => {
   }
   return (
     <div className="container-1">
-      <div>
+      <form>
         <input id='search_1' className='form-input' type="text" />
-        <button onClick={handelSearch} className='blue-btn'>Search</button>
-      </div>
+        <button type='submit' onClick={handelSearch} className='blue-btn'>Search</button>
+      </form>
       <div className="tournament-buttons">
         <button className="blue-btn" onClick={() => handelBtn('/tournaments/ongoing')}>Ongoing</button>
         <button className="blue-btn" onClick={() => handelBtn('/tournaments/upcoming')}>Upcoming</button>

@@ -8,8 +8,6 @@ function CreatePlayer() {
 
     const navigate = useNavigate();
 
-    const { operation,playerId } = useParams();
-
     const { register, handleSubmit, formState: { errors }, setValue, control } = useForm();
 
     const { fields, remove } = useFieldArray({
@@ -39,7 +37,11 @@ function CreatePlayer() {
     //     }
     // },[])
 
+    let { operation,playerId } = useParams();
+
     useEffect(() => {
+        console.log(playerId);
+        // console.log("running");
         if (playerId) {
             context.fetchPlayers(playerId, "id").then((res) => {
                 console.log(res);
