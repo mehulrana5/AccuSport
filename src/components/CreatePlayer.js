@@ -8,7 +8,7 @@ function CreatePlayer() {
 
     const navigate = useNavigate();
 
-    const { playerId , operation} = useParams();
+    const { operation,playerId } = useParams();
 
     const { register, handleSubmit, formState: { errors }, setValue, control } = useForm();
 
@@ -33,14 +33,21 @@ function CreatePlayer() {
         if (cur < player_dob) return "invalid date of birth"
     }
 
+    // useEffect(()=>{
+    //     if(playerId){
+
+    //     }
+    // },[])
+
     useEffect(() => {
         if (playerId) {
             context.fetchPlayers(playerId, "id").then((res) => {
+                console.log(res);
                 setData(res);
             })
         }
         // eslint-disable-next-line
-    }, [playerId])
+    }, [])
 
     useEffect(() => {
         if (data) {

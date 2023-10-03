@@ -11,7 +11,7 @@ import MatchesPage from './components/MatchesPage';
 import PlayersPage from './components/PlayersPage';
 
 // eslint-disable-next-line
-import { Routes, Route,HashRouter ,BrowserRouter, Outlet} from 'react-router-dom';
+import { Routes, Route, HashRouter, BrowserRouter, Outlet } from 'react-router-dom';
 
 // i am not sure but i am using the hashRouter cause it will not make server request for each route like localhost:3000/#/matches in this case the localhost:3000 will be given at the backend but not the /matches it will be the responsibility of the client side routing currently i am using the auth 0 for authorization but ig in fiture i will try to add my own authentication technique
 
@@ -38,39 +38,39 @@ const App = () => {
         <NavBar />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path='/login' element={<Login/>}/>
-          <Route path='/signup' element={<Signup/>}/>
+          <Route path='/login' element={<Login />} />
+          <Route path='/signup' element={<Signup />} />
 
           <Route path="/players" element={<PlayersPage />}>
-          <Route path=':operation/:playerId' element={<CreatePlayer />} />
+            <Route path=':operation/:playerId' element={<CreatePlayer />} />
           </Route>
-          
-          <Route path="/player/:playerId/:operation" element={<CreatePlayer/>}/>
 
-          <Route path="/createPlayer" element={<CreatePlayer/>}/>
+          <Route path="/player/:playerId/:operation" element={<CreatePlayer />} />
+
+          <Route path="/createPlayer" element={<CreatePlayer />} />
 
 
-          
+
           <Route path="/teams" exact element={<TeamsPage />}>
-            <Route path=":operation/:teamId" exact element={<TeamInfo />} />            
-            <Route path="createTeam" exact element={<CreateTeam/>} />
-            <Route path="myTeams" exact element={<MyTeams/>} />
+            <Route path=":operation/:teamId" exact element={<TeamInfo />} />
+            <Route path="createTeam" exact element={<CreateTeam />} />
+            <Route path="myTeams" exact element={<MyTeams />} />
           </Route>
           <Route path="/team-info/:teamId" exact element={<TeamInfo />} />
-          
+
           {/* <Route path="/match-info/:matchId" element={<MatchDetails />} /> */}
 
           <Route path="/matches" element={<MatchesPage />}>
             <Route path=':operation/:matchId' element={<CreateMatchPage />} />
-            <Route path="createMatch" element={<CreateMatchPage/>} />
-            <Route path="myMatches" element={<MyMatches/>} />
+            <Route path="createMatch" element={<CreateMatchPage />} />
+            <Route path="myMatches" element={<MyMatches />} />
           </Route>
 
           <Route path="/tournaments/" element={<TournamentsPage />}>
-            <Route path=":status" element={<TournamentCards />}/>
-            <Route path="createTournament" element={<CreateTournamentPage/>}/>
-            <Route path="myTournaments" element={<MyTournamentsPage/>}/>
-            <Route path=":operation/:tournamentId" element={<CreateTournamentPage/>}/>            
+            <Route path=":status" element={<TournamentCards />} />
+            <Route path="createTournament" element={<CreateTournamentPage />} />
+            <Route path="myTournaments" element={<MyTournamentsPage />} />
+            <Route path=":operation/:tournamentId" element={<CreateTournamentPage />} />
           </Route>
 
 

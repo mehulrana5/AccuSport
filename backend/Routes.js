@@ -189,8 +189,10 @@ router.put('/updatePlayer', fetchUser, async (req, res) => {
 
 //fetch multiple player data by userId,name,id,team
 router.post('/fetchPlayers', async (req, res) => {
+
+    console.log(req.body);
+
     try {
-        console.log("running fetch player");
         const { query, fetchBy } = req.body;
         if (!query || !fetchBy) {
             return res.status(400).json({ error: "Invalid request" });
@@ -386,7 +388,7 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
 
         const matches = await schema.match.find({ teams: { $in: [team_id] } });
 
-        if (matches) {
+        if (matches.length>0) {
             return res.status(401).json(
                 { error: "Can not delete this team as it is a part of a match that is not over yet.To remove it first ask the match admin to remove this team from the upcoming/ongoing tournament" })
         }
@@ -413,7 +415,7 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
             await schema.user.findByIdAndUpdate(userId, { $pull: { user_role: 'teamLeader' } }, { new: true });
         }
 
-        res.status(200).json({ message: "Deleted the team" });
+        res.status(200).json({ error: "Deleted the team" });
     } catch (error) {
         console.error('Error deleting team:', error);
         res.status(500).json({ error: 'Internal Server Error' });

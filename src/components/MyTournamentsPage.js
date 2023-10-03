@@ -13,7 +13,7 @@ function MyTournamentsPage() {
     }, [tournaments]);
 
     function handelBtn(operation,tid){
-        navigate(`../${operation}/${tid}`)    
+        navigate(`../${operation}/${tid}`)
     }
     async function handelDelete(tn,tid){
         try {

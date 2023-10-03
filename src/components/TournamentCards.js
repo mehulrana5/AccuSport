@@ -46,7 +46,7 @@ const TournamentCards = () => {
               {e.sport_type}
             </div>
             <div>
-              {new Date(e.start_date_time).toLocaleString()}
+              {new Date(e.start_date_time).toLocaleDateString('en-GB')}
             </div>
             <div>
               <button className='green-btn' onClick={() => handelBtn(`../view/${e._id}`)}>

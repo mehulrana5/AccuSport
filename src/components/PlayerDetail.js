@@ -4,11 +4,14 @@ import AppContext from '../Context';
 
 const PlayerDetail = () => {
   const { playerId } = useParams();
+
   const context = useContext(AppContext);
+  
   const [player, setPlayer] = useState(null);
 
   useEffect(() => {
     async function loadDetails(pid) {
+      console.log("running details");
       try {
         const data = await context.fetchPlayers(pid,'id'); 
         setPlayer(data);
@@ -17,8 +20,8 @@ const PlayerDetail = () => {
       }
     }
     loadDetails(playerId);
-    // eslint-disable-next-line
-  }, [playerId]);
+    // eslint-disable-next-line  
+  }, []);
   function calculateAge(dateOfBirth) {
     const dob = new Date(dateOfBirth);
     const today = new Date();
@@ -32,7 +35,7 @@ const PlayerDetail = () => {
   if(!player)return(<></>)
 
   return (
-    <div className="container-2">
+    <div className="container-1">
       <table className="details-table" style={{ width: '30%', minWidth: '200px' }}>
         <tbody>
           <tr>

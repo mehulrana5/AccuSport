@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import AppContext from '../Context';
 
 function TeamsPage() {
+    
     const [teamIdFilter, setTeamIdFilter] = useState('');
 
     const context = useContext(AppContext)
+
     const navigate = useNavigate();
 
     const [player, setPlayer] = useState(false);
