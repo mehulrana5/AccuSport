@@ -54,6 +54,14 @@ function CreateMatchPage() {
     const response = await context.createMatch(data);
     alert(response.data.error)
   }
+  function formatLocalDateTime(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
 
   useEffect(() => {
     if (geoData.length === 0) {
@@ -69,8 +77,8 @@ function CreateMatchPage() {
         teams: { team1, team2 },
       } = state;
 
-      const matchStart = match ? new Date(match.match_start_date_time).toISOString().slice(0, 16) : undefined;
-      const matchEnd = match ? new Date(match.match_end_date_time).toISOString().slice(0, 16) : undefined;
+      const matchStart = match ? formatLocalDateTime(new Date(match.match_start_date_time)) : undefined;
+      const matchEnd = match ? formatLocalDateTime(new Date(match.match_end_date_time)) : undefined;
 
       setValue("tournamentId", match?.tournament_id);
       setValue("team1", team1?._id);
@@ -289,7 +297,7 @@ function CreateMatchPage() {
               display: "flex",
               alignItems: "flex-start",
               width: "40%",
-              maxWidth:"400px",
+              maxWidth: "400px",
               justifyContent: "space-between"
             }}>
             <table className='details-table'>

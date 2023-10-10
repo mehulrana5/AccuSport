@@ -81,11 +81,7 @@ const tournamentSchema = new mongoose.Schema({
     },
     match_admins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }]
 })
-// Middleware to run before a find operation
-// tournamentSchema.pre('find', function () {
-//     // You can add your logic here before the find operation
-//     console.log('Middleware before find operation');
-// });
+
 const tournament = mongoose.model('tournament', tournamentSchema)
 
 module.exports = {

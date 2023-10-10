@@ -190,7 +190,6 @@ router.put('/updatePlayer', fetchUser, async (req, res) => {
 //fetch multiple player data by userId,name,id,team
 router.post('/fetchPlayers', async (req, res) => {
     try {
-        console.log("running fetch player");
         const { query, fetchBy } = req.body;
         if (!query || !fetchBy) {
             return res.status(400).json({ error: "Invalid request" });
@@ -216,7 +215,7 @@ router.post('/fetchPlayers', async (req, res) => {
                 break;
 
             case "teamPlayersNameOnly":
-                data=await schema.player.find({team_ids:{$in:query}}).select("player_name -_id")
+                data = await schema.player.find({ team_ids: { $in: query } }).select("player_name -_id")
                 break;
 
             default:
@@ -252,7 +251,7 @@ router.delete('/deletePlayer', fetchUser, async (req, res) => {
         console.error('Error deleting player:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
-}); 
+});
 
 //create team
 router.post('/createTeam', fetchUser, async (req, res) => {
@@ -324,14 +323,14 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
             return res.status(400).json({ error: "Some player IDs are not valid" });
         }
         //Check if the team leader is in the team if not then add him
-        let flag=false;
+        let flag = false;
         playerIds.forEach(e => {
-            if(e.user_id.equals(team.team_leader)){
-                flag=true;
+            if (e.user_id.equals(team.team_leader)) {
+                flag = true;
             }
         });
-        if(!flag){
-            const leader=await schema.player.findOne({user_id:team.team_leader}).select("_id")
+        if (!flag) {
+            const leader = await schema.player.findOne({ user_id: team.team_leader }).select("_id")
             players.push(leader._id.toString());
         }
         // Check if the team is in an ongoing/upcoming match
@@ -348,9 +347,9 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
         // Removing the team id from the removed players
         team.team_players_ids.forEach(async (id) => {
             if (!players.includes(id.toString())) {
-                
-                const check=await schema.player.findByIdAndUpdate(id, { $pull: { team_ids: team._id } }, { new: true });
-                
+
+                const check = await schema.player.findByIdAndUpdate(id, { $pull: { team_ids: team._id } }, { new: true });
+
                 // console.log(check);
             }
         });
@@ -360,7 +359,7 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
 
             if (!team.team_players_ids.includes(player)) {
 
-                const check=await schema.player.findByIdAndUpdate(player, { $push: { team_ids: [team._id] } }, { new: true });
+                const check = await schema.player.findByIdAndUpdate(player, { $push: { team_ids: [team._id] } }, { new: true });
 
                 // console.log(check); 
             }
@@ -369,8 +368,8 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
         // Update the team player IDs in the team
         const updatedTeam = await schema.team.findByIdAndUpdate(team._id, { team_players_ids: players }, { new: true });
 
-        res.status(200).json({updatedTeam,error:"Team updated"}); 
-        
+        res.status(200).json({ updatedTeam, error: "Team updated" });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal Server Error" });
@@ -500,29 +499,20 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
             description,
             match_admins,
         } = req.body;
-
         const tournament = await schema.tournament.findById(tournamentId);
-        
         //Check if tournament exist or not
-        
         if (!tournament) {
             return res.status(404).json({ error: "Tournament not found" });
         }
-
         //Check if user if authorized or not
-
         if (!tournament.organizer_id.equals(userId)) {
             return res.status(401).json({ error: "Not authorized for this action" });
         }
-
         //Check if match admin ids exist or not
-
         const checkAdmins = await schema.user.find({ _id: { $in: match_admins } });
-
         if (checkAdmins.length !== match_admins.length) {
             return res.status(400).json({ error: "Enter correct Match Admin ids" });
         }
-
         const updatedMatchAdmins = tournament.organizer_id.equals(userId)
             ? match_admins.includes(tournament.organizer_id.toString())
                 ? match_admins
@@ -532,23 +522,19 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
         if (!["old", "ongoing", "upcoming"].includes(tournament_status)) {
             return res.status(400).json({ error: "Invalid tournament status" });
         }
-
         //Valid status transition
         const validTransitions = {
             upcoming: ["ongoing", "upcoming"],
             ongoing: ["old", "ongoing"],
             old: ["old"],
         };
-
         // Check if the requested transition is valid
         if (!validTransitions[tournament.tournament_status].includes(tournament_status)) {
             return res.status(400).json({
                 error: "Invalid tournament status transition",
             });
         }
-
         //Check status from upcoming to ongoing
-
         if (tournament_status === "ongoing" && tournament.tournament_status === "upcoming") {
             const startDate = new Date(tournament.start_date_time);
             const curDate = new Date();
@@ -558,9 +544,7 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
                 });
             }
         }
-
-        //Check status from ondoing to old
-
+        //Check status from ongoing to old
         if (tournament_status === "old" && tournament.tournament_status === "ongoing") {
             const matches = await schema.match.find({ tournament_id: tournament._id });
             const minEnd = matches.reduce((min, match) => {
@@ -575,23 +559,21 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
                 });
             }
         }
-
         //Check the range for setting a new start date of the tournament
+        const updatedDate = new Date(start_date_time);
+        if (updatedDate.getTime() !== tournament.start_date_time.getTime()) {
+            const matches = await schema.match
+                .find({ tournament_id: tournament._id })
+                .select("-_id match_start_date_time");
 
-        if (start_date_time !== tournament.start_date_time) {
-            const matches = await schema.match.find({ tournament_id: tournament._id });
-            const minStart = matches.reduce((min, match) => {
-                const temp = new Date(match.match_start_date_time);
-                return min > temp ? min : temp;
-            }, new Date());
+            const minStart = matches.reduce((min, match) =>
+                min < match.match_start_date_time ? min : match.match_start_date_time
+                , new Date());
 
-            if (start_date_time > minStart) {
-                return res.status(400).json({
-                    error: `The tournament updated status is invalid \ntoday:${curDate.toLocaleString()} \maximum-start-date:${minEnd.toLocaleString()}`,
-                });
+            if (updatedDate > minStart) {
+                return res.status(400).json({error: `The tournament updated status is invalid minimum-start-date:${minStart.toLocaleString()}`});
             }
         }
-
         const updatedTournament = await schema.tournament.findByIdAndUpdate(
             tournamentId,
             {
@@ -602,9 +584,9 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
             },
             { new: true }
         );
-
-        res.status(200).json({updatedTournament,error:"tournament updated"});
-    } catch (error) {
+        return res.status(200).json({ updatedTournament, error: "tournament updated" });
+    }
+    catch (error) {
         console.error('Error updating tournament:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
@@ -715,9 +697,56 @@ router.post('/createMatch', fetchUser, async (req, res) => {
             tournament_id: tournament_id,
             teams: { $in: teams }
         });
-
         if (teamsAlreadyInMatches.length > 0) {
             return res.status(400).json({ error: "Some teams are already part of matches in this tournament" });
+        }
+
+        // Check if a player is in more than one team in this match
+        for (let i = 0; i < teamsExist.length; i++) {
+            const t1 = teamsExist[i].team_players_ids;
+            for (let j = i + 1; j < teamsExist.length; j++) {
+                for (const e of t1) {
+                    if (teamsExist[j].team_players_ids.includes(e)) {
+                        return res.status(400).json({ error: `player ${e} is in more than one team in this match` });
+                    }
+                }
+            }
+        }
+        //Check if the venue where match taking place is occupied or not during that time
+        const matchesAtGivenVenue = await schema.match.aggregate([
+            {
+                $match: {
+                    OLC: OLC,
+                    $or: [
+                        {
+                            match_start_date_time: {
+                                $gte: new Date(match_start_date_time),
+                                $lte: new Date(match_end_date_time)
+                            }
+                        },
+                        {
+                            match_end_date_time: {
+                                $gte: new Date(match_start_date_time),
+                                $lte: new Date(match_end_date_time)
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    // match_start_date_time: 1,
+                    // match_end_date_time: 1,
+                    // Add other fields you want to include
+                }
+            }
+        ]);
+
+        // console.log(matchesAtGivenVenue);
+
+        if (matchesAtGivenVenue.length > 0) {
+            return res.status(400).json({ error: "Change the timings as this venue is occupied within this time frame" })
         }
 
         const newMatch = new schema.match({
@@ -731,7 +760,7 @@ router.post('/createMatch', fetchUser, async (req, res) => {
 
         await newMatch.save();
 
-        res.status(200).json({ message: "match created!!" });
+        res.status(200).json({ error: "match created!!" });
     } catch (error) {
         console.error('Error creating match:', error);
         res.status(500).json({ error: 'Internal Server Error' });

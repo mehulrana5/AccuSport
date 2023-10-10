@@ -277,6 +277,7 @@ export const AppProvider = ({ children }) => {
   };
   const updateTournament = async (data) => {
     try {
+      console.log(data.start_date_time);
       const response = await fetch(`${ip}/updateTournament/${data._id}`, {
         method: "PUT",
         headers: {

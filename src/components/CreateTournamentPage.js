@@ -13,8 +13,18 @@ function CreateTournamentPage() {
 
     const navigate = useNavigate();
 
+    function formatLocalDateTime(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
     const startDate = data ? new Date(data.start_date_time) : null;
-    const formattedStartDate = startDate ? startDate.toISOString().slice(0, 16) : undefined;
+    const formattedStartDate = startDate ? formatLocalDateTime(startDate) : undefined;
+
     const readOnly = (operation === "view" || operation === "update");
     const viewOnly = operation === "view"
     const { register, handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
@@ -40,6 +50,7 @@ function CreateTournamentPage() {
     }, [])
 
     useEffect(() => {
+        console.log(data);
         setValue("tournament_name", data ? data.tournament_name : undefined)
         setValue("sport_type", data ? data.sport_type : undefined)
         setValue("start_date_time", data ? formattedStartDate : undefined)
@@ -51,7 +62,6 @@ function CreateTournamentPage() {
     const onSubmit = (data) => {
         context.createTournament(data).then(() => { navigate("../myTournaments") });
     }
-
     // Custom validation function for MongoDB-like ObjectID
     const validateObjectId = (value) => {
         const objectIdPattern = /^[0-9a-fA-F]{24}$/;
@@ -68,10 +78,11 @@ function CreateTournamentPage() {
                     description: getValues("description"),
                     match_admins: getValues("match_admins"),
                 };
-
                 setData(updatedData);
-                await context.updateTournament(updatedData);
-                alert("updated")
+                await context.updateTournament(updatedData).then((res)=>{
+                    alert(res.error)
+                });
+                // navigate('../myTournaments')
             }
         } catch (error) {
             console.log(error);
@@ -86,9 +97,9 @@ function CreateTournamentPage() {
                 if (start > curDateTime) {
                     return alert(`Cannot End tournament before start date time\nToday:\t${curDateTime.toLocaleString()}\nStart:\t${start.toLocaleString()}`)
                 }
-                data.tournament_status="old"
+                data.tournament_status = "old"
                 // console.log(data);
-                context.updateTournament(data).then((res)=>{
+                context.updateTournament(data).then((res) => {
                     alert(res.error);
                     navigate("../myTournaments")
                 })
@@ -107,8 +118,8 @@ function CreateTournamentPage() {
                 if (start > curDateTime) {
                     return alert(`Cannot Start the tournament before start date time\nToday:\t${curDateTime.toLocaleString()}\nStart:\t${start.toLocaleString()}`)
                 }
-                data.tournament_status="ongoing"
-                context.updateTournament(data).then((res)=>{
+                data.tournament_status = "ongoing"
+                context.updateTournament(data).then((res) => {
                     alert(res.error)
                     navigate('../myTournaments')
                 })
@@ -160,7 +171,7 @@ function CreateTournamentPage() {
                 <h3>Start Date and Time</h3>
                 <input
                     className='form-input'
-                    type="datetime-local"
+                    type='datetime-local'
                     defaultValue={formattedStartDate}
                     readOnly={viewOnly}
                     {...register('start_date_time', {
