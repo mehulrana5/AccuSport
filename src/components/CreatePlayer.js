@@ -8,8 +8,6 @@ function CreatePlayer() {
 
     const navigate = useNavigate();
 
-    const { playerId , operation} = useParams();
-
     const { register, handleSubmit, formState: { errors }, setValue, control } = useForm();
 
     const { fields, remove } = useFieldArray({
@@ -33,14 +31,25 @@ function CreatePlayer() {
         if (cur < player_dob) return "invalid date of birth"
     }
 
+    // useEffect(()=>{
+    //     if(playerId){
+
+    //     }
+    // },[])
+
+    let { operation,playerId } = useParams();
+
     useEffect(() => {
+        console.log(playerId);
+        // console.log("running");
         if (playerId) {
             context.fetchPlayers(playerId, "id").then((res) => {
+                console.log(res);
                 setData(res);
             })
         }
         // eslint-disable-next-line
-    }, [playerId])
+    }, [])
 
     useEffect(() => {
         if (data) {

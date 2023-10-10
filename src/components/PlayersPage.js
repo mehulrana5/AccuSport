@@ -21,14 +21,16 @@ function PlayersPage() {
         document.querySelector("#playerInput").value="";
         if(val.length>3){
             const isObjId=/^[0-9a-fA-F]{24}$/.test(val)
+            navigate(`.`)
             if(isObjId){
                 navigate(`./view/${val}`)
             }
             else{
-                context.fetchPlayer(val,"name").then((data)=>{
-                    console.log(data._id);
+                context.fetchPlayers(val,"name").then((data)=>{
+                    navigate(`./view/${data._id}`)
                 })
             }
+            console.log("running search");
         }
         else{
             alert("Input size should be more than 3 characters")
@@ -37,10 +39,10 @@ function PlayersPage() {
     return (
         <div className="container-1">
             <div className="container-2">
-                <div>
+                <form>
                     <input type="text" className='form-input' id='playerInput'/>
-                    <button type="button" className='blue-btn' onClick={handelSearch}>Search</button>
-                </div>
+                    <button type="submit" className='blue-btn' onClick={handelSearch}>Search</button>
+                </form>
                 <div>
                     {
                         player?<div>

@@ -385,7 +385,7 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
 
         const matches = await schema.match.find({ teams: { $in: [team_id] } });
 
-        if (matches) {
+        if (matches.length>0) {
             return res.status(401).json(
                 { error: "Can not delete this team as it is a part of a match that is not over yet.To remove it first ask the match admin to remove this team from the upcoming/ongoing tournament" })
         }
@@ -412,7 +412,7 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
             await schema.user.findByIdAndUpdate(userId, { $pull: { user_role: 'teamLeader' } }, { new: true });
         }
 
-        res.status(200).json({ message: "Deleted the team" });
+        res.status(200).json({ error: "Deleted the team" });
     } catch (error) {
         console.error('Error deleting team:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -665,12 +665,16 @@ router.post('/createMatch', fetchUser, async (req, res) => {
         const userId = req.user_id;
         const { tournament_id, match_start_date_time, match_end_date_time, description, teams, OLC } = req.body;
 
-        // Use findById to find the tournament by its _id
+        // Use findById to find the tournamen`t by its _id
         const tournament = await schema.tournament.findById(tournament_id);
 
         if (!tournament) {
             return res.status(404).json({ error: "Tournament not found" });
         }
+
+        // if(tournament.tournament_status!=='upcoming'){
+        //     return res.status(400).json({error:"You can only add Matches to upcoming tournaments only"})
+        // }
 
         if (!tournament.match_admins.includes(userId)) {
             return res.status(401).json({ error: `Not authorized for creating a match under this tournament ask for access from the tournament admin of tournament ${tournament._id} ` });
@@ -688,6 +692,23 @@ router.post('/createMatch', fetchUser, async (req, res) => {
         }
 
         const teamsExist = await schema.team.find({ _id: { $in: teams } });
+
+        const playerSet=new Set();
+
+        for (let i = 0; i < teamsExist.length; i++) {
+            const team=teamsExist[i];
+            for (let j = 0; j < team.team_players_ids.length; j++) {
+                const player=team.team_players_ids[j];
+                if(playerSet.has(player)){
+                    return res.status(400).json({error:`Player id ${player} is present in multiple teams`})
+                }
+                playerSet.add(player)
+            }
+        }
+
+        teamsExist.forEach(team => {
+            console.log(team.team_players_ids);
+        });
 
         if (teamsExist.length !== teams.length) {
             return res.status(400).json({ error: "One or more provided team IDs do not exist" });

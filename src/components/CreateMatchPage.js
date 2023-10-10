@@ -7,7 +7,7 @@ function CreateMatchPage() {
 
   const { handleSubmit, register, watch, getValues, setValue, formState: { errors } } = useForm();
 
-  const { operation, matchId } = useParams();
+  const { operation} = useParams();
 
   const { state } = useLocation();
 

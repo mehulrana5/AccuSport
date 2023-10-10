@@ -23,12 +23,23 @@ function CreateTournamentPage() {
     }
 
     const startDate = data ? new Date(data.start_date_time) : null;
+<<<<<<< HEAD
     const formattedStartDate = startDate ? formatLocalDateTime(startDate) : undefined;
 
     const readOnly = (operation === "view" || operation === "update");
+=======
+    
+    const formattedStartDate = startDate ? startDate.toISOString().slice(0, 16) : undefined;
+    
+    const readOnly = (operation === "view" || operation === "update" || data?.data?.tournament_status==='old');
+    
+>>>>>>> 28a5d9070f7674086e49f5bd3f9e80420a1411ae
     const viewOnly = operation === "view"
-    const { register, handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
+    
+    const { register, handleSubmit, control, formState: { errors }, setValue, getValues }= useForm();
+    
     let matchAdmins = data ? data.match_admins : null;
+    
     const { fields, append, remove } = useFieldArray({
         name: "match_admins",
         control
@@ -129,7 +140,6 @@ function CreateTournamentPage() {
             console.log(error);
         }
     }
-
     return (
         <div className='container-2' style={{ height: "70vh" }}>
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -190,6 +200,7 @@ function CreateTournamentPage() {
                     cols="40"
                     rows="4"
                     className='form-input'
+                    readOnly={readOnly}
                     defaultValue={data ? data.description : ""}
                     disabled={viewOnly}
                     {...register('description', { required: true })}
@@ -201,6 +212,10 @@ function CreateTournamentPage() {
                         : <h5 style={{ color: "#2196f3" }}>In this tournament, you will be one of the match admin by default</h5>
                 }
                 <div>
+                    {
+                        viewOnly || data?.tournament_status==='old' ? <></>
+                            : <button className='green-btn' type="button" onClick={() => append("")}>Add</button>
+                    }
                     {fields.map((field, idx) => {
                         return (
                             <div key={field.id}>
@@ -208,7 +223,7 @@ function CreateTournamentPage() {
                                     type="text"
                                     className='form-input'
                                     style={{ margin: "5px 5px 0 0", width: "40%" }}
-                                    readOnly={viewOnly}
+                                    readOnly={viewOnly || data?.tournament_status==='old'}
                                     {...register(`match_admins[${idx}]`, {
                                         required: true,
                                         validate: validateObjectId, // Custom validation for MongoDB-like ObjectID
@@ -216,7 +231,7 @@ function CreateTournamentPage() {
 
                                 />
                                 {
-                                    viewOnly ? <></>
+                                    viewOnly || data?.tournament_status==='old' ? <></>
                                         : (idx >= 0 && (
                                             <button className='red-btn' onClick={() => remove(idx)}>Remove</button>
                                         ))
@@ -227,26 +242,31 @@ function CreateTournamentPage() {
                             </div>
                         )
                     })}
-                    {
-                        viewOnly ? <></>
-                            : <button className='green-btn' type="button" onClick={() => append("")}>Add</button>
-                    }
                 </div>
                 {
-                    viewOnly ? <></>
+                    (viewOnly) ? <></>
                         :
-                        <div>
-                            <button type='button' onClick={handelStartTournament} className='green-btn'>Start Tournament</button>
-                            <button type='button' onClick={handelEndTournament} className='red-btn'>End Tournament</button>
-                        </div>
+                        data ?
+                            <div>
+                                {data.tournament_status === "upcoming" ?
+                                    <button type='button' onClick={handelStartTournament} className='green-btn'>Start Tournament</button> :
+                                    data.tournament_status === "ongoing" ?
+                                        <button type='button' onClick={handelEndTournament} className='red-btn'>End Tournament</button> :
+                                        <></>
+                                }
+                            </div>
+                            : <></>
                 }
                 {
-                    operation === "update" ? (
+                    operation === "update" ? 
+                        data?.tournament_status==="old"?
+                        <></>
+                        :
                         <div>
                             <button type='button' onClick={handelUpdateTournament} className='blue-btn'>Update</button>
                         </div>
-                    )
-                        : operation === "view" ? (<></>) : (<input className='blue-btn' type="submit" value={"Create"} />)
+                        :
+                        operation === "view"? (<></>) : (<input className='blue-btn' type="submit" value={"Create"} />)
                 }
             </form>
         </div>
