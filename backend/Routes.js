@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         console.error('Error adding user:', error);
         res.status(500).json({ error: 'Internal Server Error' });
-    }
+    } 
 });
 
 // Fetch user data
@@ -385,7 +385,7 @@ router.delete('/deleteTeam', fetchUser, async (req, res) => {
 
         const matches = await schema.match.find({ teams: { $in: [team_id] } });
 
-        if (matches.length>0) {
+        if (matches.length > 0) {
             return res.status(401).json(
                 { error: "Can not delete this team as it is a part of a match that is not over yet.To remove it first ask the match admin to remove this team from the upcoming/ongoing tournament" })
         }
@@ -571,7 +571,7 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
                 , new Date());
 
             if (updatedDate > minStart) {
-                return res.status(400).json({error: `The tournament updated status is invalid minimum-start-date:${minStart.toLocaleString()}`});
+                return res.status(400).json({ error: `The tournament updated status is invalid minimum-start-date:${minStart.toLocaleString()}` });
             }
         }
         const updatedTournament = await schema.tournament.findByIdAndUpdate(
@@ -693,14 +693,14 @@ router.post('/createMatch', fetchUser, async (req, res) => {
 
         const teamsExist = await schema.team.find({ _id: { $in: teams } });
 
-        const playerSet=new Set();
+        const playerSet = new Set();
 
         for (let i = 0; i < teamsExist.length; i++) {
-            const team=teamsExist[i];
+            const team = teamsExist[i];
             for (let j = 0; j < team.team_players_ids.length; j++) {
-                const player=team.team_players_ids[j];
-                if(playerSet.has(player)){
-                    return res.status(400).json({error:`Player id ${player} is present in multiple teams`})
+                const player = team.team_players_ids[j];
+                if (playerSet.has(player)) {
+                    return res.status(400).json({ error: `Player id ${player} is present in multiple teams` })
                 }
                 playerSet.add(player)
             }
@@ -803,7 +803,12 @@ router.put('/updateMatch/:match_id', fetchUser, async (req, res) => {
         if (!oldMatch.match_admin.equals(userId)) {
             return res.status(401).json({ error: "Not authorized for this action" });
         }
-
+        //Check if the tournament is upcoming or not if not no changes allowed
+        const tournamentId=await schema.match.findById(matchId).select("-_id tournament_id")
+        const status=await schema.tournament.findById(tournamentId.tournament_id).select("-_id tournament_status")
+        if(status.tournament_status!=="upcoming"){
+            return res.status(400).json({error:"Tournament status is not upcoming"})
+        }
         // Check if the updated match start date is valid
         if (match_start_date_time) {
             const tournament = await schema.tournament.findById(oldMatch.tournament_id);
@@ -894,6 +899,7 @@ router.delete("/deleteMatch/:matchId", fetchUser, async (req, res) => {
         if (!match.match_admin.equals(userId)) {
             return res.status(401).json({ error: "Not authorized for this action" });
         }
+        //check if the tournament is upcoming or not
 
         await schema.match.findByIdAndDelete(matchId);
 

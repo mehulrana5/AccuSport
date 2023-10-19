@@ -23,17 +23,10 @@ function CreateTournamentPage() {
     }
 
     const startDate = data ? new Date(data.start_date_time) : null;
-<<<<<<< HEAD
     const formattedStartDate = startDate ? formatLocalDateTime(startDate) : undefined;
-
-    const readOnly = (operation === "view" || operation === "update");
-=======
-    
-    const formattedStartDate = startDate ? startDate.toISOString().slice(0, 16) : undefined;
     
     const readOnly = (operation === "view" || operation === "update" || data?.data?.tournament_status==='old');
-    
->>>>>>> 28a5d9070f7674086e49f5bd3f9e80420a1411ae
+        
     const viewOnly = operation === "view"
     
     const { register, handleSubmit, control, formState: { errors }, setValue, getValues }= useForm();
