@@ -82,8 +82,7 @@ body {
 }
 
 .form-group {
-  margin-bottom: 15px;
-  display: flex;
+  display:flex;
   flex-direction: column;
 }
 
@@ -99,9 +98,8 @@ body {
   border: 1px solid #333333;
   color: #FFFFFF;
   background-color: black;
-  max-width: 350px;
-  width: 50%;
-  /* width: fit-content; */
+  max-width: 250px;
+  width: 100%;
 }
 
 input[type="date"]{

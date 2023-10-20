@@ -109,7 +109,7 @@ export const AppProvider = ({ children }) => {
     setAuthToken("");
     window.location.reload();
   }
-  
+
   //Player
   const fetchPlayers = async (query, fetchBy) => { //fetchBy=user,name,id,team
     try {
@@ -199,20 +199,20 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   };
-  const updateTeamPlayers=async(players,teamId)=>{
+  const updateTeamPlayers = async (players, teamId) => {
     try {
-      const response=await fetch(`${ip}/updateTeamPlayers`,{
-        method:"PUT",
+      const response = await fetch(`${ip}/updateTeamPlayers`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           "auth-token": authToken
         },
-        body:JSON.stringify({
-          players:players,
-          teamId:teamId
+        body: JSON.stringify({
+          players: players,
+          teamId: teamId
         })
       })
-      const data=await response.json();
+      const data = await response.json();
       return data;
     } catch (error) {
       console.log(error);
@@ -236,7 +236,7 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-  
+
   //Torunament
   const createTournament = async (data) => {
     try {
@@ -252,6 +252,7 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(data)
       })
       const json = await response.json();
+      return json;
     } catch (error) {
       console.log(error);
     }
@@ -314,7 +315,6 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-  
   //Match
   const createMatch = async (data) => {
     try {
@@ -348,12 +348,60 @@ export const AppProvider = ({ children }) => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          query:query,
-          fetchBy:fetchBy
+          query: query,
+          fetchBy: fetchBy
         })
       });
-      const data=await response.json();
+      const data = await response.json();
       return data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  //Performance
+  const createDataPoints = async (data) => {
+    try {
+      const response = await fetch(`${ip}/createDataPoints`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": authToken
+        },
+        body: JSON.stringify(data)
+      })
+      const json = await response.json();
+      return json
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const fetchDataPoints = async (tournament_id) => {
+    try {
+      const response = await fetch(`${ip}/fetchDataPoints`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ tournament_id }) // Wrap tournament_id in an object
+      });
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      console.error('Error in fetchDataPoints:', error);
+    }
+  }
+  const updateDataPoints=async(data)=>{
+    try {
+      const response = await fetch(`${ip}/updateDataPoints`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": authToken
+        },
+        body: JSON.stringify(data)
+      })
+      const json = await response.json();
+      return json;
     } catch (error) {
       console.log(error);
     }
@@ -407,8 +455,11 @@ export const AppProvider = ({ children }) => {
         updateTournament,
         deleteTournament,
         createMatch,
-        fetchMatches, 
+        fetchMatches,
         updateTeamPlayers,
+        createDataPoints,
+        fetchDataPoints,
+        updateDataPoints,
       }}
     >
       {children}

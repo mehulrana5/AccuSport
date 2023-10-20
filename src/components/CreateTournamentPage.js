@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import AppContext from '../Context';
 import { useNavigate, useParams } from 'react-router-dom';
+import CreatePerformance from './CreatePerformance';
 
 function CreateTournamentPage() {
 
@@ -10,6 +11,7 @@ function CreateTournamentPage() {
     const { operation, tournamentId } = useParams();
 
     const [data, setData] = useState();
+    const [performanceModal, setPerformanceModal] = useState(false)
 
     const navigate = useNavigate();
 
@@ -22,17 +24,21 @@ function CreateTournamentPage() {
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 
+    function togglePerformanceModal() {
+        setPerformanceModal(!performanceModal);
+    }
+
     const startDate = data ? new Date(data.start_date_time) : null;
     const formattedStartDate = startDate ? formatLocalDateTime(startDate) : undefined;
-    
-    const readOnly = (operation === "view" || operation === "update" || data?.data?.tournament_status==='old');
-        
+
+    const readOnly = (operation === "view" || operation === "update" || data?.data?.tournament_status === 'old');
+
     const viewOnly = operation === "view"
-    
-    const { register, handleSubmit, control, formState: { errors }, setValue, getValues }= useForm();
-    
+
+    const { register, handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
+
     let matchAdmins = data ? data.match_admins : null;
-    
+
     const { fields, append, remove } = useFieldArray({
         name: "match_admins",
         control
@@ -54,7 +60,7 @@ function CreateTournamentPage() {
     }, [])
 
     useEffect(() => {
-        console.log(data);
+        // console.log(data);
         setValue("tournament_name", data ? data.tournament_name : undefined)
         setValue("sport_type", data ? data.sport_type : undefined)
         setValue("start_date_time", data ? formattedStartDate : undefined)
@@ -71,7 +77,6 @@ function CreateTournamentPage() {
         const objectIdPattern = /^[0-9a-fA-F]{24}$/;
         return objectIdPattern.test(value);
     };
-
     async function handelUpdateTournament() {
         try {
             const flag = window.confirm("Do you want to update these changes")
@@ -83,7 +88,7 @@ function CreateTournamentPage() {
                     match_admins: getValues("match_admins"),
                 };
                 setData(updatedData);
-                await context.updateTournament(updatedData).then((res)=>{
+                await context.updateTournament(updatedData).then((res) => {
                     alert(res.error)
                 });
                 // navigate('../myTournaments')
@@ -206,7 +211,7 @@ function CreateTournamentPage() {
                 }
                 <div>
                     {
-                        viewOnly || data?.tournament_status==='old' ? <></>
+                        viewOnly || data?.tournament_status === 'old' ? <></>
                             : <button className='green-btn' type="button" onClick={() => append("")}>Add</button>
                     }
                     {fields.map((field, idx) => {
@@ -216,7 +221,7 @@ function CreateTournamentPage() {
                                     type="text"
                                     className='form-input'
                                     style={{ margin: "5px 5px 0 0", width: "40%" }}
-                                    readOnly={viewOnly || data?.tournament_status==='old'}
+                                    readOnly={viewOnly || data?.tournament_status === 'old'}
                                     {...register(`match_admins[${idx}]`, {
                                         required: true,
                                         validate: validateObjectId, // Custom validation for MongoDB-like ObjectID
@@ -224,7 +229,7 @@ function CreateTournamentPage() {
 
                                 />
                                 {
-                                    viewOnly || data?.tournament_status==='old' ? <></>
+                                    viewOnly || data?.tournament_status === 'old' ? <></>
                                         : (idx >= 0 && (
                                             <button className='red-btn' onClick={() => remove(idx)}>Remove</button>
                                         ))
@@ -251,19 +256,23 @@ function CreateTournamentPage() {
                             : <></>
                 }
                 {
-                    operation === "update" ? 
-                        data?.tournament_status==="old"?
-                        <></>
+                    operation === "update" ?
+                        data?.tournament_status === "upcoming" ?
+                            <div>
+                                <button type='button' className="green-btn" onClick={togglePerformanceModal}>
+                                    Update Performance Matrices
+                                </button>
+                                <button type='button' onClick={handelUpdateTournament} className='blue-btn'>Update</button>
+                            </div>
+                            :<></>
                         :
-                        <div>
-                            <button type='button' onClick={handelUpdateTournament} className='blue-btn'>Update</button>
-                        </div>
-                        :
-                        operation === "view"? (<></>) : (<input className='blue-btn' type="submit" value={"Create"} />)
+                        operation === "view" ? (<></>) : (<input className='blue-btn' type="submit" value={"Create"} />)
                 }
             </form>
+            {
+                performanceModal ? <CreatePerformance togglePerformanceModal={togglePerformanceModal} tournamentId={tournamentId}/> : <></>
+            }
         </div>
     )
 }
-
 export default CreateTournamentPage;

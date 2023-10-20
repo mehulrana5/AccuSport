@@ -7,7 +7,7 @@ function CreateMatchPage() {
 
   const { handleSubmit, register, watch, getValues, setValue, formState: { errors } } = useForm();
 
-  const { operation} = useParams();
+  const { operation } = useParams();
 
   const { state } = useLocation();
 
@@ -132,16 +132,18 @@ function CreateMatchPage() {
   }
 
   return (
-    <div className='container-2'
+    <div
       style={{
         height: "70vh",
-        width: "",
-        display: "flex"
+        display: "flex",
+        justifyContent: "space-between",
+        overflow: "auto",
+        flexWrap: "wrap"
       }}
     >
-      <div className=''>
+      <div>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className='form-group' >
+          <div className="form-group">
             <h3>Tournament Id</h3>
             <input
               readOnly={operation}
@@ -155,7 +157,7 @@ function CreateMatchPage() {
             />
             {errors.tournamentId && <p style={{ color: "red" }}>Invalid MongoDB ObjectId format.</p>}
           </div>
-          <div className='form-group' >
+          <div className="form-group">
             <h3>Team 1 Id</h3>
             <input
               readOnly={operation === 'view'}
@@ -169,7 +171,7 @@ function CreateMatchPage() {
             />
             {errors.team1 && <p style={{ color: "red" }}>Invalid MongoDB ObjectId format.</p>}
           </div>
-          <div className='form-group' >
+          <div className="form-group">
             <h3>Team 2 Id</h3>
             <input
               readOnly={operation === 'view'}
@@ -184,7 +186,7 @@ function CreateMatchPage() {
             {errors.team2 && <p style={{ color: "red" }}>Invalid MongoDB ObjectId format.</p>}
           </div>
 
-          <div className='form-group'>
+          <div className="form-group">
             <h3>Venue Location Code</h3>
             {
               operation === 'view' ? <></>
@@ -220,6 +222,7 @@ function CreateMatchPage() {
                   </div>
                 ))}
           </div>
+
           <div className="form-group">
             <h3>Start Date and Time</h3>
             <input
@@ -248,12 +251,12 @@ function CreateMatchPage() {
             />
             {errors.matchEndDateTime && <p style={{ color: "red" }}>{errors.matchEndDateTime.message}</p>}
           </div>
-          <div className='form-group' >
+          <div className="form-group">
             <h3>Description</h3>
             <textarea
               id="matchDescription"
               readOnly={operation === 'view'}
-              cols="70"
+              cols="50"
               rows="3"
               className='form-input'
               {...register('matchDescription', {
@@ -274,63 +277,64 @@ function CreateMatchPage() {
           }
         </form>
       </div>
-      {showMapModal && (
-        <div>
-          <iframe
-            title='1'
-            id='frame1'
-            width="700"
-            height="400"
-            frameborder="0"
-            src="https://widgets.scribblemaps.com/sm/?d&dv&cv&mt&z&ol&l&gc&af&sc&mc&dfe&lat=28.576343343&lng=77.392900622&vz=19&type=hybrid&ti&s&width=550&height=400&id=FMrKcAggHH"
-            style={{ border: 0, maxWidth: "100%" }}
-            allowFullScreen
-            allow="geolocation"
-            loading="lazy"
-          ></iframe>
-        </div>
-      )}
-      {
-        state ?
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              width: "40%",
-              maxWidth: "400px",
-              justifyContent: "space-between"
-            }}>
-            <table className='details-table'>
-              <th className='table-head'>
-                {state.teams.team1.team_name}
-              </th>
-              <tbody>
-                {team1PlayerNames && team1PlayerNames.map((e, idx) => (
-                  <tr key={idx}>
-                    <td className='details-value'>
-                      {e}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <table className='details-table'>
-              <th className='table-head'>
-                {state.teams.team2.team_name}
-              </th>
-              <tbody>
-                {team2PlayerNames && team2PlayerNames.map((e, idx) => (
-                  <tr key={idx}>
-                    <td className='details-value'>
-                      {e}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div>
+        {
+          state ?
+            <div
+              style={{
+                display: "flex",
+                width: "100%",
+              }}>
+              <table className='details-table'>
+                <th className='table-head'>
+                  {state.teams.team1.team_name}
+                </th>
+                <tbody>
+                  {team1PlayerNames && team1PlayerNames.map((e, idx) => (
+                    <tr key={idx}>
+                      <td className='details-value'>
+                        {e}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <table className='details-table'>
+                <th className='table-head'>
+                  {state.teams.team2.team_name}
+                </th>
+                <tbody>
+                  {team2PlayerNames && team2PlayerNames.map((e, idx) => (
+                    <tr key={idx}>
+                      <td className='details-value'>
+                        {e}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            : <></>
+        }
+      </div>
+      <div>
+        {showMapModal && (
+          <div>
+            <iframe
+              title='1'
+              id='frame1'
+              width="700"
+              height="400"
+              frameborder="0"
+              src="https://widgets.scribblemaps.com/sm/?d&dv&cv&mt&z&ol&l&gc&af&sc&mc&dfe&lat=28.576343343&lng=77.392900622&vz=19&type=hybrid&ti&s&width=550&height=400&id=FMrKcAggHH"
+              style={{ border: 0, maxWidth: "100%" }}
+              allowFullScreen
+              allow="geolocation"
+              loading="lazy"
+            ></iframe>
           </div>
-          : <></>
-      }
+        )}
+      </div>
     </div >
   );
 }

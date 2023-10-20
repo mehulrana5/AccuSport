@@ -43,8 +43,8 @@ function MyMatches() {
         // console.log(teams);
     }, [teams])
 
-    function handelMatch(match,teams){
-        navigate(`../view/${match._id}`,{state:{match,teams}})
+    function handelMatch(operation,match,teams){
+        navigate(`../${operation}/${match._id}`,{state:{match,teams}})
     }
 
     return (
@@ -66,10 +66,17 @@ function MyMatches() {
                             <button
                                 type="button"
                                 className="green-btn"
-                                onClick={() => handelMatch(match,teams[idx],teams[idx+1])}
+                                onClick={() => handelMatch("view",match,teams[idx],teams[idx+1])}
                             >
                                 View
                             </button>
+                            <button
+                                type="button"
+                                className="blue-btn"
+                                onClick={() => handelMatch("update",match,teams[idx],teams[idx+1])}
+                            >
+                                Update
+                            </button> 
                         </div>
                     </div>
                 ))

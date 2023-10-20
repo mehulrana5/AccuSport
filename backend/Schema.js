@@ -84,10 +84,24 @@ const tournamentSchema = new mongoose.Schema({
 
 const tournament = mongoose.model('tournament', tournamentSchema)
 
+const performanceSchema = new mongoose.Schema({
+    tournament_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'tournament',
+        required: true
+    },
+    team_metrics: [String],
+    player_metrics: [String]
+});
+
+
+const performance = mongoose.model('performance', performanceSchema); 
+
 module.exports = {
     user,
     player,
     team,
     match,
     tournament,
-} 
+    performance
+}
