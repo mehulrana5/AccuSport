@@ -31,20 +31,11 @@ function CreatePlayer() {
         if (cur < player_dob) return "invalid date of birth"
     }
 
-    // useEffect(()=>{
-    //     if(playerId){
-
-    //     }
-    // },[])
-
     let { operation,playerId } = useParams();
 
     useEffect(() => {
-        console.log(playerId);
-        // console.log("running");
         if (playerId) {
             context.fetchPlayers(playerId, "id").then((res) => {
-                console.log(res);
                 setData(res);
             })
         }
@@ -55,6 +46,7 @@ function CreatePlayer() {
         if (data) {
             setValue("player_name", data.player_name)
             setValue("player_id", data._id)
+            setValue("user_id", data.user_id)
             const date = new Date(data.player_dob);
             const formattedDate = date.toLocaleDateString("en-CA"); // Adjust the locale as needed
             setValue("player_dob", formattedDate);
@@ -85,7 +77,16 @@ function CreatePlayer() {
                     {
                         data ?
                             <div>
-                                <h3>ID</h3>
+                                <h3>User ID</h3>
+                                <input
+                                    type='string'
+                                    className='form-input'
+                                    readOnly={playerId}
+                                    {...register('user_id', {
+                                        required: true,
+                                    })}
+                                />
+                                <h3>Player ID</h3>
                                 <input
                                     type='string'
                                     className='form-input'

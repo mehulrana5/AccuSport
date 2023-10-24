@@ -325,7 +325,7 @@ export const AppProvider = ({ children }) => {
           "auth-token": authToken
         },
         body: JSON.stringify({
-          tournament_id: data.tournamentId, // Fixed typo here
+          tournament_id: data.tournamentId,
           match_start_date_time: data.matchStartDateTime,
           match_end_date_time: data.matchEndDateTime,
           description: data.matchDescription,
@@ -340,6 +340,23 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   };
+  const updateMatch = async (data) => {
+    try {
+      const response = await fetch(`${ip}/updateMatch`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": authToken
+        },
+        body: JSON.stringify(data)
+      });
+
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      console.log(error);
+    }
+  }
   const fetchMatches = async (query, fetchBy) => {
     try {
       const response = await fetch(`${ip}/fetchMatches`, {
@@ -358,7 +375,7 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-  //Performance
+  //Data points
   const createDataPoints = async (data) => {
     try {
       const response = await fetch(`${ip}/createDataPoints`, {
@@ -390,7 +407,7 @@ export const AppProvider = ({ children }) => {
       console.error('Error in fetchDataPoints:', error);
     }
   }
-  const updateDataPoints=async(data)=>{
+  const updateDataPoints = async (data) => {
     try {
       const response = await fetch(`${ip}/updateDataPoints`, {
         method: "PUT",
@@ -402,6 +419,23 @@ export const AppProvider = ({ children }) => {
       })
       const json = await response.json();
       return json;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  //Performance records
+  const createPerformanceRecord = async (data) => {
+    try {
+      const response = await fetch(`${ip}/createPerformanceRecord`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": authToken
+        },
+        body: JSON.stringify(data)
+      })
+      const json = await response.json();
+      return json
     } catch (error) {
       console.log(error);
     }
@@ -455,11 +489,13 @@ export const AppProvider = ({ children }) => {
         updateTournament,
         deleteTournament,
         createMatch,
+        updateMatch,
         fetchMatches,
         updateTeamPlayers,
         createDataPoints,
         fetchDataPoints,
         updateDataPoints,
+        createPerformanceRecord
       }}
     >
       {children}

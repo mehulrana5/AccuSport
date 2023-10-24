@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppContext from '../Context';
 import { useLocation, useParams } from 'react-router-dom';
+import Performance from './Performance';
 
 function CreateMatchPage() {
 
@@ -15,6 +16,7 @@ function CreateMatchPage() {
 
   const [showMapModal, setShowMapModal] = useState(false);
   const [geoData, setGeoData] = useState([])
+  const [performanceModal, setPerformanceModal] = useState(false);
 
   const [team1PlayerNames, setTeam1PlayerNames] = useState();
   const [team2PlayerNames, setTeam2PlayerNames] = useState();
@@ -54,6 +56,7 @@ function CreateMatchPage() {
     const response = await context.createMatch(data);
     alert(response.data.error)
   }
+
   function formatLocalDateTime(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -63,6 +66,66 @@ function CreateMatchPage() {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
+  function togglePerformanceModal() {
+    setPerformanceModal(!performanceModal);
+  }
+
+  const toggleMapButton = showMapModal ? "Close map" : "Open map";
+  
+  function isValidObjectId(value) {
+    const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+    return objectIdPattern.test(value);
+  }
+  function isValidStartDateTime(value) {
+
+    const curDate = new Date();
+    const setDate = new Date(value);
+
+    if (curDate >= setDate) {
+      return "Match start date-time must be set in the future.";
+    }
+  }
+  function isValidEndDateTime(value) {
+    const startDate = new Date(getValues("matchStartDateTime"));
+    const endDate = new Date(value);
+
+    if (startDate >= endDate) {
+      return "Match end date-time must be set in the after start date-time.";
+    }
+  }
+  function isValidLocation(value) {
+    if (!geoData.includes(value)) return "Invalid open location code"
+  }
+  function handelUpdate() {
+    const newMatchStartDateTime = watch("matchStartDateTime");
+    const newMatchEndDateTime = watch("matchEndDateTime");
+    const newMatchDescription = watch("matchDescription");
+    const matchId = state?.match._id;
+    const newDoc = { matchId, match_start_date_time: newMatchStartDateTime, match_end_date_time: newMatchEndDateTime, description: newMatchDescription, match_status: state?.match.match_status }
+    context.updateMatch(newDoc).then((res) => {
+      console.log(res);
+    });
+  }
+  function handelStatus(stage) {
+    const newMatchStartDateTime = watch("matchStartDateTime");
+    const newMatchEndDateTime = watch("matchEndDateTime");
+    const newMatchDescription = watch("matchDescription");
+    const matchId = state?.match._id;
+    let newDoc = { matchId, match_start_date_time: newMatchStartDateTime, match_end_date_time: newMatchEndDateTime, description: newMatchDescription }
+    if (stage === 1) {
+      newDoc = { ...newDoc, match_status: "ongoing" }
+      context.updateMatch(newDoc).then((res) => {
+        alert(res.error);
+      });
+    }
+    if (stage === 2) {
+      newDoc = { ...newDoc, match_status: "old" }
+      context.updateMatch(newDoc).then((res) => {
+        alert(res.error);
+      });
+    }
+  }
+  
   useEffect(() => {
     if (geoData.length === 0) {
       HandelGetGeoData()
@@ -99,37 +162,6 @@ function CreateMatchPage() {
       });
     }
   }, [state]);
-
-  const toggleMapButton = showMapModal ? "Close map" : "Show venues on map";
-
-  // Custom validation function
-
-  function isValidObjectId(value) {
-    const objectIdPattern = /^[0-9a-fA-F]{24}$/;
-    return objectIdPattern.test(value);
-  }
-
-  function isValidStartDateTime(value) {
-
-    const curDate = new Date();
-    const setDate = new Date(value);
-
-    if (curDate >= setDate) {
-      return "Match start date-time must be set in the future.";
-    }
-  }
-  function isValidEndDateTime(value) {
-    const startDate = new Date(getValues("matchStartDateTime"));
-    const endDate = new Date(value);
-
-    if (startDate >= endDate) {
-      return "Match end date-time must be set in the after start date-time.";
-    }
-  }
-
-  function isValidLocation(value) {
-    if (!geoData.includes(value)) return "Invalid open location code"
-  }
 
   return (
     <div
@@ -185,11 +217,10 @@ function CreateMatchPage() {
             />
             {errors.team2 && <p style={{ color: "red" }}>Invalid MongoDB ObjectId format.</p>}
           </div>
-
           <div className="form-group">
             <h3>Venue Location Code</h3>
             {
-              operation === 'view' ? <></>
+              operation === 'view' || state?.match.match_status !== 'upcoming' ? <></>
                 :
                 <button type="button" className='blue-btn' onClick={showMapModal ? closeMapModal : openMapModal}>
                   {toggleMapButton}
@@ -222,7 +253,6 @@ function CreateMatchPage() {
                   </div>
                 ))}
           </div>
-
           <div className="form-group">
             <h3>Start Date and Time</h3>
             <input
@@ -266,15 +296,42 @@ function CreateMatchPage() {
             />
             {errors.matchDescription && <p style={{ color: "red" }}>Match Description is required.</p>}
           </div>
-          {
-            operation === 'view' ? <></>
-              :
-              <div>
-                <button type="submit" className='blue-btn'>
-                  Submit
-                </button>
-              </div>
-          }
+          <div>
+            {
+              operation === 'update' ?
+                <>
+                  {
+                    state?.match.match_status === 'ongoing' ?
+                      <button onClick={togglePerformanceModal} type="button" className='blue-btn'>
+                        Performance
+                      </button>
+                      : <></>
+                  }
+                  {
+                    state?.match.match_status === 'upcoming' ?
+                      <>
+                        <button onClick={() => handelStatus(1)} type="button" className='blue-btn'>
+                          Start Match
+                        </button>
+                        <button onClick={handelUpdate} type="button" className='blue-btn'>
+                          Update
+                        </button>
+                      </>
+                      :
+                      state?.match.match_status === 'ongoing' ?
+                        <button onClick={() => handelStatus(2)} type="button" className='red-btn'>
+                          End Match
+                        </button>
+                        : <></>
+                  }
+                </>
+                : operation !== 'view' ?
+                  <button type="submit" className='green-btn'>
+                    Create
+                  </button>
+                  : <></>
+            }
+          </div>
         </form>
       </div>
       <div>
@@ -335,6 +392,11 @@ function CreateMatchPage() {
           </div>
         )}
       </div>
+      {
+        performanceModal ?
+          <Performance togglePerformanceModal={togglePerformanceModal} tournamentId={state?.match.tournament_id} state={state} />
+          : <></>
+      }
     </div >
   );
 }

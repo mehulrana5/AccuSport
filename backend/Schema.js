@@ -64,6 +64,10 @@ const matchSchema = new mongoose.Schema({
     OLC: {
         type: String,
         required: true
+    },
+    match_status:{
+        type:String,
+        required:true
     }
 });
 
@@ -84,18 +88,46 @@ const tournamentSchema = new mongoose.Schema({
 
 const tournament = mongoose.model('tournament', tournamentSchema)
 
-const performanceSchema = new mongoose.Schema({
+const dataPointsSchema = new mongoose.Schema({
     tournament_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'tournament',
         required: true
     },
-    team_metrics: [String],
-    player_metrics: [String]
+    performance_metrics: [String]
 });
 
+const dataPoints = mongoose.model('dataPoints', dataPointsSchema);
 
-const performance = mongoose.model('performance', performanceSchema); 
+const performanceRecordSchema = new mongoose.Schema({
+    tournament_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'tournament',
+        required: true
+    },
+    player_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'player',
+        required: true
+    },
+    team_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'team',
+        required: true
+    },
+    match_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'match',
+        required: true
+    },
+    performance_metrics: [{
+        name: String,
+        value: String
+    }],
+});
+
+const performanceRecord = mongoose.model('performanceRecord', performanceRecordSchema);
+
 
 module.exports = {
     user,
@@ -103,5 +135,6 @@ module.exports = {
     team,
     match,
     tournament,
-    performance
+    dataPoints,
+    performanceRecord
 }

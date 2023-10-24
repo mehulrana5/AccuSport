@@ -129,7 +129,7 @@ router.delete('/deleteUser', fetchUser, async (req, res) => {
 router.post('/registerPlayer', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id; // Access user ID from req.user
-        const { player_name, player_dob } = req.body; // Get player_name and player_dob from request body
+        const { player_name, player_dob } = req.body;
 
         const playerExists = await schema.player.findOne({ user_id: userId });
 
@@ -143,10 +143,10 @@ router.post('/registerPlayer', fetchUser, async (req, res) => {
         }
 
         const document = new schema.player({
-            user_id: userId, // Assign the user ID to the player's user_id field
+            user_id: userId,
             player_name: player_name,
             player_dob: player_dob,
-            team_ids: [] // Initialize team_ids as an empty array
+            team_ids: []
         });
 
         await document.save();
@@ -215,7 +215,7 @@ router.post('/fetchPlayers', async (req, res) => {
                 break;
 
             case "teamPlayersNameOnly":
-                data = await schema.player.find({ team_ids: { $in: query } }).select("player_name -_id")
+                data = await schema.player.find({ team_ids: { $in: query } }).select("player_name")
                 break;
 
             default:
@@ -235,8 +235,9 @@ router.post('/fetchPlayers', async (req, res) => {
 
 // Delete player profile
 router.delete('/deletePlayer', fetchUser, async (req, res) => {
-    const userId = req.user_id;
     try {
+        const userId = req.user_id;
+
         // Delete player
         await schema.player.findOneAndDelete({ user_id: userId });
 
@@ -665,7 +666,6 @@ router.post('/createMatch', fetchUser, async (req, res) => {
         const userId = req.user_id;
         const { tournament_id, match_start_date_time, match_end_date_time, description, teams, OLC } = req.body;
 
-        // Use findById to find the tournamen`t by its _id
         const tournament = await schema.tournament.findById(tournament_id);
 
         if (!tournament) {
@@ -693,33 +693,8 @@ router.post('/createMatch', fetchUser, async (req, res) => {
 
         const teamsExist = await schema.team.find({ _id: { $in: teams } });
 
-        const playerSet = new Set();
-
-        for (let i = 0; i < teamsExist.length; i++) {
-            const team = teamsExist[i];
-            for (let j = 0; j < team.team_players_ids.length; j++) {
-                const player = team.team_players_ids[j];
-                if (playerSet.has(player)) {
-                    return res.status(400).json({ error: `Player id ${player} is present in multiple teams` })
-                }
-                playerSet.add(player)
-            }
-        }
-
-        teamsExist.forEach(team => {
-            console.log(team.team_players_ids);
-        });
-
         if (teamsExist.length !== teams.length) {
             return res.status(400).json({ error: "One or more provided team IDs do not exist" });
-        }
-
-        const teamsAlreadyInMatches = await schema.match.find({
-            tournament_id: tournament_id,
-            teams: { $in: teams }
-        });
-        if (teamsAlreadyInMatches.length > 0) {
-            return res.status(400).json({ error: "Some teams are already part of matches in this tournament" });
         }
 
         // Check if a player is in more than one team in this match
@@ -733,6 +708,15 @@ router.post('/createMatch', fetchUser, async (req, res) => {
                 }
             }
         }
+
+        const teamsAlreadyInMatches = await schema.match.find({
+            tournament_id: tournament_id,
+            teams: { $in: teams }
+        });
+        if (teamsAlreadyInMatches.length > 0) {
+            return res.status(400).json({ error: "Some teams are already part of matches in this tournament" });
+        }
+
         //Check if the venue where match taking place is occupied or not during that time
         const matchesAtGivenVenue = await schema.match.aggregate([
             {
@@ -776,7 +760,8 @@ router.post('/createMatch', fetchUser, async (req, res) => {
             match_end_date_time: match_end_date_time,
             description: description,
             teams: teams,
-            OLC: OLC
+            OLC: OLC,
+            match_status: "upcoming"
         });
 
         await newMatch.save();
@@ -788,58 +773,86 @@ router.post('/createMatch', fetchUser, async (req, res) => {
     }
 });
 
-//update match
-router.put('/updateMatch/:match_id', fetchUser, async (req, res) => {
+//Update match
+router.put('/updateMatch', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
-        const matchId = req.params.match_id;
-        const { match_start_date_time, match_end_date_time, description } = req.body;
-        const oldMatch = await schema.match.findById(matchId);
+        const { matchId, match_start_date_time, match_end_date_time, description, match_status } = req.body;
 
-        if (!oldMatch) {
+        // Find the existing match by ID
+        const existingMatch = await schema.match.findById(matchId);
+
+        // Check if the match exists
+        if (!existingMatch) {
             return res.status(404).json({ error: "Match not found" });
         }
 
-        if (!oldMatch.match_admin.equals(userId)) {
+        // Find the associated tournament to check if the user is a match admin
+        const associatedTournament = await schema.tournament
+            .findById(existingMatch.tournament_id)
+            .select('match_admins');
+
+        // Check if the user is authorized as a match admin
+        if (!associatedTournament.match_admins.includes(userId)) {
             return res.status(401).json({ error: "Not authorized for this action" });
         }
-        //Check if the tournament is upcoming or not if not no changes allowed
-        const tournamentId = await schema.match.findById(matchId).select("-_id tournament_id")
-        const status = await schema.tournament.findById(tournamentId.tournament_id).select("-_id tournament_status")
-        if (status.tournament_status !== "upcoming") {
-            return res.status(400).json({ error: "Tournament status is not upcoming" })
-        }
-        // Check if the updated match start date is valid
-        if (match_start_date_time) {
-            const tournament = await schema.tournament.findById(oldMatch.tournament_id);
-            const updatedMatchStartDateTime = new Date(match_start_date_time);
 
-            if (updatedMatchStartDateTime <= tournament.start_date_time) {
+        // Checking and updating the match status
+        if (match_status !== existingMatch.match_status) {
+            const validStatuses = ["old", "ongoing", "upcoming"];
+            if (!validStatuses.includes(match_status)) {
+                return res.status(400).json({ error: "Invalid match status" });
+            }
+
+            // Define valid status transitions
+            const validTransitions = {
+                upcoming: ["ongoing", "upcoming"],
+                ongoing: ["old", "ongoing"],
+                old: ["old"],
+            };
+
+            // Check if the requested transition is valid
+            if (!validTransitions[existingMatch.match_status].includes(match_status)) {
+                return res.status(400).json({ error: "Invalid match status transition" });
+            }
+
+            // Update the match status
+            existingMatch.match_status = match_status;
+        }
+
+        // Check and update the match start date
+        if (match_start_date_time) {
+            const updatedStartDate = new Date(match_start_date_time);
+            if (updatedStartDate <= associatedTournament.start_date_time) {
                 return res.status(400).json({ error: "Match start date must be ahead of the tournament start date" });
             }
-            // Check if the match end date is valid
-            oldMatch.match_start_date_time = updatedMatchStartDateTime;
+            existingMatch.match_start_date_time = updatedStartDate;
+
+            // Check and update the match end date if provided
             if (match_end_date_time) {
-                const updatedMatchEndDateTime = new Date(match_end_date_time);
-                if (updatedMatchEndDateTime <= updatedMatchStartDateTime) {
+                const updatedEndDate = new Date(match_end_date_time);
+                if (updatedEndDate <= updatedStartDate) {
                     return res.status(400).json({ error: "Match end date must be after the start date" });
                 }
-                oldMatch.match_end_date_time = updatedMatchEndDateTime;
+                existingMatch.match_end_date_time = updatedEndDate;
             }
         }
 
-        // Update the match data if needed (e.g., description)
+        // Update the match description if provided
         if (description !== undefined) {
-            oldMatch.description = description;
-            await oldMatch.save();
+            existingMatch.description = description;
         }
 
-        res.status(200).json(oldMatch);
+        //Update match
+        const match=await schema.match.findByIdAndUpdate(matchId,existingMatch,{new:true});
+
+        res.status(200).json({ error: "Match updated" ,match});
     } catch (error) {
         console.error('Error updating match:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 //fetch matches of a tournament //by tour,id,team id,player
 router.post('/fetchMatches', async (req, res) => {
@@ -884,7 +897,7 @@ router.post('/fetchMatches', async (req, res) => {
     }
 });
 
-//delete match
+//Delete match
 router.delete("/deleteMatch/:matchId", fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
@@ -911,12 +924,12 @@ router.delete("/deleteMatch/:matchId", fetchUser, async (req, res) => {
     }
 });
 
-//Create performance metrice
+//Create data points
 router.post('/createDataPoints', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
 
-        const { tournament_id, team_metrics, player_metrics } = req.body;
+        const { tournament_id, performance_metrics} = req.body;
 
         // Check if the user is the tournament organizer or a match admin for the specified tournament
         const tournament = await schema.tournament.findById(tournament_id);
@@ -929,26 +942,25 @@ router.post('/createDataPoints', fetchUser, async (req, res) => {
             return res.status(401).json({ error: 'Not authorized for this action' });
         }
 
-        // Create a new performance data document
-        const newPerformanceData = new schema.performance({
+        // Create a new data points data document
+        const newDataPoints = new schema.dataPoints({
             tournament_id: tournament_id,
-            team_metrics: team_metrics,
-            player_metrics: player_metrics,
+            performance_metrics: performance_metrics
         });
-        await newPerformanceData.save();
+        await newDataPoints.save();
 
-        res.status(200).json({ error: 'Performance metrics data points created' });
+        res.status(200).json({ error: 'Data points created' });
     } catch (error) {
-        console.error('Error creating performance data points:', error);
+        console.error('Error creating data points:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-// update performance metrics
+//Update data points
 router.put("/updateDataPoints", fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
 
-        const { tournament_id, team_metrics, player_metrics } = req.body;
+        const { tournament_id, performance_metrics } = req.body;
 
         // Check if the user is the tournament organizer or a match admin for the specified tournament
         const tournament = await schema.tournament.findById(tournament_id);
@@ -961,29 +973,33 @@ router.put("/updateDataPoints", fetchUser, async (req, res) => {
             return res.status(401).json({ error: 'Not authorized for this action' });
         }
 
-        // Find and update the performance data points
-        const updatedDataPoints = await schema.performance.findOneAndUpdate(
+        //check if the tournament is ongoing
+        if (tournament.tournament_status !== "upcoming") {
+            return res.status(400).json({ error: "Can not update the data points if tournament status is not upcoming" })
+        }
+
+        // Find and update the data points
+        const updatedDataPoints = await schema.dataPoints.findOneAndUpdate(
             { tournament_id: tournament_id },
-            { team_metrics: team_metrics, player_metrics: player_metrics },
+            { performance_metrics },
             { new: true }
         );
 
         if (!updatedDataPoints) {
-            return res.status(404).json({ error: 'Performance data points not found' });
+            return res.status(404).json({ error: 'Data points not found' });
         }
 
-        return res.status(200).json({ error: 'Performance data points updated' });
+        return res.status(200).json({ error: 'Data points updated' });
     } catch (error) {
-        console.error('Error updating performance data points:', error);
+        console.error('Error updating data points:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
-//Fetch performance metrics 
+//Fetch data points 
 router.post("/fetchDataPoints", async (req, res) => {
     try {
         const { tournament_id } = req.body;
-        const dataPoints = await schema.performance.findOne({ tournament_id: tournament_id });
+        const dataPoints = await schema.dataPoints.findOne({ tournament_id: tournament_id });
 
         if (!dataPoints) {
             return res.status(404).json({ error: "Data points not found" });
@@ -991,11 +1007,65 @@ router.post("/fetchDataPoints", async (req, res) => {
 
         res.status(200).json(dataPoints);
     } catch (error) {
-        console.error('Error fetching performance data points:', error);
+        console.error('Error fetching data points:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+//Delete data points 
 
-//Delete performance metrice
+//Create a performance record
+router.post("/createPerformanceRecord",fetchUser,async(req,res)=>{
+    try {
+        const userId=req.user_id
+        const {tournament_id,match_id,team_id,player_id,performance_metrics}=req.body;
 
+        const tournament=await schema.tournament.findById(tournament_id); 
+        //check for tournament
+        if(!tournament){
+            return res.status(404).json({error:"Tournament not found"});
+        }
+        //check the match admins
+        if(!tournament.match_admins.includes(userId)){
+           return res.status(401).json({error:"Not authorized for this action"}) 
+        }
+        const match=await schema.match.findById(match_id);
+        //check for match
+        if(!match){
+            return res.status(404).json({error:"Match not found"});
+        }
+        //check if match ongoing
+        if(match.match_status!=='ongoing'){
+            return res.status(400).json({error:"Match status not ongoing"});
+        }
+        //check team
+        if(team_id!==undefined){
+            if(!match.teams.includes(team_id)){
+                return res.status(400).json({error:"Team not part of this match"});
+            }
+        }
+        //check player
+        if(player_id!==undefined){
+            const player=await schema.team.find(team_id,{team_player_ids:{$in:player_id}})
+            if(!player){
+                return res.status(400).json({error:"Player not in this team"});
+            }
+        }
+
+        const document=new schema.performanceRecord({
+            tournament_id:tournament_id,
+            match_id:match_id,
+            team_id:team_id,
+            player_id:player_id,
+            performance_metrics:performance_metrics
+        })
+        console.log(document);
+        // await document.save();
+        res.status(200).json({ error: 'performance data set created and stored' });
+    } catch (error) {
+        
+    }
+})
+//Update a performance record
+//Fetch a performance record
+//Delete a performance record
 module.exports = router;

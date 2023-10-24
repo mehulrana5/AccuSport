@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import AppContext from '../Context';
 import { useNavigate, useParams } from 'react-router-dom';
-import CreatePerformance from './CreatePerformance';
+import CreateDataPoints from './CreateDataPoints';
 
 function CreateTournamentPage() {
 
@@ -11,7 +11,7 @@ function CreateTournamentPage() {
     const { operation, tournamentId } = useParams();
 
     const [data, setData] = useState();
-    const [performanceModal, setPerformanceModal] = useState(false)
+    const [dataPointsModal, setDataPointsModal] = useState(false)
 
     const navigate = useNavigate();
 
@@ -24,8 +24,8 @@ function CreateTournamentPage() {
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 
-    function togglePerformanceModal() {
-        setPerformanceModal(!performanceModal);
+    function toggleDataPointsModal() {
+        setDataPointsModal(!dataPointsModal);
     }
 
     const startDate = data ? new Date(data.start_date_time) : null;
@@ -259,7 +259,7 @@ function CreateTournamentPage() {
                     operation === "update" ?
                         data?.tournament_status === "upcoming" ?
                             <div>
-                                <button type='button' className="green-btn" onClick={togglePerformanceModal}>
+                                <button type='button' className="green-btn" onClick={toggleDataPointsModal}>
                                     Update Performance Matrices
                                 </button>
                                 <button type='button' onClick={handelUpdateTournament} className='blue-btn'>Update</button>
@@ -270,7 +270,7 @@ function CreateTournamentPage() {
                 }
             </form>
             {
-                performanceModal ? <CreatePerformance togglePerformanceModal={togglePerformanceModal} tournamentId={tournamentId}/> : <></>
+                dataPointsModal ? <CreateDataPoints toggleDataPointsModal={toggleDataPointsModal} tournamentId={tournamentId}/> : <></>
             }
         </div>
     )
