@@ -103,10 +103,12 @@ function CreateMatchPage() {
     const matchId = state?.match._id;
     const newDoc = { matchId, match_start_date_time: newMatchStartDateTime, match_end_date_time: newMatchEndDateTime, description: newMatchDescription, match_status: state?.match.match_status }
     context.updateMatch(newDoc).then((res) => {
-      console.log(res);
+      alert(res.error)
     });
   }
   function handelStatus(stage) {
+    const check=window.confirm("Do you wanna update the status of the match?")
+    if(!check)return;
     const newMatchStartDateTime = watch("matchStartDateTime");
     const newMatchEndDateTime = watch("matchEndDateTime");
     const newMatchDescription = watch("matchDescription");
@@ -221,7 +223,7 @@ function CreateMatchPage() {
           <div className="form-group">
             <h3>Venue Location Code</h3>
             {
-              operation === 'view' || state?.match.match_status !== 'upcoming' ? <></>
+              operation === 'view' || state?.match.match_status === '' ? <></>
                 :
                 <button type="button" className='blue-btn' onClick={showMapModal ? closeMapModal : openMapModal}>
                   {toggleMapButton}
@@ -250,7 +252,7 @@ function CreateMatchPage() {
                     onClick={() => setValue("locationId", data)}
                     className="drop-down-row"
                     key={idx}>
-                    {data}
+                    {data} 
                   </div>
                 ))}
           </div>

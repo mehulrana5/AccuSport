@@ -636,7 +636,7 @@ router.post('/fetchTournament', async (req, res) => {
         console.error('Error fetching tournament:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
-});
+}); 
 
 // Delete a tournament
 router.delete('/deleteTournament', fetchUser, async (req, res) => {
