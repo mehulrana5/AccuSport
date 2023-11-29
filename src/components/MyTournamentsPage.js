@@ -29,7 +29,7 @@ function MyTournamentsPage() {
     }
     async function getTournaments() {
         try {
-            const data = await context.fetchTournament(context.userInfo._id,"org");
+            const data = await context.fetchTournament(context.playerInfo._id,"org");
             setTournaments(data);
             setLoading(false);
         } catch (error) {

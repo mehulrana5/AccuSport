@@ -11,7 +11,7 @@ function MyTeams() {
 
     useEffect(()=>{
       if(context.userInfo._id){
-        context.fetchTeam(context.userInfo._id,"user").then((data)=>{setTeams(data)})
+        context.fetchTeam(context.playerInfo._id,"user").then((data)=>{setTeams(data)})
       }
       // eslint-disable-next-line
     },[])

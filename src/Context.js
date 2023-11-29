@@ -80,7 +80,6 @@ export const AppProvider = ({ children }) => {
       });
 
       const data = await response.json();
-      // console.log(data);
       if (response.status === 200) {
         setAuthToken(data.authToken);
       }
@@ -143,18 +142,15 @@ export const AppProvider = ({ children }) => {
         },
         body: JSON.stringify(cred)
       });
-
-      if (response.ok) {
-        const data = await response.json();
+      
+      const data = await response.json();
+      if(response.status!==400){
         setPlayerInfo(data);
         fetchUserData();
-        // Handle successful response here
-      } else {
-        // Handle error response here
       }
+      alert(data.error)
     } catch (error) {
       console.error('Error:', error);
-      // Handle error here
     }
   };
 
@@ -240,8 +236,8 @@ export const AppProvider = ({ children }) => {
   //Torunament
   const createTournament = async (data) => {
     try {
-      if (!data.match_admins.includes(userInfo._id)) {
-        data.match_admins.push(userInfo._id);
+      if (!data.match_admins.includes(playerInfo._id)) {
+        data.match_admins.push(playerInfo._id);
       }
       const response = await fetch(`${ip}/createTournament`, {
         method: "POST",

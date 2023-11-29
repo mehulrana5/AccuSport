@@ -18,7 +18,9 @@ function CreatePlayer() {
     const [data, setData] = useState();
 
     const onSubmit = (data) => {
-        context.createPlayer(data).then(() => { navigate('/') })
+        context.createPlayer(data).then(() => { 
+            navigate('/') 
+        })
     }
 
     function isValidName(value) {
@@ -46,7 +48,6 @@ function CreatePlayer() {
         if (data) {
             setValue("player_name", data.player_name)
             setValue("player_id", data._id)
-            setValue("user_id", data.user_id)
             const date = new Date(data.player_dob);
             const formattedDate = date.toLocaleDateString("en-CA"); // Adjust the locale as needed
             setValue("player_dob", formattedDate);
@@ -77,15 +78,6 @@ function CreatePlayer() {
                     {
                         data ?
                             <div>
-                                <h3>User ID</h3>
-                                <input
-                                    type='string'
-                                    className='form-input'
-                                    readOnly={playerId}
-                                    {...register('user_id', {
-                                        required: true,
-                                    })}
-                                />
                                 <h3>Player ID</h3>
                                 <input
                                     type='string'

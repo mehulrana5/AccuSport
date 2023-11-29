@@ -36,13 +36,13 @@ function MatchesPage() {
                     </div>
                     <div>
                         <button className='blue-btn' onClick={() => navigate(isPlayer ? './myMatches' : '../login')}>
-                            My Matches
+                            Manage
                         </button>
                         <button className='blue-btn' onClick={() => navigate(isPlayer ? './createMatch' : '../login')} >
-                            My Organized Matches
+                            Play
                         </button>
                         <button className='green-btn' onClick={() => navigate(isPlayer ? './createMatch' : '../login')} >
-                            Create match
+                            Create
                         </button>
                     </div>
                 </form>

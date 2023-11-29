@@ -60,11 +60,6 @@ const NavBar = () => {
                         Players
                     </Link>
                 </li>
-                <li>
-                    <Link className="nav-link" to="/betting">
-                        Betting
-                    </Link>
-                </li>
                 {
                     guest && !player ?
                         <li>

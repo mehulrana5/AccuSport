@@ -49,7 +49,7 @@ function MyMatches() {
 
     return (
         <div className="container-2">
-            <h1>My Matches</h1>
+            <h1>Manage Matches</h1>
             {
                 matches && teams && matches.map((match, idx) => (
                     <div key={idx} className="card">

@@ -70,7 +70,10 @@ function CreateTournamentPage() {
     }, [data])
 
     const onSubmit = (data) => {
-        context.createTournament(data).then(() => { navigate("../myTournaments") });
+        context.createTournament(data).then((res) => {
+            alert(res.error)
+            navigate("../myTournaments") 
+        });
     }
     // Custom validation function for MongoDB-like ObjectID
     const validateObjectId = (value) => {

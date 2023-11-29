@@ -71,7 +71,7 @@ function CreateMatchPage() {
   }
 
   const toggleMapButton = showMapModal ? "Close map" : "Open map";
-  
+
   function isValidObjectId(value) {
     const objectIdPattern = /^[0-9a-fA-F]{24}$/;
     return objectIdPattern.test(value);
@@ -125,7 +125,7 @@ function CreateMatchPage() {
       });
     }
   }
-  
+
   useEffect(() => {
     if (geoData.length === 0) {
       HandelGetGeoData()
@@ -174,6 +174,7 @@ function CreateMatchPage() {
       }}
     >
       <div>
+        <h1>Create Match</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
             <h3>Tournament Id</h3>

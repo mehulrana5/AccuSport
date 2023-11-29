@@ -72,10 +72,7 @@ const App = () => {
             <Route path="myTournaments" element={<MyTournamentsPage />} />
             <Route path=":operation/:tournamentId" element={<CreateTournamentPage />} />
           </Route>
-
-
-          <Route path="/betting" element={<HomePage />} />
-
+          
         </Routes>
       </HashRouter>
     </AppProvider>

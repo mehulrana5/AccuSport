@@ -31,9 +31,10 @@ function Performance({ togglePerformanceModal, tournamentId, state }) {
         if(playerId){
             newData={...newData,player_id:playerId};
         }
-        context.createPerformanceRecord(newData).then((res)=>{
-            console.log(res);
-        });
+        console.log(newData);
+        // context.createPerformanceRecord(newData).then((res)=>{
+        //     console.log(res);
+        // });
     }
 
     function handelTeamData(teamId) {
