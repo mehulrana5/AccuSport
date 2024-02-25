@@ -120,10 +120,11 @@ const performanceRecordSchema = new mongoose.Schema({
         ref: 'match',
         required: true
     },
-    performance_metrics: [{
-        name: String,
-        value: String
-    }],
+    performance_metrics: {
+        type: Map,
+        of: String,
+        required: true
+    },
 });
 
 const performanceRecord = mongoose.model('performanceRecord', performanceRecordSchema);

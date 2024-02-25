@@ -195,7 +195,7 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   };
-  const updateTeamPlayers = async (players, teamId) => {
+  const updateTeamPlayers = async (leader,players, teamId) => {
     try {
       const response = await fetch(`${ip}/updateTeamPlayers`, {
         method: "PUT",
@@ -204,6 +204,7 @@ export const AppProvider = ({ children }) => {
           "auth-token": authToken
         },
         body: JSON.stringify({
+          team_leader:leader,
           players: players,
           teamId: teamId
         })
@@ -436,6 +437,22 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
+  const fetchPerformanceRecord = async (data) => {
+    try {
+      const response = await fetch(`${ip}/fetchPerformanceRecord`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
+      const json = await response.json();
+      return json
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   // ------------------Use Effects--------------------------
   useEffect(() => {
     if (authToken) {
@@ -491,7 +508,8 @@ export const AppProvider = ({ children }) => {
         createDataPoints,
         fetchDataPoints,
         updateDataPoints,
-        createPerformanceRecord
+        createPerformanceRecord,
+        fetchPerformanceRecord
       }}
     >
       {children}

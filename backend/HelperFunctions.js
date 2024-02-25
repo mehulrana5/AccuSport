@@ -1,6 +1,4 @@
-const express = require('express');
 const schema = require('./Schema');
-const fetchUser = require('./middleware/fetchUser')
 
 // Function to get player ID by user ID
 const getPlayerIdByUserId = async (userId) => {

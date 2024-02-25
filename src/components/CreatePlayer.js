@@ -33,7 +33,7 @@ function CreatePlayer() {
         if (cur < player_dob) return "invalid date of birth"
     }
 
-    let { operation,playerId } = useParams();
+    let { playerId } = useParams();
 
     useEffect(() => {
         if (playerId) {

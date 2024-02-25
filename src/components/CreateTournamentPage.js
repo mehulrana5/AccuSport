@@ -263,7 +263,7 @@ function CreateTournamentPage() {
                         data?.tournament_status === "upcoming" ?
                             <div>
                                 <button type='button' className="green-btn" onClick={toggleDataPointsModal}>
-                                    Update Performance Matrices
+                                    Performance Matrices
                                 </button>
                                 <button type='button' onClick={handelUpdateTournament} className='blue-btn'>Update</button>
                             </div>

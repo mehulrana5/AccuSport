@@ -42,6 +42,7 @@ function TeamInfo() {
         if (data) {
             setValue("team_id", data._id)
             setValue("team_name", data.team_name)
+            setValue("team_leader",data.team_leader)
         } 
         // eslint-disable-next-line
     }, [data])
@@ -54,7 +55,7 @@ function TeamInfo() {
     },[players])
  
     const onSubmit = (data) => {
-        context.updateTeamPlayers(data.team_players,teamId).then((res)=>{
+        context.updateTeamPlayers(data.team_leader,data.team_players,teamId).then((res)=>{
             alert(res.error);
             naigate("../myTeams");
         });
@@ -84,6 +85,15 @@ function TeamInfo() {
                     readOnly={1}
                     {
                     ...register("team_name")
+                    }
+                />
+                <h2>Team Leader ID</h2>
+                <input
+                    type="text"
+                    className='form-input'
+                    readOnly={isView}
+                    {
+                    ...register("team_leader")
                     }
                 />
                 <h2>Team Players</h2>

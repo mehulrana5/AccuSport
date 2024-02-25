@@ -12,8 +12,6 @@ function CreateMatchPage() {
 
   const { state } = useLocation();
 
-  // console.log(state);
-
   const [showMapModal, setShowMapModal] = useState(false);
   const [geoData, setGeoData] = useState([])
   const [performanceModal, setPerformanceModal] = useState(false);
@@ -304,13 +302,6 @@ function CreateMatchPage() {
               operation === 'update' ?
                 <>
                   {
-                    state?.match.match_status === 'ongoing' ?
-                      <button onClick={togglePerformanceModal} type="button" className='blue-btn'>
-                        Performance
-                      </button>
-                      : <></>
-                  }
-                  {
                     state?.match.match_status === 'upcoming' ?
                       <>
                         <button onClick={() => handelStatus(1)} type="button" className='blue-btn'>
@@ -326,6 +317,13 @@ function CreateMatchPage() {
                           End Match
                         </button>
                         : <></>
+                  }
+                  {
+                    state?.match.match_status === 'ongoing' ?
+                      <button onClick={togglePerformanceModal} type="button" className='blue-btn'>
+                        Performance
+                      </button>
+                      : <></>
                   }
                 </>
                 : operation !== 'view' ?

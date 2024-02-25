@@ -10,8 +10,9 @@ function Performance({ togglePerformanceModal, tournamentId, state }) {
     const [playerData, setPlayerData] = useState();
     const [playerId, setPlayerId] = useState();
     const [next, setNext] = useState(false);
+    const [sumbitted,setSubmitted]=useState(false);
 
-    const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm();
+    const { register, control, formState: { errors }, handleSubmit, setValue, } = useForm();
 
     const { fields: teamFields} = useFieldArray({
         name: 'dataPoints',
@@ -19,6 +20,10 @@ function Performance({ togglePerformanceModal, tournamentId, state }) {
     });
 
     function onSubmit(data) {
+        const check = window.confirm("Are you sure you wanna submit. Once sumbitted then this data can not be updated")
+        if(!check){
+            return
+        }
         const updatedData = {};
         for (let i = 0; i < dataPoints.length; i++) {
             const record = data.records[i];
@@ -31,10 +36,10 @@ function Performance({ togglePerformanceModal, tournamentId, state }) {
         if(playerId){
             newData={...newData,player_id:playerId};
         }
-        console.log(newData);
-        // context.createPerformanceRecord(newData).then((res)=>{
-        //     console.log(res);
-        // });
+        // console.log(newData);
+        context.createPerformanceRecord(newData).then((res)=>{
+            alert(res.error)
+        });
     }
 
     function handelTeamData(teamId) {
@@ -56,9 +61,16 @@ function Performance({ togglePerformanceModal, tournamentId, state }) {
 
     function handelNext() {
         if (teamId) {
-            const data = { player_id: playerId, team_id: teamId }
+            const data = { player_id: playerId, team_id: teamId ,tournament_id:tournamentId,match_id:state.match._id}
             setNext(!next);
-            console.log(data);
+            context.fetchPerformanceRecord(data).then((res)=>{
+                if(res[0]?.performance_metrics!==undefined){
+                    setSubmitted(true);
+                    const values = Object.values(res[0].performance_metrics);
+                    setValue("records",values)
+                }
+                
+            })
         }
     }
 
@@ -100,7 +112,10 @@ function Performance({ togglePerformanceModal, tournamentId, state }) {
                     <>
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <button type="button" className="blue-btn" onClick={handelNext}>Back</button>
-                            <button className='green-btn' type='submit'>Submit</button>
+                            {
+                                sumbitted?<></>:<button className='green-btn' type='submit' disabled={sumbitted}>Submit</button>
+
+                            }
                             <div>
                                 {teamFields.map((field, idx) => {
                                     return (

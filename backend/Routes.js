@@ -4,7 +4,7 @@ const schema = require('./Schema');
 const fetchUser = require('./middleware/fetchUser')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const helperFunctions=require("./HelperFunctions")
+const helperFunctions = require("./HelperFunctions")
 const jwtSecret = "mehul123";
 // require('dotenv').config({ path: '/SecretKey.env' });
 // const jwtSecret = process.env.JWT_SECRET;
@@ -212,7 +212,7 @@ router.post('/fetchPlayers', async (req, res) => {
                 break;
 
             case "team":
-                data = await schema.player.find({ team_ids: { $in: query } });
+                data = await schema.player.find({ team_ids: { $in: query } }).select("-user_id");
                 break;
 
             case "teamPlayersNameOnly":
@@ -226,8 +226,7 @@ router.post('/fetchPlayers', async (req, res) => {
         if (!data) {
             return res.status(404).json({ error: "Could not find the data" });
         }
-
-        res.status(200).json(data);
+        return res.status(200).json(data);
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -308,7 +307,7 @@ router.post('/createTeam', fetchUser, async (req, res) => {
 //update Team Players of a team with teamId
 router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
     try {
-        const { players, teamId } = req.body;
+        const { team_leader, players, teamId } = req.body;
         const userId = req.user_id;
 
         // Check if the user is the team leader
@@ -327,7 +326,7 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
         if (playerIds.length !== players.length) {
             return res.status(400).json({ error: "Some player IDs are invalid" });
         }
-        //Check if the team leader is in the team if not then add him
+        // Check if the team leader is in the team if not then add him
         let flag = false;
         playerIds.forEach(e => {
             if (e._id.equals(team.team_leader)) {
@@ -338,6 +337,35 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
             const leader = await schema.player.findOne({ _id: team.team_leader }).select("_id")
             players.push(leader._id.toString());
         }
+
+        // Check if the team leader is changed
+        const oldTeamLeader = team.team_leader.toString();
+        const newTeamLeader = team_leader.toString();
+        if (oldTeamLeader !== newTeamLeader) {
+            // Check if the new leader id exists
+            const isValid=await schema.player.findById(newTeamLeader)
+            if(!isValid){
+                return res.status(404).json({error:"Invalid Leader ID"})
+            }
+            // Get the number of teams for both old and new leaders
+            const [oldLeaderTeams, newLeaderTeams] = await Promise.all([
+                schema.team.countDocuments({ team_leader: oldTeamLeader }),
+                schema.team.countDocuments({ team_leader: newTeamLeader })
+            ]);
+            // Removing the team Leader role if the old leader was a leader of only 1 team
+            if (oldLeaderTeams <= 1) {
+                const oldUid = await schema.player.findById(oldTeamLeader).select("user_id -_id");
+                const oldUserId = oldUid.user_id.toString();
+                await schema.user.findByIdAndUpdate(oldUserId, { $pull: { user_role: "teamLeader" } }, { new: true });
+            }
+            // Adding the team leader role to the new leader if he did not have that role
+            if (newLeaderTeams <= 1) {
+                const newUid = await schema.player.findById(newTeamLeader).select("user_id -_id");
+                const newUserId = newUid.user_id.toString();
+                await schema.user.findByIdAndUpdate(newUserId, { $push: { user_role: "teamLeader" } }, { new: true });
+            }
+        }
+
         // Check if the team is in an ongoing/upcoming match
         const curDate = new Date();
         const matches = await schema.match.find({
@@ -367,7 +395,7 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
         });
 
         // Update the team player IDs in the team
-        const updatedTeam = await schema.team.findByIdAndUpdate(team._id, { team_players_ids: players }, { new: true });
+        const updatedTeam = await schema.team.findByIdAndUpdate(team._id, { team_players_ids: players, team_leader: newTeamLeader}, { new: true });
 
         res.status(200).json({ updatedTeam, error: "Team updated" });
 
@@ -462,7 +490,7 @@ router.post('/createTournament', fetchUser, async (req, res) => {
         const { tournament_name, sport_type, start_date_time, description, match_admins } = req.body;
         const userId = req.user_id;
 
-        const playerId=await helperFunctions.getPlayerIdByUserId(userId)
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId)
 
         const CheckTorName = await schema.tournament.exists({ tournament_name: tournament_name })
 
@@ -490,7 +518,7 @@ router.post('/createTournament', fetchUser, async (req, res) => {
         });
 
         await document.save();
-        res.status(201).json({error:"Tournament created",document});
+        res.status(201).json({ error: "Tournament created", document });
     } catch (error) {
         console.error('Error adding tournament:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -514,12 +542,12 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
             return res.status(404).json({ error: "Tournament not found" });
         }
         //Check if user is authorized or not
-        const playerId=await helperFunctions.getPlayerIdByUserId(userId)
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId)
         if (!tournament.organizer_id.equals(playerId)) {
             return res.status(401).json({ error: "Not authorized for this action" });
         }
         //Check if match admin ids exist or not
-        const checkAdmins = await schema.user.find({ _id: { $in: match_admins } });
+        const checkAdmins = await schema.player.find({ _id: { $in: match_admins } });
         if (checkAdmins.length !== match_admins.length) {
             return res.status(400).json({ error: "Enter correct Match Admin ids" });
         }
@@ -594,7 +622,7 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
             },
             { new: true }
         );
-        return res.status(200).json({ updatedTournament, error: "tournament updated" });
+        return res.status(200).json({ updatedTournament, error: "Tournament updated" });
     }
     catch (error) {
         console.error('Error updating tournament:', error);
@@ -636,7 +664,7 @@ router.post('/fetchTournament', async (req, res) => {
         console.error('Error fetching tournament:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
-}); 
+});
 
 // Delete a tournament
 router.delete('/deleteTournament', fetchUser, async (req, res) => {
@@ -650,7 +678,7 @@ router.delete('/deleteTournament', fetchUser, async (req, res) => {
             return res.status(404).json({ error: "Tournament not found" });
         }
 
-        const playerId=await helperFunctions.getPlayerIdByUserId(userId);
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId);
 
         if (!tournament.organizer_id.equals(playerId)) {
             return res.status(401).json({ error: "Not authorized for this action" });
@@ -687,7 +715,7 @@ router.post('/createMatch', fetchUser, async (req, res) => {
         //     return res.status(400).json({error:"You can only add Matches to upcoming tournaments only"})
         // }
 
-        const playerId=await helperFunctions.getPlayerIdByUserId(userId)
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId)
 
         if (!tournament.match_admins.includes(playerId)) {
             return res.status(401).json({ error: `Not authorized for creating a match under this tournament ask for access from the tournament admin of tournament ${tournament._id} ` });
@@ -806,7 +834,7 @@ router.put('/updateMatch', fetchUser, async (req, res) => {
             .select('match_admins');
 
         // Check if the user is authorized as a match admin
-        const playerId=await helperFunctions.getPlayerIdByUserId(userId)
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId)
         if (!associatedTournament.match_admins.includes(playerId)) {
             return res.status(401).json({ error: "Not authorized for this action" });
         }
@@ -828,6 +856,18 @@ router.put('/updateMatch', fetchUser, async (req, res) => {
             // Check if the requested transition is valid
             if (!validTransitions[existingMatch.match_status].includes(match_status)) {
                 return res.status(400).json({ error: "Invalid match status transition" });
+            }
+
+            const curDate = new Date();
+            // console.log(curDate,new Date(match_start_date_time));
+
+            // Check if status is going from upcoming to ongoing then the start date time should be correct
+            if (match_status === 'ongoing' && curDate < new Date(match_start_date_time)) {
+                return res.status(400).json({ error: "Match can not be started before match start date time" })
+            }
+            // Check if status is going from ongoing to old then the end date time should be correct
+            if (match_status === 'old' && curDate < new Date(match_end_date_time)) {
+                return res.status(400).json({ error: "Match can not be ended before match end date time" })
             }
 
             // Update the match status
@@ -922,7 +962,7 @@ router.delete("/deleteMatch/:matchId", fetchUser, async (req, res) => {
             return res.status(404).json({ error: "Match not found" });
         }
 
-        const playerId=await helperFunctions.getPlayerIdByUserId(userId);
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId);
 
         if (!match.match_admin.equals(playerId)) {
             return res.status(401).json({ error: "Not authorized for this action" });
@@ -953,7 +993,7 @@ router.post('/createDataPoints', fetchUser, async (req, res) => {
             return res.status(404).json({ error: 'Tournament not found' });
         }
 
-        const playerId=await helperFunctions.getPlayerIdByUserId(userId);
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId);
 
         if (!(tournament.organizer_id.equals(playerId) || tournament.match_admins.includes(playerId))) {
             return res.status(401).json({ error: 'Not authorized for this action' });
@@ -986,7 +1026,7 @@ router.put("/updateDataPoints", fetchUser, async (req, res) => {
             return res.status(404).json({ error: 'Tournament not found' });
         }
 
-        const playerId=await helperFunctions.getPlayerIdByUserId(userId);
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId);
 
         if (!(tournament.organizer_id.equals(playerId) || tournament.match_admins.includes(playerId))) {
             return res.status(401).json({ error: 'Not authorized for this action' });
@@ -1036,6 +1076,7 @@ router.post("/fetchDataPoints", async (req, res) => {
 router.post("/createPerformanceRecord", fetchUser, async (req, res) => {
     try {
         const userId = req.user_id
+
         const { tournament_id, match_id, team_id, player_id, performance_metrics } = req.body;
 
         const tournament = await schema.tournament.findById(tournament_id);
@@ -1044,7 +1085,7 @@ router.post("/createPerformanceRecord", fetchUser, async (req, res) => {
             return res.status(404).json({ error: "Tournament not found" });
         }
         //check the match admins
-        const playerId=await helperFunctions.getPlayerIdByUserId(userId);
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId);
 
         if (!(tournament.match_admins.includes(playerId))) {
             return res.status(401).json({ error: 'Not authorized for this action' });
@@ -1066,8 +1107,8 @@ router.post("/createPerformanceRecord", fetchUser, async (req, res) => {
         }
         //check player
         if (player_id !== undefined) {
-            const player = await schema.team.find(team_id, { team_player_ids: { $in: player_id } })
-            if (!player) {
+            const team = await schema.team.findById(team_id).select("team_players_ids")
+            if (!team.team_players_ids.includes(player_id)) {
                 return res.status(400).json({ error: "Player not in this team" });
             }
         }
@@ -1079,8 +1120,8 @@ router.post("/createPerformanceRecord", fetchUser, async (req, res) => {
             player_id: player_id,
             performance_metrics: performance_metrics
         })
-        console.log(document);
-        // await document.save();
+
+        await document.save();
         res.status(200).json({ error: 'performance data set created and stored' });
     } catch (error) {
 
@@ -1088,5 +1129,35 @@ router.post("/createPerformanceRecord", fetchUser, async (req, res) => {
 })
 //Update a performance record
 //Fetch a performance record
+router.post("/fetchPerformanceRecord", async (req, res) => {
+    try {
+        const { tournament_id, match_id, team_id, player_id } = req.body;
+
+        // Create a query object based on the provided parameters
+        const query = {
+            tournament_id,
+            match_id,
+            team_id,
+        };
+
+        // Include player_id in the query only if it is not null
+        if (player_id !== null) {
+            query.player_id = player_id;
+        }
+
+        // Use the query object in the find method
+        const data = await schema.performanceRecord.find(query).select("performance_metrics");
+        if (!data) {
+            return res.status(404).json({ error: "No record found" })
+        }
+
+        // Respond with the fetched data
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 //Delete a performance record
 module.exports = router;
