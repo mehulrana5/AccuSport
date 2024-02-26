@@ -49,8 +49,6 @@ const App = () => {
 
           <Route path="/createPlayer" element={<CreatePlayer />} />
 
-
-
           <Route path="/teams" exact element={<TeamsPage />}>
             <Route path=":operation/:teamId" exact element={<TeamInfo />} />
             <Route path="createTeam" exact element={<CreateTeam />} />

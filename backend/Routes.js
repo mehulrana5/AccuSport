@@ -343,9 +343,9 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
         const newTeamLeader = team_leader.toString();
         if (oldTeamLeader !== newTeamLeader) {
             // Check if the new leader id exists
-            const isValid=await schema.player.findById(newTeamLeader)
-            if(!isValid){
-                return res.status(404).json({error:"Invalid Leader ID"})
+            const isValid = await schema.player.findById(newTeamLeader)
+            if (!isValid) {
+                return res.status(404).json({ error: "Invalid Leader ID" })
             }
             // Get the number of teams for both old and new leaders
             const [oldLeaderTeams, newLeaderTeams] = await Promise.all([
@@ -395,7 +395,7 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
         });
 
         // Update the team player IDs in the team
-        const updatedTeam = await schema.team.findByIdAndUpdate(team._id, { team_players_ids: players, team_leader: newTeamLeader}, { new: true });
+        const updatedTeam = await schema.team.findByIdAndUpdate(team._id, { team_players_ids: players, team_leader: newTeamLeader }, { new: true });
 
         res.status(200).json({ updatedTeam, error: "Team updated" });
 
@@ -597,21 +597,22 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
                 });
             }
         }
-        //Check the range for setting a new start date of the tournament
+        // Check the range for setting a new start date of the tournament
         const updatedDate = new Date(start_date_time);
         if (updatedDate.getTime() !== tournament.start_date_time.getTime()) {
-            const matches = await schema.match
-                .find({ tournament_id: tournament._id })
-                .select("-_id match_start_date_time");
-
-            const minStart = matches.reduce((min, match) =>
-                min < match.match_start_date_time ? min : match.match_start_date_time
-                , new Date());
-
-            if (updatedDate > minStart) {
-                return res.status(400).json({ error: `The tournament updated status is invalid minimum-start-date:${minStart.toLocaleString()}` });
+            const minStartMatch = await schema.match.aggregate([
+                { $match: { tournament_id: tournament._id } },
+                { $group: { _id: null, minStart: { $min: "$match_start_date_time" } } }
+            ]).exec();
+            console.log(minStartMatch[0].minStart.toLocaleString());
+            if (minStartMatch.length > 0) {
+                const minStart = minStartMatch[0].minStart;
+                if (updatedDate > minStart || updatedDate < new Date()) {
+                    const minStartDateString = minStart.toLocaleString();
+                    return res.status(400).json({ error: `The tournament updated status is invalid. Start Date Range\n${new Date().toLocaleString()} - ${minStartDateString}` });
+                }
             }
-        }
+        }        
         const updatedTournament = await schema.tournament.findByIdAndUpdate(
             tournamentId,
             {
@@ -1128,6 +1129,7 @@ router.post("/createPerformanceRecord", fetchUser, async (req, res) => {
     }
 })
 //Update a performance record
+
 //Fetch a performance record
 router.post("/fetchPerformanceRecord", async (req, res) => {
     try {
@@ -1160,4 +1162,5 @@ router.post("/fetchPerformanceRecord", async (req, res) => {
 });
 
 //Delete a performance record
+
 module.exports = router;
