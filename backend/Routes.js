@@ -46,19 +46,17 @@ router.post('/login', async (req, res) => {
     try {
         const { user_email, user_pwd } = req.body;
         const userData = await schema.user.findOne({ user_email: user_email });
-
         const validPw = await bcrypt.compare(user_pwd, userData.user_pwd);
         if (validPw) {
             const payload = {
                 id: userData._id
             }
-            const jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: '1h' })
-            res.json({ jwtToken })
+            const jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: '2d' });
+            res.json({ jwtToken });
         }
         else {
-            return res.status(400).json({ error: "incorrect credentials" })
+            return res.status(400).json({ error: "Incorrect credentials" });
         }
-
     } catch (error) {
         console.error('Error adding user:', error);
         res.status(500).json({ error: 'Internal Server Error' });

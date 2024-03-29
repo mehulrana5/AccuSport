@@ -31,20 +31,19 @@ export const AppProvider = ({ children }) => {
       const response = await fetch(`${ip}/login`, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json', // Specify JSON content type
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           user_email: user_email,
           user_pwd: user_pwd,
-        }), // Convert data to JSON string
+        }),
       });
 
       const token = await response.json();
-      // console.log(token);
       setAuthToken(token.jwtToken);
+      localStorage.setItem('auth-token', token.jwtToken);
       // Assuming you'll update state or context with the token here 
     } catch (error) {
-      // Handle errors here
       console.error('Error during login:', error);
     }
   }
@@ -106,6 +105,7 @@ export const AppProvider = ({ children }) => {
       _id: ""
     })
     setAuthToken("");
+    localStorage.removeItem('auth-token')
     window.location.reload();
   }
 
@@ -473,10 +473,11 @@ export const AppProvider = ({ children }) => {
     // console.log(playerInfo);
   }, [playerInfo])
 
+  useEffect(() => {
+    setAuthToken(localStorage.getItem('auth-token'));
+}, []);
   // Define the state and functions you want to provide
   const [active, setActive] = useState(0);
-  // You can add more state and functions here 
-  // api.js 
 
   return (
     <AppContext.Provider
