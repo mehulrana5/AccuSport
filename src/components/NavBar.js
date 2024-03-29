@@ -2,13 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import '../css/Navbar.css'; // Update the CSS file path
 import { Link, useNavigate } from 'react-router-dom';
 import AppContext from '../Context';
-
+import Notifications from './Notifications';
 
 const NavBar = () => {
     const context = useContext(AppContext)
     const navigate=useNavigate();
     const [guest,setGuest] =useState(false);
     const [player,setPlayer] =useState(false);
+    const [showNotifications,setShowNotifications]=useState(false)
 
     useEffect(()=>{
         setGuest(context.userInfo.user_role.includes("guest"));
@@ -19,6 +20,9 @@ const NavBar = () => {
         navigate('/')
         context.logout()
     }
+    const toggleNotificationModal=()=>{
+        setShowNotifications(!showNotifications)
+    } 
     return (
         <nav className="nav-bar">
             <div className="logo">
@@ -71,11 +75,18 @@ const NavBar = () => {
                 }
                 {
                     player ?
-                        <li>
-                            <Link className="nav-link" to={`/player/${context.playerInfo._id}/view`}>
-                                My profile
-                            </Link>
-                        </li>
+                        <>
+                            <li>
+                                <Link className="nav-link" to={`/player/${context.playerInfo._id}/view`}>
+                                    My profile
+                                </Link>
+                            </li>
+                            <li>
+                                <Link className="nav-link" onClick={toggleNotificationModal}>
+                                    Notifications
+                                </Link>
+                            </li>
+                        </>
                         : <></>
                 }
                 {
@@ -102,6 +113,10 @@ const NavBar = () => {
                         : <></>
                 }
             </ul>
+            {
+                showNotifications?<Notifications toggleNotificationModal={toggleNotificationModal}/>:<></>
+            }
+            
         </nav>
     );
 };

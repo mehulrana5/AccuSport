@@ -136,6 +136,6 @@ module.exports = {
     team,
     match,
     tournament,
-    dataPoints,
+    dataPoints, 
     performanceRecord
 }
