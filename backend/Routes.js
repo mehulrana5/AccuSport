@@ -610,7 +610,7 @@ router.put('/updateTournament/:tournamentId', fetchUser, async (req, res) => {
                     return res.status(400).json({ error: `The tournament updated status is invalid. Start Date Range\n${new Date().toLocaleString()} - ${minStartDateString}` });
                 }
             }
-        }        
+        }
         const updatedTournament = await schema.tournament.findByIdAndUpdate(
             tournamentId,
             {
@@ -1127,7 +1127,6 @@ router.post("/createPerformanceRecord", fetchUser, async (req, res) => {
     }
 })
 //Update a performance record
-
 //Fetch a performance record
 router.post("/fetchPerformanceRecord", async (req, res) => {
     try {
@@ -1161,4 +1160,133 @@ router.post("/fetchPerformanceRecord", async (req, res) => {
 
 //Delete a performance record
 
+// Create notification
+const notification_meta_data = {
+    'types': ['user', 'player', 'team', 'match', 'tournament'],
+    'user': ["player-profile-created"],
+    'player':["request-to-join"],
+    'team': ['added-to-team', 'removed-from-team'],
+    'match': ['venue-updated', 'teams-updated', 'time-updated'],
+    'tournament': ['match-admin-update', 'tournament-time-updated']
+}
+router.post("/createNotification", fetchUser, async (req, res) => {
+    try {
+        const userId = req.user_id
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId)
+        const { user_ids, player_ids, team_ids, match_ids, tournament_ids, type, subtype, extra_data } = req.body
+        let temp = {
+            'sender':playerId,
+            'receivers':{},
+            'type':`${type}-${subtype}`
+        }
+        if (!notification_meta_data['types'].includes(type) || !notification_meta_data[type].includes(subtype)){
+            return res.status(400).json({ error: "Incorrect type or subtype" });
+        }
+        if(user_ids.length){
+            const users = await schema.user.find({ _id: { $in: user_ids } }).select("_id")
+            if (users.length != user_ids.length) {
+                return res.status(400).json({ error: "The user ids are incorrect" })
+            }
+            temp.receivers['users']=user_ids
+        }
+        if(player_ids.length){
+            const players = await schema.player.find({ _id: { $in: player_ids } }).select("_id")
+            if (players.length != player_ids.length) {
+                return res.status(400).json({ error: "The player ids are incorrect" })
+            }
+            temp.receivers['players']=player_ids
+        }
+        if(team_ids.length){
+            const teams = await schema.team.find({ _id: { $in: team_ids } }).select("_id")
+            if (teams.length != team_ids.length) {
+                return res.status(400).json({ error: "The team ids are incorrect" })
+            }
+            temp.receivers['teams']=team_ids
+        }
+        if(match_ids.length){
+            const matches = await schema.match.find({ _id: { $in: match_ids } }).select("_id")
+            if (matches.length != match_ids.length) {
+                return res.status(400).json({ error: "The match ids are incorrect" })
+            }
+            temp.receivers['matches']=match_ids
+        }
+        if(tournament_ids.length){
+            const tournaments = await schema.match.find({ _id: { $in: tournament_ids } }).select("_id")
+            if (tournaments.length != tournament_ids.length) {
+                return res.status(400).json({ error: "The tournament ids are incorrect" })
+            }
+            temp.receivers['tournament']=tournament_ids
+        }
+        switch (type) {
+            case 'user':
+                if(subtype == 'request-to-join' && !!extra_data?.player_name){
+                    temp['message']=`${extra_data?.player_name} profile is created`
+                }
+                else{
+                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                }
+                break;
+                
+            case 'player':
+                if(subtype == 'request-to-join' && !!extra_data?.team_name){
+                    temp['message']=`You sent join request to team ${extra_data?.team_name}`
+                }
+                else{
+                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                }
+                break;
+
+            case 'team':
+                if (subtype == 'added-to-team' && !!extra_data?.team_name  && !!extra_data?.added_player_name){
+                    temp['message']=`Player ${extra_data?.player_name} is added to team ${extra_data?.team_name}`
+                }
+                else if(subtype == 'removed-from-team' && !!extra_data?.team_name  && !!extra_data?.removed_player_name){
+                    temp['message']=`Player ${extra_data?.removed_player_name} is removed from team ${extra_data?.team_name}`
+                }
+                else{
+                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                }
+                break;
+            
+            case 'match':
+                if(subtype == 'venue-updated' && !!extra_data?.match_id  && !!extra_data?.venue){
+                    temp['message']=`Venue updated to ${extra_data?.venue} of match ${extra_data?.match_id}`
+                }
+                else if(subtype == 'teams-updated' && !!extra_data?.team_names){
+                    temp['message']=`Teams set for match ${extra_data?.match_id} are ${extra_data?.teams}`
+                }
+                else if(subtype == 'time-updated' && !!extra_data?.match_timnigs){
+                    temp['message']=`Match timing updated to ${extra_data?.match_timnigs}`
+                }
+                else{
+                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                }
+                break;
+
+            case 'tournament':
+                if(subtype == 'match-admin-update' && !!extra_data?.match_admins){
+                    temp['message']=`Update in tournament's match admins ${extra_data?.matchAdmin}`
+                }
+                else if(subtype == 'tournament-time-updated' && !!extra_data?.tournament_time){
+                    temp['message']=`Tournament's time updated to ${extra_data?.tournament_time}`
+                }
+                else{
+                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                }
+                break;
+
+            default:
+                break;
+        }
+        const document=new schema.notification(temp)
+        await document.save()
+        return res.json("done")
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+})
+// Update notification
+// Read notification
+// Delete notification
 module.exports = router;

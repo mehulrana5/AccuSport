@@ -112,10 +112,10 @@ const NavBar = () => {
                         </li>
                         : <></>
                 }
+                {
+                    showNotifications?<Notifications toggleNotificationModal={toggleNotificationModal}/>:<></>
+                }
             </ul>
-            {
-                showNotifications?<Notifications toggleNotificationModal={toggleNotificationModal}/>:<></>
-            }
             
         </nav>
     );

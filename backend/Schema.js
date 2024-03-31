@@ -129,6 +129,52 @@ const performanceRecordSchema = new mongoose.Schema({
 
 const performanceRecord = mongoose.model('performanceRecord', performanceRecordSchema);
 
+const notificationSchema = new mongoose.Schema({
+    sender: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    receivers: {
+        users: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user'
+        }],
+        players: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'player'
+        }],
+        teams: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'team'
+        }],
+        matches: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'match'
+        }],
+        tournaments: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'tournament'
+        }],
+    },
+    message: {
+        type: String,
+        required: true
+    },
+    timeStamp: {
+        type: Date,
+        default: Date.now
+    },
+    type: {
+        type: String,
+        require: true
+    },
+    read: {
+        type: Boolean,
+        default: false
+    }
+});
+
+const notification = mongoose.model('notification', notificationSchema);
 
 module.exports = {
     user,
@@ -137,5 +183,6 @@ module.exports = {
     match,
     tournament,
     dataPoints, 
-    performanceRecord
+    performanceRecord,
+    notification
 }

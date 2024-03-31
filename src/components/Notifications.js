@@ -25,7 +25,23 @@ function Notifications({ toggleNotificationModal }) {
         borderRadius: '5px',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
     };
-
+    // basically first we neet to fetch all the notifications that are related to the user and the tournaments,matches,teams he is associated with then we map then into the notification modal there can be a lot of different types of notifications that require various types of inputs
+    const dummyData=[
+        {
+            "sender":"id",
+            "receiver":{
+                'user_ids':[],
+                'player_ids':[],
+                'team_ids':[],
+                'match_ids':[],
+                'tournament_ids':[],
+            },
+            'message':'message',
+            'timeStamp':'',
+            'type':'',
+            'read':false
+        }
+    ]
     return (
         <div style={notificationStyle}>
             <div>
