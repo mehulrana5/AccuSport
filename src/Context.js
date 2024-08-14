@@ -47,7 +47,6 @@ export const AppProvider = ({ children }) => {
       console.error('Error during login:', error);
     }
   }
-
   const fetchUserData = async () => {
     try {
       const response = await fetch(`${ip}/fetchUserData`, {
@@ -64,7 +63,6 @@ export const AppProvider = ({ children }) => {
       throw error;
     }
   }
-
   const register = async (cred) => {
     try {
       const response = await fetch(`${ip}/register`, {
@@ -89,7 +87,6 @@ export const AppProvider = ({ children }) => {
       console.error('Error during registration:', error);
     }
   };
-
   function logout() {
     setAuthToken("")
     setUserInfo({
@@ -108,9 +105,10 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem('auth-token')
     window.location.reload();
   }
-
-  //Player
-  const fetchPlayers = async (query, fetchBy) => { //fetchBy=user,name,id,team
+  // 
+  //  Player
+  // 
+  const fetchPlayers = async (query, fetchBy) => {
     try {
       const response = await fetch(`${ip}/fetchPlayers`, {
         method: "POST",
@@ -131,7 +129,6 @@ export const AppProvider = ({ children }) => {
       console.error(error);
     }
   };
-
   const createPlayer = async (cred) => {
     try {
       const response = await fetch(`${ip}/registerPlayer`, {
@@ -153,8 +150,9 @@ export const AppProvider = ({ children }) => {
       console.error('Error:', error);
     }
   };
-
-  //Team
+  // 
+  //  Team
+  // 
   const createTeam = async (team) => {
     try {
       const response = await fetch(`${ip}/createTeam`, {
@@ -233,8 +231,9 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-
-  //Torunament
+  // 
+  //  Torunament
+  // 
   const createTournament = async (data) => {
     try {
       if (!data.match_admins.includes(playerInfo._id)) {
@@ -312,7 +311,9 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-  //Match
+  // 
+  //  Match
+  // 
   const createMatch = async (data) => {
     try {
       const response = await fetch(`${ip}/createMatch`, {
@@ -372,7 +373,9 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-  //Data points
+  // 
+  //  Data points
+  // 
   const createDataPoints = async (data) => {
     try {
       const response = await fetch(`${ip}/createDataPoints`, {
@@ -420,7 +423,9 @@ export const AppProvider = ({ children }) => {
       console.log(error);
     }
   }
-  //Performance records
+  // 
+  //  Performance records
+  // 
   const createPerformanceRecord = async (data) => {
     try {
       const response = await fetch(`${ip}/createPerformanceRecord`, {

@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-//login  
+// Login  
 router.post('/login', async (req, res) => {
     try {
         const { user_email, user_pwd } = req.body;
@@ -80,7 +80,7 @@ router.post('/fetchUserData', fetchUser, async (req, res) => {
     }
 });
 
-//delete user
+// Delete user
 router.delete('/deleteUser', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
@@ -124,7 +124,7 @@ router.delete('/deleteUser', fetchUser, async (req, res) => {
     }
 });
 
-//Create player profile
+// Create player profile
 router.post('/registerPlayer', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id; // Access user ID from req.user
@@ -186,7 +186,7 @@ router.put('/updatePlayer', fetchUser, async (req, res) => {
     }
 });
 
-//fetch multiple player data by userId,name,id,team
+// Fetch multiple player data by userId,name,id,team
 router.post('/fetchPlayers', async (req, res) => {
     try {
         const { query, fetchBy } = req.body;
@@ -252,7 +252,7 @@ router.delete('/deletePlayer', fetchUser, async (req, res) => {
     }
 });
 
-//create team
+// Create team
 router.post('/createTeam', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
@@ -302,7 +302,7 @@ router.post('/createTeam', fetchUser, async (req, res) => {
     }
 });
 
-//update Team Players of a team with teamId
+// Update Team Players of a team with teamId
 router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
     try {
         const { team_leader, players, teamId } = req.body;
@@ -403,7 +403,7 @@ router.put("/updateTeamPlayers", fetchUser, async (req, res) => {
     }
 });
 
-//delete team 
+// Delete team 
 router.delete('/deleteTeam', fetchUser, async (req, res) => {
     const { team_id } = req.body;
     const userId = req.user_id;
@@ -698,7 +698,7 @@ router.delete('/deleteTournament', fetchUser, async (req, res) => {
     }
 });
 
-//create match
+// Create match
 router.post('/createMatch', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
@@ -813,7 +813,7 @@ router.post('/createMatch', fetchUser, async (req, res) => {
     }
 });
 
-//Update match
+// Update match
 router.put('/updateMatch', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
@@ -906,7 +906,7 @@ router.put('/updateMatch', fetchUser, async (req, res) => {
     }
 });
 
-//fetch matches of a tournament //by tour,id,team id,player
+// Fetch matches
 router.post('/fetchMatches', async (req, res) => {
     try {
         const { query, fetchBy } = req.body;
@@ -949,7 +949,7 @@ router.post('/fetchMatches', async (req, res) => {
     }
 });
 
-//Delete match
+// Delete match
 router.delete("/deleteMatch/:matchId", fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
@@ -978,7 +978,7 @@ router.delete("/deleteMatch/:matchId", fetchUser, async (req, res) => {
     }
 });
 
-//Create data points
+// Create data points
 router.post('/createDataPoints', fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
@@ -1011,7 +1011,8 @@ router.post('/createDataPoints', fetchUser, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-//Update data points
+
+// Update data points
 router.put("/updateDataPoints", fetchUser, async (req, res) => {
     try {
         const userId = req.user_id;
@@ -1053,7 +1054,8 @@ router.put("/updateDataPoints", fetchUser, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-//Fetch data points 
+
+// Fetch data points 
 router.post("/fetchDataPoints", async (req, res) => {
     try {
         const { tournament_id } = req.body;
@@ -1069,7 +1071,8 @@ router.post("/fetchDataPoints", async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-//Delete data points 
+
+// Delete data points 
 
 //Create a performance record
 router.post("/createPerformanceRecord", fetchUser, async (req, res) => {
@@ -1126,7 +1129,9 @@ router.post("/createPerformanceRecord", fetchUser, async (req, res) => {
 
     }
 })
-//Update a performance record
+
+// Update a performance record
+
 //Fetch a performance record
 router.post("/fetchPerformanceRecord", async (req, res) => {
     try {
@@ -1158,127 +1163,129 @@ router.post("/fetchPerformanceRecord", async (req, res) => {
     }
 });
 
-//Delete a performance record
+// Delete a performance record
 
 // Create notification
 const notification_meta_data = {
     'types': ['user', 'player', 'team', 'match', 'tournament'],
     'user': ["player-profile-created"],
-    'player':["request-to-join"],
+    'player': ["request-to-join"],
     'team': ['added-to-team', 'removed-from-team'],
     'match': ['venue-updated', 'teams-updated', 'time-updated'],
     'tournament': ['match-admin-update', 'tournament-time-updated']
 }
+
+// Create notification
 router.post("/createNotification", fetchUser, async (req, res) => {
     try {
         const userId = req.user_id
         const playerId = await helperFunctions.getPlayerIdByUserId(userId)
         const { user_ids, player_ids, team_ids, match_ids, tournament_ids, type, subtype, extra_data } = req.body
         let temp = {
-            'sender':playerId,
-            'receivers':{},
-            'type':`${type}-${subtype}`
+            'sender': playerId,
+            'receivers': {},
+            'type': `${type}-${subtype}`
         }
-        if (!notification_meta_data['types'].includes(type) || !notification_meta_data[type].includes(subtype)){
+        if (!notification_meta_data['types'].includes(type) || !notification_meta_data[type].includes(subtype)) {
             return res.status(400).json({ error: "Incorrect type or subtype" });
         }
-        if(user_ids.length){
+        if (user_ids.length) {
             const users = await schema.user.find({ _id: { $in: user_ids } }).select("_id")
             if (users.length != user_ids.length) {
                 return res.status(400).json({ error: "The user ids are incorrect" })
             }
-            temp.receivers['users']=user_ids
+            temp.receivers['users'] = user_ids
         }
-        if(player_ids.length){
+        if (player_ids.length) {
             const players = await schema.player.find({ _id: { $in: player_ids } }).select("_id")
             if (players.length != player_ids.length) {
                 return res.status(400).json({ error: "The player ids are incorrect" })
             }
-            temp.receivers['players']=player_ids
+            temp.receivers['players'] = player_ids
         }
-        if(team_ids.length){
+        if (team_ids.length) {
             const teams = await schema.team.find({ _id: { $in: team_ids } }).select("_id")
             if (teams.length != team_ids.length) {
                 return res.status(400).json({ error: "The team ids are incorrect" })
             }
-            temp.receivers['teams']=team_ids
+            temp.receivers['teams'] = team_ids
         }
-        if(match_ids.length){
+        if (match_ids.length) {
             const matches = await schema.match.find({ _id: { $in: match_ids } }).select("_id")
             if (matches.length != match_ids.length) {
                 return res.status(400).json({ error: "The match ids are incorrect" })
             }
-            temp.receivers['matches']=match_ids
+            temp.receivers['matches'] = match_ids
         }
-        if(tournament_ids.length){
+        if (tournament_ids.length) {
             const tournaments = await schema.match.find({ _id: { $in: tournament_ids } }).select("_id")
             if (tournaments.length != tournament_ids.length) {
                 return res.status(400).json({ error: "The tournament ids are incorrect" })
             }
-            temp.receivers['tournament']=tournament_ids
+            temp.receivers['tournament'] = tournament_ids
         }
         switch (type) {
             case 'user':
-                if(subtype == 'request-to-join' && !!extra_data?.player_name){
-                    temp['message']=`${extra_data?.player_name} profile is created`
+                if (subtype == 'request-to-join' && !!extra_data?.player_name) {
+                    temp['message'] = `${extra_data?.player_name} profile is created`
                 }
-                else{
-                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                else {
+                    return res.status(400).json({ error: `${type}-${subtype} not found or maybe required extra data is not present` })
                 }
                 break;
-                
+
             case 'player':
-                if(subtype == 'request-to-join' && !!extra_data?.team_name){
-                    temp['message']=`You sent join request to team ${extra_data?.team_name}`
+                if (subtype == 'request-to-join' && !!extra_data?.team_name) {
+                    temp['message'] = `You sent join request to team ${extra_data?.team_name}`
                 }
-                else{
-                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                else {
+                    return res.status(400).json({ error: `${type}-${subtype} not found or maybe required extra data is not present` })
                 }
                 break;
 
             case 'team':
-                if (subtype == 'added-to-team' && !!extra_data?.team_name  && !!extra_data?.added_player_name){
-                    temp['message']=`Player ${extra_data?.player_name} is added to team ${extra_data?.team_name}`
+                if (subtype == 'added-to-team' && !!extra_data?.team_name && !!extra_data?.added_player_name) {
+                    temp['message'] = `Player ${extra_data?.player_name} is added to team ${extra_data?.team_name}`
                 }
-                else if(subtype == 'removed-from-team' && !!extra_data?.team_name  && !!extra_data?.removed_player_name){
-                    temp['message']=`Player ${extra_data?.removed_player_name} is removed from team ${extra_data?.team_name}`
+                else if (subtype == 'removed-from-team' && !!extra_data?.team_name && !!extra_data?.removed_player_name) {
+                    temp['message'] = `Player ${extra_data?.removed_player_name} is removed from team ${extra_data?.team_name}`
                 }
-                else{
-                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                else {
+                    return res.status(400).json({ error: `${type}-${subtype} not found or maybe required extra data is not present` })
                 }
                 break;
-            
+
             case 'match':
-                if(subtype == 'venue-updated' && !!extra_data?.match_id  && !!extra_data?.venue){
-                    temp['message']=`Venue updated to ${extra_data?.venue} of match ${extra_data?.match_id}`
+                if (subtype == 'venue-updated' && !!extra_data?.match_id && !!extra_data?.venue) {
+                    temp['message'] = `Venue updated to ${extra_data?.venue} of match ${extra_data?.match_id}`
                 }
-                else if(subtype == 'teams-updated' && !!extra_data?.team_names){
-                    temp['message']=`Teams set for match ${extra_data?.match_id} are ${extra_data?.teams}`
+                else if (subtype == 'teams-updated' && !!extra_data?.team_names) {
+                    temp['message'] = `Teams set for match ${extra_data?.match_id} are ${extra_data?.teams}`
                 }
-                else if(subtype == 'time-updated' && !!extra_data?.match_timnigs){
-                    temp['message']=`Match timing updated to ${extra_data?.match_timnigs}`
+                else if (subtype == 'time-updated' && !!extra_data?.match_timnigs) {
+                    temp['message'] = `Match timing updated to ${extra_data?.match_timnigs}`
                 }
-                else{
-                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                else {
+                    return res.status(400).json({ error: `${type}-${subtype} not found or maybe required extra data is not present` })
                 }
                 break;
 
             case 'tournament':
-                if(subtype == 'match-admin-update' && !!extra_data?.match_admins){
-                    temp['message']=`Update in tournament's match admins ${extra_data?.matchAdmin}`
+                if (subtype == 'match-admin-update' && !!extra_data?.match_admins) {
+                    temp['message'] = `Update in tournament's match admins ${extra_data?.matchAdmin}`
                 }
-                else if(subtype == 'tournament-time-updated' && !!extra_data?.tournament_time){
-                    temp['message']=`Tournament's time updated to ${extra_data?.tournament_time}`
+                else if (subtype == 'tournament-time-updated' && !!extra_data?.tournament_time) {
+                    temp['message'] = `Tournament's time updated to ${extra_data?.tournament_time}`
                 }
-                else{
-                    return res.status(400).json({error:`${type}-${subtype} not found or maybe required extra data is not present`})
+                else {
+                    return res.status(400).json({ error: `${type}-${subtype} not found or maybe required extra data is not present` })
                 }
                 break;
 
             default:
                 break;
         }
-        const document=new schema.notification(temp)
+        const document = new schema.notification(temp)
         await document.save()
         return res.json("done")
     } catch (error) {
@@ -1286,7 +1293,35 @@ router.post("/createNotification", fetchUser, async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 })
+
 // Update notification
+// Do we even need this ?
+
 // Read notification
+router.get("/fetchNotifications", fetchUser, async (req, res) => {
+    try {
+        const userId = req.user_id;
+        const playerId = await helperFunctions.getPlayerIdByUserId(userId);
+        const playerData = await schema.player.findById(playerId).select("team_ids -_id");
+        const teamIds = playerData.team_ids;
+        const matches = await schema.match.find({teams: { $in: teamIds }}).select("_id");
+        console.log(matches);
+        
+        // Query to find relevant notifications
+        const myNotifications = await schema.notification.find({
+            $or: [
+                { "receivers.users": userId },
+                { "receivers.players": playerId },
+                { "receivers.teams": { $in: teamIds } },
+                { "receivers.matches": { $in: teamIds } }
+            ]
+        });
+        // console.log(userId, playerId, teamIds);
+        res.json(myNotifications);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 // Delete notification
 module.exports = router;
