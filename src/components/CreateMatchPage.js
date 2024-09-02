@@ -161,7 +161,7 @@ function CreateMatchPage() {
         setTeam2PlayerNames(team2PlayerNames);
       });
     }
-  }, [state]);
+  }, [state, setValue, context, setTeam1PlayerNames, setTeam2PlayerNames]);
 
   return (
     <div

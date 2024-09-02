@@ -12,7 +12,7 @@ function Performance({ togglePerformanceModal, tournamentId, state }) {
     const [next, setNext] = useState(false);
     const [sumbitted,setSubmitted]=useState(false);
 
-    const { register, control, formState: { errors }, handleSubmit, setValue, } = useForm();
+    const { register, control, handleSubmit, setValue, } = useForm();
 
     const { fields: teamFields} = useFieldArray({
         name: 'dataPoints',
@@ -80,14 +80,14 @@ function Performance({ togglePerformanceModal, tournamentId, state }) {
                 setDataPoints(res.performance_metrics);
             })
         }
-    }, [])
+    }, [context,tournamentId])
 
     useEffect(() => {
         if (dataPoints) {
             // console.log(dataPoints);
             setValue("dataPoints", dataPoints);
         }
-    }, [dataPoints])
+    }, [dataPoints,setValue])
 
     useEffect(() => {
         // console.log(playerData);
