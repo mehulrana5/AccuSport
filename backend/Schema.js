@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
-const userSchema = {
-    user_email: String,
+const userSchema = new mongoose.Schema({
+    user_email: { type: String, required: true, unique: true },
     user_pwd: String,
     user_role: [String]
-}
+})
 const user = mongoose.model('user', userSchema);
 
-const playerSchema = {
+const playerSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
@@ -18,18 +18,18 @@ const playerSchema = {
         type: mongoose.Schema.Types.ObjectId
         , ref: 'team'
     }]
-}
+})
 
 const player = mongoose.model('player', playerSchema)
 
-const teamSchema = {
+const teamSchema = new mongoose.Schema({
     team_leader: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     },
     team_name: String,
     team_players_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'player' }]
-}
+})
 
 const team = mongoose.model('team', teamSchema)
 

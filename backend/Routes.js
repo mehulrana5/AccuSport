@@ -5,35 +5,32 @@ const fetchUser = require('./middleware/fetchUser')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const helperFunctions = require("./HelperFunctions")
-const jwtSecret = "mehul123";
-// require('dotenv').config({ path: '/SecretKey.env' });
-// const jwtSecret = process.env.JWT_SECRET;
+require('dotenv').config();
+const jwtSecret =process.env.JWT_SECRET;
 
 //register
 router.post('/register', async (req, res) => {
-    // console.log('Request Body:', req.body);
     try {
-        const unameExist = await schema.user.findOne({ user_email: req.body.user_email })
+        const { user_name, user_pwd } = req.body;
+        const unameExist = await schema.user.findOne({ user_email: user_name })
+
         if (unameExist) {
             return res.status(400).json({ error: "This email is used" })
         }
         const salt = await bcrypt.genSalt(10);
 
-        const securedPw = await bcrypt.hash(req.body.user_pwd, salt);
+        const securedPw = await bcrypt.hash(user_pwd, salt);
 
         const document = new schema.user({
-            user_email: req.body.user_email,
+            user_email: user_name,
             user_pwd: securedPw,
             user_role: ["guest"]
         });
         await document.save();
-        // console.log('Added a new user:', document);
         const data = {
             id: document._id
         }
         const jwtToken = jwt.sign(data, jwtSecret, { expiresIn: '1h' })
-
-        // console.log(jwtToken);
         res.status(200).json({ authToken: jwtToken });
     } catch (error) {
         console.error('Error adding user:', error);
@@ -46,7 +43,9 @@ router.post('/login', async (req, res) => {
     try {
         const { user_email, user_pwd } = req.body;
         const userData = await schema.user.findOne({ user_email: user_email });
-        const validPw = await bcrypt.compare(user_pwd, userData.user_pwd);
+        if(userData==null)
+            return res.status(400).json({ error: "Incorrect email" });
+        const validPw = bcrypt.compare(user_pwd, userData.user_pwd);
         if (validPw) {
             const payload = {
                 id: userData._id
@@ -66,7 +65,7 @@ router.post('/login', async (req, res) => {
 // Fetch user data
 router.post('/fetchUserData', fetchUser, async (req, res) => {
     try {
-        const userId = req.user_id;
+        const userId = req.user_id;        
         const userData = await schema.user.findById(userId).select('-user_pwd -__v');
 
         if (!userData) {

@@ -5,10 +5,9 @@ const AppContext = createContext();
 // Create a provider component to wrap the app with
 export const AppProvider = ({ children }) => {
 
-  const port = 3002;
-
-  const ip = `http://localhost:${port}`;
-
+  const port = process.env.REACT_APP_PORT || 3000;
+  const ip = process.env.REACT_APP_BASE_URL || `http://localhost:${port}`;
+  
   const [authToken, setAuthToken] = useState("");
 
   const [userInfo, setUserInfo] = useState({

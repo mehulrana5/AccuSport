@@ -57,7 +57,7 @@ function CreatePlayer() {
     }, [data])
 
     return (
-        <div className='container-2'>
+        <div className='container-1'>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     {

@@ -1,22 +1,20 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors=require('cors');
+require('dotenv').config()
 
 const app = express();
-const port = 3002;
+const port = process.env.PORT || 3002;
+
 // Connect to MongoDB
 async function connectToDatabase() {
   try {
-    await mongoose.connect('mongodb://127.0.0.1:27017/AccuSport', {
-      useNewUrlParser: true, 
-      useUnifiedTopology: true, 
-    });
+    await mongoose.connect(`${process.env.DB_URL}`,{});
     console.log('Connected to the database');
   } catch (error) {
     console.error('Error connecting to the database:', error);
   }
 }
-
 
 connectToDatabase();
 
