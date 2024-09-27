@@ -8,7 +8,7 @@ const helperFunctions = require("./HelperFunctions")
 require('dotenv').config();
 const jwtSecret =process.env.JWT_SECRET;
 
-//register
+// Register
 router.post('/register', async (req, res) => {
     try {
         const { user_name, user_pwd } = req.body;
@@ -38,7 +38,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login  
+// Login
 router.post('/login', async (req, res) => {
     try {
         const { user_email, user_pwd } = req.body;
